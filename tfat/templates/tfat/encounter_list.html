@@ -1,0 +1,38 @@
+{% extends "tfat/tfat_base.html" %}
+
+<!-- {% block pages %}
+
+
+{% endblock %}
+-->
+
+{% block content %}
+<div class="container">
+
+  <div class="row">
+    <h2>Tags Applied or Recoverd in UGLMU Assessments</h2>
+  </div>
+
+  <br />
+
+  {% if object_list %}
+  <div class="row">
+    <div class="col-md-6 col-md-offset-1">
+      <table class="table">
+        {% for object in object_list %}
+        <tr><td> <a href="#">
+              {{ object.tag_id }} {{ object.tagdoc }}</a></td></tr>
+        {% endfor%}
+      </table>
+      {% else %}
+      <p>Sorry no tags match that criteria.</p>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+
+
+
+{% endblock %}

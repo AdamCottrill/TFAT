@@ -1,0 +1,79 @@
+* FTAT - Fish Tagging Action Team
+
+- web-based application to capture tag recovery information
+
+** Models
+
+
+- JoePublic
+- a person who is reporting one or more recovered tags
+- first name
+- last name
+- home address (street, town, province, postal code)
+- e-mail address(es)
+- phone number(s)
+- AGAFF
+
+- Report
+  + report of a one or more recoveries - contact event with general
+    public
+  + reported by an individual
+  + support for different formats
+    + phone (verbal),
+    + letter,
+    + e-mail
+
+- Recovery
+  + recovery event of an actual tag number
+  + child of report (one-many relationship)
+    + where, when
+    + tag number and attributes
+    + species, size, gender,
+    + clipc
+    + fate
+    + comment
+
+
+- Encounter
+  + OMNR/agency encounter with a particular tag number - represents
+    tagging and recovery events in assessment programs
+  + compiled dynamically from master datasets
+  + includes basic biological and tagging information
+    + where, when
+    + project code and name
+    + tag number and attributes
+    + species, size, gender,
+
+** Views
+
+#people who have filed reports
+\find\joe_public\
+\create\joe_public\
+\edit\joe_public\<joe_id>
+
+#reports of recoveries
+\report_list
+\report\create
+\report\edit\<report_id>
+\report\detail\<report_id>
+
+#recoveries reported by public
+\recovery_list\
+\recoveries\<tag_id>
+\recoveries\tagged_in\roi
+\recoveries\recovered_in\roi
+
+#encounters from OMNR programs
+\encounter_list\
+\encounter_detail\
+\encounter\tagged_in\<prj_cd>
+\encounter\recovered_in\<prj_cd>
+
+\encounter\tagged_in\roi
+\encounter\recovered_in\roi
+
+#view of all tags from both public and OMNR
+\combined\tagged_in\<prj_cd>
+\combined\recovered_in\<prj_cd>
+\combined\tagged_in\roi
+\combined\recovered_in\roi

@@ -1,0 +1,6 @@
+db/*
+*.xls
+*.xlsx
+*.mdb
+*.ldb
+*.pyc
