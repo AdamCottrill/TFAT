@@ -12,11 +12,12 @@ class Species(models.Model):
     class Meta:
         ordering = ['species_code']
 
-    def __unicode__(self):
+    def __str__(self):
         if self.scientific_name:
-            spc_unicode = "%s (%s)" % (self.common_name, self.scientific_name)
+            spc_unicode = "{} ({})".format(self.common_name,
+                                          self.scientific_name)
         else:
-            spc_unicode =  "%s" % self.common_name
+            spc_unicode =  "{}".format(self.common_name)
         return spc_unicode
 
 
@@ -40,8 +41,8 @@ class JoePublic(models.Model):
     address2 = models.CharField(max_length=50)
     town = models.CharField(max_length=50)
     #this could be a lookup
-    province = models.CharField(max_length=50)
-    postal_code = models.CharField(max_length=50)
+    province = models.CharField(max_length=12)
+    postal_code = models.CharField(max_length=7)
     #this should be 1-many with a default/current
     email = models.CharField(max_length=50)
     #this should be 1-many with a default/current
@@ -50,7 +51,7 @@ class JoePublic(models.Model):
     class Meta:
         ordering = ['last_name', 'first_name']
 
-    def __unicode__(self):
+    def __str__(self):
         if self.initial:
             display = '{} {} {}'.format(self.first_name, self.initial,
                                         self.last_name)
@@ -83,17 +84,17 @@ class Report(models.Model):
     }
 
 
-    reported_by  = models.ForeignKey(JoePublic, related_name="Reported By",
+    reported_by  = models.ForeignKey(JoePublic, related_name="Reported_By",
                                   blank=True, null=True)
     date_reported = models.DateTimeField()
     reporting_format = models.CharField("Report Format", max_length=30,
                                choices=REPORTING_CHOICES, default="verbal")
-    comment = models.CharField()
+    comment = models.CharField(max_length=500)
     #this should be a model like comments in ticket-tracker -what
     #exactly is the follow up and who is it assigned to, who did it.
     follow_up  = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return '{} on {}'.format(self.reported_by, self.date_reported)
 
 
@@ -186,8 +187,8 @@ class Recovery(models.Model):
     spc  = models.ForeignKey(Species, related_name="Species")
 
     recovery_date = models.DateField()
-    general_name = models.CharField()
-    specific_name = models.CharField()
+    general_name = models.CharField(max_length=50)
+    specific_name = models.CharField(max_length=50)
     #eventually this will be an optional map widget
     dd_lat = models.FloatField()
     dd_lon = models.FloatField()
@@ -197,12 +198,13 @@ class Recovery(models.Model):
     rwt = models.IntegerField()
 
     sex  = models.CharField("Sex", max_length=30,
-                               choices=SEX_CHOICES, default="9")
+                            choices=SEX_CHOICES, default="9",
+                            null=True, blank=True)
     #clip information may need to be in a child table and presented as
     #multi-checkbox widget (ie - check all that apply - then calculate
     #clipc from that.)
-    clipc = models.CharField()
-    tag_number = models.CharField()
+    clipc = models.CharField(max_length=5)
+    tagid = models.CharField(max_length=10)
     tag_origin  = models.CharField("Tag Origin", max_length=30,
                                choices=TAG_ORIGIN_CHOICES, default="01")
 
@@ -216,19 +218,19 @@ class Recovery(models.Model):
 
     #tagdoc will be caclulated from tag type, position, origin and
     #colour following fishnet-II definitions
-    tagdoc =  models.CharField()
+    tagdoc =  models.CharField(max_length=6)
 
     tag_removed = models.BooleanField(default=False)
     fate = models.CharField("Fate", max_length=30,
                                choices=FATE_CHOICES, default="R")
 
-    comment = models.CharField()
+    comment = models.CharField(max_length=500)
 
     class Meta:
-        ordering = ['tagdoc', 'tag_id']
+        ordering = ['tagdoc', 'tagid']
 
 
-    def __unicode__(self):
+    def __str__(self):
         return '{}<{}>({})'.format(self.tagid, self.tagdoc, self.recovery_date)
 
     def save(self):
@@ -241,11 +243,11 @@ class Project(models.Model):
     '''A model to hold basic information about the project in which tags
     were deployed or recovered'''
 
-    prj_cd = models.CharField()
-    prj_nm = models.CharField()
+    prj_cd = models.CharField(max_length=12)
+    prj_nm = models.CharField(max_length=30)
     slug = models.SlugField(blank=True, editable=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return '{} ({})'.format(self.prj_cd, self.prj_nm)
 
 
@@ -271,8 +273,7 @@ class Project(models.Model):
 
 
 class Encounter(models.Model):
-    '''
-    - Encounter
+    '''- Encounter
     + OMNR/agency encounter with a particular tag number - represents
     tagging and recovery events in assessment programs
     + compiled dynamically from master datasets
@@ -281,6 +282,9 @@ class Encounter(models.Model):
         + project code and name
         + tag number and attributes
         + species, size, gender,
+
+    #enough of the fields are common to encounter and recovery that
+    #they could be handled using an abstract database model.
 
     '''
 
@@ -292,27 +296,30 @@ class Encounter(models.Model):
     }
 
     project  = models.ForeignKey(Project, related_name="Project")
-    spc  = models.ForeignKey(Species, related_name="Species")
-
+    spc  = models.ForeignKey(Species)
+    sam = models.CharField(max_length=5)
+    eff = models.CharField(max_length=3)
     observation_date = models.DateField()
-    grid = models.CharField()
+    grid = models.CharField(max_length=4)
     dd_lat = models.FloatField()
     dd_lon = models.FloatField()
 
-    flen = models.IntegerField()
-    tlen = models.IntegerField()
-    rwt = models.IntegerField()
+    flen = models.IntegerField(null=True, blank=True)
+    tlen = models.IntegerField(null=True, blank=True)
+    rwt = models.IntegerField(null=True, blank=True)
+    age = models.IntegerField(null=True, blank=True)
 
     sex  = models.CharField("Sex", max_length=30,
-                               choices=SEX_CHOICES, default="9")
-    clipc = models.CharField()
-    tag_id = models.CharField()
-    tagdoc =  models.CharField()
+                            choices=SEX_CHOICES, default="9",
+                            null=True, blank=True)
+    clipc = models.CharField(max_length=5, null=True, blank=True)
+    tagid = models.CharField(max_length=10)
+    tagdoc =  models.CharField(max_length=6, null=True, blank=True)
 
     class Meta:
-        ordering = ['tagdoc', 'tag_id']
+        ordering = ['tagdoc', 'tagid']
 
 
-    def __unicode__(self):
+    def __str__(self):
         return '{}<{}>({})'.format(self.tagid, self.tagdoc,
                                    self.observation_date)
