@@ -48,9 +48,6 @@ MY_APPS = (
 
 INSTALLED_APPS = DJANGO_APPS + THIRDPARTY_APPS + MY_APPS
 
-
-
-
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -81,17 +78,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'main.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, '../db/tfat.db'),
-    }
-}
 
 
 # Internationalization
