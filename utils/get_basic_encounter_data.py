@@ -24,8 +24,8 @@ from tfat.models import Species, Project, Encounter
 PG_USER = 'adam'
 PG_DB = 'pjtk2'
 
-#PG_HOST = '142.143.160.56'
-PG_HOST = '127.0.0.1'
+PG_HOST = '142.143.160.56'
+#PG_HOST = '127.0.0.1'
 
 src_db = 'c:/1work/Python/djcode/tfat/utils/TagRecoveries.mdb'
 constr ="DRIVER={{Microsoft Access Driver (*.mdb)}};DBQ={}"
@@ -48,15 +48,15 @@ for fish in spc:
                       scientific_name=fish[2])
     species.save()
 
-conn.close()
-
+con.close()
+print('Done uploading species.')
 #==========================================
 #         PROJECT   INFO
 
 #get the projects, and project names from project tracker and load them
 
-constr = "host={0} dbname={1} user={2}".format(PG_HOST, PG_DB, PG_USER)
-pgconn = psycopg2.connect(constr)
+pg_constr = "host={0} dbname={1} user={2}".format(PG_HOST, PG_DB, PG_USER)
+pgconn = psycopg2.connect(pg_constr)
 pgcur = pgconn.cursor()
 
 sql = "select prj_cd, prj_nm from pjtk2_project"
@@ -70,6 +70,7 @@ for project in projects:
     proj = Project(prj_cd = project[0], prj_nm=project[1])
     proj.save()
 
+print('Done uploading project info.')
 
 #==========================================
 #         NEARSHORE ENCOUNTERS
@@ -104,6 +105,10 @@ for row in encounters:
             sex  = row.SEX,
             clipc = row.CLIPC,
             tagid = row.TAGID,
-            tagdoc =  row.TAGDOC
+            tagdoc =  row.TAGDOC,
+            tagstat =  row.TAGSTAT,
+            fate = row.FATE,
+            comment = row.COMMENT5
         )
         encounter.save()
+print("Done uploading Nearshore tagging events.")

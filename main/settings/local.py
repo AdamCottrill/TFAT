@@ -16,12 +16,12 @@ DATABASES = {
 #    'debug_toolbar.middleware.DebugToolbarMiddleware',
 #)
 #
-#INSTALLED_APPS += (
-#    'debug_toolbar',
-#    'django_extensions',
-#    #'werkzeug_debugger_runserver',
-#
-#)
+INSTALLED_APPS += (
+    #'debug_toolbar',
+    'django_extensions',
+    #'werkzeug_debugger_runserver',
+
+)
 #
 #INTERNAL_IPS = ('127.0.0.1', )   #added for debug toolbar
 #

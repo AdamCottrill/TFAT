@@ -1,0 +1,97 @@
+{% extends "tfat/tfat_base.html" %}
+
+<!-- {% block pages %}
+
+
+     {% endblock %}
+     -->
+
+{% block content %}
+<div class="container">
+
+    <div class="row">
+        {% if partial %}
+        <h2>Tags that contain '{{ partial }}' (N = {{ encounter_list|length }} ) </h2>
+        {% else %}
+        <h2>Encounters with tag number:{{ tagid }} (N = {{ encounter_list|length }} ) </h2>
+        {% endif %}
+    </div>
+
+    {% if encounter_list|length >= max_record_count %}
+    At least {{ max_records_count }} where found that match that criteria. You may want to refine your criteria here <a href="#">Find a tag</a>
+    {% endif %}
+
+    <br />
+
+    {% if encounter_list %}
+    <div class="row">
+        <div class="col-md-12">
+            <table class="tablesorter table" id="myTable">
+                <thead>
+                    <tr>
+                        <th>TagID</th>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Colour</th>
+                        <th>Origin</th>
+                        <th>TagStat</th>
+                        <th>Length</th>
+                        <th>Species</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    {% for object in encounter_list %}
+                    <tr>
+                        <td> <a href="{% url 'tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
+                        <td> {{ object.observation_date }} </td>
+                        <td> {{ object.tag_type }} </td>
+                        <td> {{ object.tag_colour }} </td>
+                        <td> {{ object.tag_origin }} </td>
+                        <td> {{ object.tagstat }} </td>
+                        <td> {{ object.tlen }} </td>
+                        <td> {{ object.spc.common_name }} </td>
+                    </tr>
+                    {% endfor%}
+                </tbody>
+            </table>
+            {% else %}
+            <p>Sorry no tags match that criteria.</p>
+            {% endif %}
+        </div>
+    </div>
+
+
+</div>
+
+
+
+<script type="text/javascript">
+
+ $(".tablesorter").tablesorter({
+   theme: 'bootstrap',
+   widthFixed: true,
+   showProcessing: true,
+   headerTemplate: '{content} {icon}',
+   widgets: ['zebra', 'uitheme', 'scroller'],
+   widgetOptions: {
+     scroller_height: 300,
+     scroller_barWidth: 17,
+     scroller_jumpToHeader: true,
+     scroller_idPrefix: 's_'
+   }
+ });
+
+
+$(document).ready(function()
+    {
+        $("#myTable").tablesorter();
+    }
+);
+
+</script>
+
+
+
+
+{% endblock %}

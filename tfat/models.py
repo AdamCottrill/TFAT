@@ -7,6 +7,7 @@ from .constants import (REPORTING_CHOICES, SEX_CHOICES,
                        TAG_POSITION_CHOICES,
                        TAG_ORIGIN_CHOICES,
                        TAG_COLOUR_CHOICES,
+                       TAGSTAT_CHOICES,
                        FATE_CHOICES)
 
 
@@ -84,20 +85,12 @@ class Report(models.Model):
 
     '''
 
-#    REPORTING_CHOICES = {
-#        ('verbal', 'verbal'),
-#        ('e-mail', 'e-mail'),
-#        ('letter', 'letter'),
-#        ('other', 'other'),
-#    }
-
-
     reported_by  = models.ForeignKey(JoePublic, related_name="Reported_By",
                                   blank=True, null=True)
     date_reported = models.DateTimeField()
     reporting_format = models.CharField("Report Format", max_length=30,
                                choices=REPORTING_CHOICES, default="verbal")
-    comment = models.CharField(max_length=500)
+    comment = models.CharField(max_length=500, blank=True, null=True)
     #this should be a model like comments in ticket-tracker -what
     #exactly is the follow up and who is it assigned to, who did it.
     follow_up  = models.BooleanField(default=False)
@@ -120,76 +113,6 @@ class Recovery(models.Model):
 
 
     '''
-
-#    TAG_TYPE_CHOICES = {
-#        ('0', 'No tag'),
-#        ('1', 'Streamer'),
-#        ('2', 'Tubular Vinyl'),
-#        ('3', 'Circular Strap Jaw '),
-#        ('4', 'Butt End Jaw '),
-#        ('5', 'Anchor'),
-#        ('6', 'Coded Wire'),
-#        ('7', 'Strip Vinyl  '),
-#        ('8', 'Secure Tie'),
-#        ('9', 'Type Unknown or not applicable'),
-#        ('A', 'Internal (Radio)'),
-#        ('X', 'Tag Scar/obvious loss'),
-#    }
-#
-#    TAG_POSITION_CHOICES = {
-#        ('1', 'Anterior Dorsal'),
-#        ('2', 'Between Dorsal'),
-#        ('3', 'Posterior Dorsal'),
-#        ('4', 'Abdominal Insertion'),
-#        ('5', 'Flesh of Back'),
-#        ('6', 'Jaw'),
-#        ('7', 'Snout'),
-#        ('8', 'Anal'),
-#        ('9', 'Unknown')
-#    }
-#
-#
-#    TAG_ORIGIN_CHOICES = {
-#        ('01', 'Ontario Ministry of Natural Resources'),
-#        ('02', 'New York State'),
-#        ('03', 'State of Michigan'),
-#        ('04', 'University of Guelph'),
-#        ('05', 'University of Toronto'),
-#        ('06', 'State of Ohio'),
-#        ('07', 'State of Pennsylvania'),
-#        ('08', 'Royal Ontario Museum'),
-#        ('09', 'State of Minnesota'),
-#        ('10', 'Lakehead University'),
-#        ('11', 'Sir Sandford Fleming College'),
-#        ('12', 'Private Club'),
-#        ('13', 'Ontario Hydro'),
-#        ('19', 'Other'),
-#        ('99', 'Unknown')
-#    }
-#
-#    TAG_COLOUR_CHOICES = {
-#        ('1', 'Colourless'),
-#        ('2', 'Yellow'),
-#        ('3', 'Red'),
-#        ('4', 'Green'),
-#        ('5', 'Orange'),
-#        ('6', 'Other'),
-#        ('9', 'Unknown')
-#    }
-#
-#
-##    SEX_CHOICES = {
-##        ('1', 'Male'),
-##        ('2', 'Female'),
-##        ('3', 'Hermaphrodite'),
-##        ('9', 'Unknown')
-##    }
-##
-#    FATE_CHOICES = {
-#        ('R', 'Released'),
-#        ('K', 'Killed'),
-#    }
-#
 
     report  = models.ForeignKey(Report, related_name="Report")
     spc  = models.ForeignKey(Species, related_name="Species")
@@ -232,7 +155,7 @@ class Recovery(models.Model):
     fate = models.CharField("Fate", max_length=30,
                                choices=FATE_CHOICES, default="R")
 
-    comment = models.CharField(max_length=500)
+    comment = models.CharField(max_length=500, blank=True, null=True)
 
     class Meta:
         ordering = ['tagdoc', 'tagid']
@@ -296,13 +219,6 @@ class Encounter(models.Model):
 
     '''
 
-#    SEX_CHOICES = {
-#        ('1', 'Male'),
-#        ('2', 'Female'),
-#        ('3', 'Hermaphrodite'),
-#        ('9', 'Unknown')
-#    }
-#
     project  = models.ForeignKey(Project, related_name="Project")
     spc  = models.ForeignKey(Species)
     sam = models.CharField(max_length=5)
@@ -323,6 +239,14 @@ class Encounter(models.Model):
     clipc = models.CharField(max_length=5, null=True, blank=True)
     tagid = models.CharField(max_length=10)
     tagdoc =  models.CharField(max_length=6, null=True, blank=True)
+    tagstat = models.CharField(max_length=4,
+                            choices=TAGSTAT_CHOICES, default="C",
+                            null=True, blank=True)
+    fate = models.CharField(max_length=2,
+                            choices=FATE_CHOICES, default="C",
+                            null=True, blank=True)
+    comment = models.CharField(max_length=500,blank=True, null=True)
+
 
     class Meta:
         ordering = ['tagdoc', 'tagid']
@@ -336,46 +260,54 @@ class Encounter(models.Model):
     def tag_colour(self):
         '''a little function to parse tag doc and return the tag colour as a
         string.'''
-        try:
-            key = self.tagdoc[4]
-        except IndexError as e:
-            key = '9'  #unknown
-        choice_dict = {k:v for k,v in TAG_COLOUR_CHOICES}
-        colour = choice_dict.get(key, 'Unknown')
+        colour = 'Unknown'
+        if self.tagdoc:
+            try:
+                key = self.tagdoc[4]
+            except IndexError as e:
+                key = '9'  #unknown
+                choice_dict = {k:v for k,v in TAG_COLOUR_CHOICES}
+                colour = choice_dict.get(key, 'Unknown')
         return colour
 
 
     def tag_type(self):
         '''a little function to parse tag doc and return the tag type as a
         string.'''
-        try:
-            key = self.tagdoc[0]
-        except IndexError as e:
-            key = '9'  #unknown
-        choice_dict = {k:v for k,v in TAG_TYPE_CHOICES}
-        tag_type = choice_dict.get(key, 'Unknown')
+        tag_type = 'Unknown'
+        if self.tagdoc:
+            try:
+                key = self.tagdoc[0]
+            except IndexError as e:
+                key = '9'  #unknown
+            choice_dict = {k:v for k,v in TAG_TYPE_CHOICES}
+            tag_type = choice_dict.get(key, 'Unknown')
         return tag_type
 
 
     def tag_position(self):
         '''a little function to parse tag doc and return the tag position as a
         string.'''
-        try:
-            key = self.tagdoc[1]
-        except IndexError as e:
-            key = '9'  #unknown
-        choice_dict = {k:v for k,v in TAG_POSITION_CHOICES}
-        tag_type = choice_dict.get(key, 'Unknown')
-        return tag_type
+        tag_position = 'Unknown'
+        if self.tagdoc:
+            try:
+                key = self.tagdoc[1]
+            except IndexError as e:
+                key = '9'  #unknown
+            choice_dict = {k:v for k,v in TAG_POSITION_CHOICES}
+            tag_position = choice_dict.get(key, 'Unknown')
+        return tag_position
 
 
     def tag_origin(self):
         '''a little function to parse tag doc and return the tag origin as a
         string.'''
-        try:
-            key = self.tagdoc[2:4]
-        except IndexError as e:
-            key = '9'  #unknown
-        choice_dict = {k:v for k,v in TAG_ORIGIN_CHOICES}
-        tag_origin = choice_dict.get(key, 'Unknown')
+        tag_origin = 'Unknown'
+        if self.tagdoc:
+            try:
+                key = self.tagdoc[2:4]
+            except IndexError as e:
+                key = '9'  #unknown
+            choice_dict = {k:v for k,v in TAG_ORIGIN_CHOICES}
+            tag_origin = choice_dict.get(key, 'Unknown')
         return tag_origin

@@ -87,6 +87,12 @@ TAG_COLOUR_CHOICES = {
     ('9', 'Unknown')
 }
 
+TAGSTAT_CHOICES = {
+    ('C', 'Existed on Capture'),
+    ('A', 'Applied'),
+}
+
+
 FATE_CHOICES = {
     ('R', 'Released'),
     ('K', 'Killed'),

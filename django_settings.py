@@ -41,7 +41,7 @@ os.chdir('c:/1work/Python/djcode/tfat/')
 import sys
 import os
 
-SETTINGS_FILE = 'main.settings.settings'
+SETTINGS_FILE = 'main.settings.local'
 
 #add the current directory to path so that we can find our settings files:
 sys.path.append(os.path.dirname(__file__))
