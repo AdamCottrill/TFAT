@@ -1,10 +1,16 @@
 {% extends "tfat/tfat_base.html" %}
 
-<!-- {% block pages %}
+{% load leaflet_tags %}
+{% load humanize %}
 
+{% block extrahead %}
 
-     {% endblock %}
-     -->
+  {% leaflet_js %}
+  {% leaflet_css %}
+
+  <script src="/static/Leaflet.MakiMarkers.js"></script>
+
+{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -17,12 +23,37 @@
         {% endif %}
     </div>
 
-    {% if encounter_list|length >= max_record_count %}
-    At least {{ max_records_count }} where found that match that criteria. You may want to refine your criteria here <a href="#">Find a tag</a>
+    {% if encounter_list|length > max_record_count %}
+    <div class="alert alert-danger" role="alert">
+        More than {{ max_record_count }} records where found that match that criteria. You may want to refine your criteria here <a href="#">Find a tag</a>
+    </div>
+    <br />
+
+
+    {% endif %}
+
+    {% if encounter_list %}
+      <script type="text/javascript">
+       function map_init_basic (map, options) {
+
+           var applied = L.MakiMarkers.icon({icon: "circle", color: "#b0b", size: "s"});
+           var recap = L.MakiMarkers.icon({icon: "square", color: "#0a0", size: "s"});
+           {% for object in encounter_list %}
+
+           L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon:{{ object.marker_class }}}).addTo(map)
+               .bindPopup('{{ object.popup_text|safe }}');
+           {% endfor %}
+       }
+      </script>
+      {% leaflet_map "mymap" callback="window.map_init_basic" %}
+
+    {% else %}
+
+      {% leaflet_map "mymap" callback="window.map_init_basic" %}
+
     {% endif %}
 
     <br />
-
     {% if encounter_list %}
     <div class="row">
         <div class="col-md-12">
@@ -30,68 +61,86 @@
                 <thead>
                     <tr>
                         <th>TagID</th>
+                        <th>Species</th>
                         <th>Date</th>
+                        <th>Grid</th>
                         <th>Type</th>
                         <th>Colour</th>
                         <th>Origin</th>
                         <th>TagStat</th>
-                        <th>Length</th>
-                        <th>Species</th>
+                        <th class="metric">Length <br /> (mm)</th>
+                        <th class="imperial">Length <br />(in)</th>
+                        <th class="metric">Weight <br />(g)</th>
+                        <th class="imperial">Weight <br />(lbs)</th>
+                        <th>Project Code</th>
+                        <th>Project Name</th>
                     </tr>
                 </thead>
                 <tbody>
-
                     {% for object in encounter_list %}
                     <tr>
                         <td> <a href="{% url 'tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
+                        <td> {{ object.spc.common_name }} </td>
                         <td> {{ object.observation_date }} </td>
+                        <td> {{ object.grid }} </td>
                         <td> {{ object.tag_type }} </td>
                         <td> {{ object.tag_colour }} </td>
                         <td> {{ object.tag_origin }} </td>
                         <td> {{ object.tagstat }} </td>
-                        <td> {{ object.tlen }} </td>
-                        <td> {{ object.spc.common_name }} </td>
+                        <td class="metric"> {{ object.tlen|intcomma }} </td>
+                        <td class="imperial"> {{ object.inches }} </td>
+                        <td class="metric"> {{ object.rwt|intcomma }} </td>
+                        <td class="imperial"> {{ object.pounds }} </td>
+                        <td> {{ object.project.prj_cd }} </td>
+                        <td> {{ object.project.prj_nm }} </td
                     </tr>
                     {% endfor%}
                 </tbody>
             </table>
+            <div class="checkbox pull-right">
+                <label>
+                    <input type='checkbox' onclick='handleClick(this);'>metric/imperial
+                </label>
+            </div>
             {% else %}
             <p>Sorry no tags match that criteria.</p>
             {% endif %}
         </div>
     </div>
-
-
 </div>
-
 
 
 <script type="text/javascript">
 
- $(".tablesorter").tablesorter({
-   theme: 'bootstrap',
-   widthFixed: true,
-   showProcessing: true,
-   headerTemplate: '{content} {icon}',
-   widgets: ['zebra', 'uitheme', 'scroller'],
-   widgetOptions: {
-     scroller_height: 300,
-     scroller_barWidth: 17,
-     scroller_jumpToHeader: true,
-     scroller_idPrefix: 's_'
-   }
- });
-
-
-$(document).ready(function()
-    {
-        $("#myTable").tablesorter();
+    $(".tablesorter").tablesorter({
+    theme: 'bootstrap',
+    widthFixed: true,
+    showProcessing: true,
+    headerTemplate: '{content} {icon}',
+    widgets: ['zebra', 'uitheme', 'scroller'],
+    widgetOptions: {
+    scroller_height: 300,
+    scroller_barWidth: 17,
+    scroller_jumpToHeader: true,
+    scroller_idPrefix: 's_'
     }
-);
+    });
+
+
+    $(document).ready(function(){
+    $("#myTable").tablesorter();
+    $('.metric').show();
+    $('.imperial').hide();
+    }
+    );
+
+
+    function handleClick(cb) {
+    $('.metric').toggle();
+    $('.imperial').toggle();
+    }
+
 
 </script>
-
-
-
 
 {% endblock %}

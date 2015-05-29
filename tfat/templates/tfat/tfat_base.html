@@ -14,14 +14,6 @@
     <!-- tablesorter widget file - loaded after the plugin -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.15.14/jquery.tablesorter.widgets.js"></script>
 
-     <style type="text/css" media="screen">
-      #map {
-       width: 600px;
-       float: right;
-      }
-
-    </style>
-
     {% block extrahead %}
     {% endblock %}
 
@@ -38,6 +30,22 @@
       filter: none;
       background-image: none;
       }
+
+     .leaflet-container {  /* all maps */
+         width:  1000px;
+         height: 800px;
+     }
+
+     .applied{
+         col: 'red';
+     }
+
+     .on-capture{
+         col: 'blue';
+     }
+
+
+
     </style>
 
     <header class="navbar navbar-default" role="navigation">

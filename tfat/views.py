@@ -40,7 +40,7 @@ def tagid_detail_view(request, tagid):
     return render_to_response('tfat/tagid_contains.html',
                               {'tagid':tagid,
                                'encounter_list':encounter_list,
-                               'max_record_cnt':MAX_RECORD_CNT
+                               'max_record_count':MAX_RECORD_CNT
                            }, context_instance=RequestContext(request))
 
 
@@ -65,5 +65,5 @@ def tagid_contains_view(request, partial):
     return render_to_response('tfat/tagid_contains.html',
                               {'partial':partial,
                                'encounter_list':encounter_list,
-                               'max_record_cnt':MAX_RECORD_CNT
+                               'max_record_count':MAX_RECORD_CNT
                            }, context_instance=RequestContext(request))

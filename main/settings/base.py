@@ -37,9 +37,13 @@ DJANGO_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
 )
 
-THIRDPARTY_APPS = ()
+THIRDPARTY_APPS = (
+#    'djgeojson',
+    'leaflet',
+)
 
 
 MY_APPS = (
@@ -97,4 +101,20 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, "../static"),
+ )
+
 STATIC_URL = '/static/'
+
+
+LEAFLET_CONFIG = {
+    #minx, miny, maxx,maxy
+    #'SPATIAL_EXTENT': (-84.0, 43.0,-80.0, 47.0),
+    'DEFAULT_CENTER': (45.0,-82.0),
+    'DEFAULT_ZOOM': 8,
+    #'MIN_ZOOM': 3,
+    #'MAX_ZOOM': 18,
+    'RESET_VIEW': True,
+
+}

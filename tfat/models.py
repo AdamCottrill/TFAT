@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
 
 from .constants import (REPORTING_CHOICES, SEX_CHOICES,
@@ -255,6 +255,87 @@ class Encounter(models.Model):
     def __str__(self):
         return '{}<{}>({})'.format(self.tagid, self.tagdoc,
                                    self.observation_date)
+
+    def inches(self):
+        if self.tlen:
+            length = round(self.tlen * 0.03937, 1)
+        else:
+            length = None
+        return length
+
+    def pounds(self):
+        if self.rwt:
+            wt = round(self.rwt * 0.00220462, 1)
+        else:
+            wt = None
+        return  wt
+
+    def marker_class(self):
+        if self.tagstat=='A':
+            return 'applied'
+        else:
+            return 'recap'
+
+    def popup_text(self):
+        '''A method to return the information that will appear on leaflet
+        markers:
+
+        TagID: XXXXX TagDoc: %%%%
+        Date: MMM-DD-YYY
+        Species: Common Name (Species Code)
+        FN Fields: PRJ_CD-SAM-EFF-SPC-GRP-FISH
+        '''
+
+        base_string = ('<table>' +
+                       '    <tr>' +
+                       '        <td>TagID:</td>' +
+                       '        <td>{tagid}</td>' +
+                       '    </tr>' +
+
+                       '    <tr>' +
+                       '        <td>TagDoc:</td>' +
+                       '        <td>{tagdoc}</td>' +
+                       '    </tr>' +
+
+                       '<tr>' +
+                       '    <td>Date:</td>' +
+                       '    <td>{obs_date}</td>' +
+                       '</tr>' +
+                       '<tr>' +
+                       '    <td>Tag Stattus:</td>' +
+                       '    <td>{tagstat}</td>' +
+                       '</tr>' +
+                       '    <tr>' +
+                       '        <td>Species: </td>' +
+                       '        <td>{common_name} ({species_code})</td>' +
+                       '    </tr>' +
+                       '    <tr>' +
+                       '        <td>FN Fields:</td>' +
+                       '        <td>{fn_key}-SAM-EFF-SPC-GRP-FISH)</td>' +
+                       '    </tr>' +
+                       '</table>')
+
+        obs_date = self.observation_date.strftime('%b-%d-%Y')
+
+        href = '<a href="{}">{}</a>'.format(self.get_tagid_url(), self.tagid)
+
+        encounter_dict = {'tagid': href,
+                          'tagdoc':self.tagdoc,
+                          'tagstat':self.get_tagstat_display(),
+                          'obs_date':obs_date,
+                          'common_name':self.spc.common_name,
+                          'species_code':self.spc.species_code,
+                          'fn_key':self.project.prj_cd}
+
+        popup = base_string.format(**encounter_dict)
+
+        return popup
+
+    def get_tagid_url(self):
+        '''return the url for this tag id'''
+        url = reverse('tfat.views.tagid_detail_view',
+                      kwargs={'tagid':self.tagid})
+        return url
 
 
     def tag_colour(self):
