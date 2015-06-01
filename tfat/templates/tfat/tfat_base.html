@@ -64,6 +64,39 @@
       <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav">
 
+
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Report A Tag<b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li><a href="">New Report</a></li>
+              <li><a href="">Existing Reports</a></li>
+            </ul>
+          </li>
+
+
+
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Find A Tag<b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li><a href="">By Tag Details</a></li>
+            </ul>
+          </li>
+
+
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Recoveries<b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li><a href="">By Reporter</a></li>
+              <li class="divider"></li>
+              <li><a href="{% url 'projectlist_taggedin' %}">Tagged in a Project</a></li>
+              <li><a href="{% url 'projectlist_recoveredin' %}">Recovered in a Project</a></li>
+              <li class="divider"></li>
+              <li><a href="">Tagged in an Area</a></li>
+              <li><a href="">Recovered in a Area</a></li>
+            </ul>
+          </li>
+
+
           {% block navbar_other_apps %}
           {% endblock %}
 
@@ -76,6 +109,9 @@
           </li>
         {% endif %}
         </ul>
+
+
+
 
 
         <div class="col-sm-3">

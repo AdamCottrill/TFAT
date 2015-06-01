@@ -174,9 +174,10 @@ class Project(models.Model):
     '''A model to hold basic information about the project in which tags
     were deployed or recovered'''
 
-    prj_cd = models.CharField(max_length=12)
+    year = models.IntegerField(db_index=True)
+    prj_cd = models.CharField(db_index=True, max_length=12)
     prj_nm = models.CharField(max_length=30)
-    slug = models.SlugField(blank=True, editable=False)
+    slug = models.SlugField(db_index=True, blank=True, editable=False)
 
     def __str__(self):
         return '{} ({})'.format(self.prj_cd, self.prj_nm)
@@ -219,7 +220,7 @@ class Encounter(models.Model):
 
     '''
 
-    project  = models.ForeignKey(Project, related_name="Project")
+    project  = models.ForeignKey(Project, related_name="Encounters")
     spc  = models.ForeignKey(Species)
     sam = models.CharField(max_length=5)
     eff = models.CharField(max_length=3)
@@ -237,9 +238,10 @@ class Encounter(models.Model):
                             choices=SEX_CHOICES, default="9",
                             null=True, blank=True)
     clipc = models.CharField(max_length=5, null=True, blank=True)
-    tagid = models.CharField(max_length=10)
-    tagdoc =  models.CharField(max_length=6, null=True, blank=True)
-    tagstat = models.CharField(max_length=4,
+    tagid = models.CharField(db_index=True, max_length=10)
+    tagdoc =  models.CharField(db_index=True, max_length=6, null=True,
+                               blank=True)
+    tagstat = models.CharField(db_index=True, max_length=4,
                             choices=TAGSTAT_CHOICES, default="C",
                             null=True, blank=True)
     fate = models.CharField(max_length=2,

@@ -4,7 +4,9 @@ from django.views.generic import TemplateView
 
 from tfat.views import (JoePublicListView, SpeciesListView, ReportListView,
                         RecoveryListView, EncounterListView,
+                        ProjectTagsAppliedListView,ProjectTagsRecoveredListView,
                         tagid_contains_view, tagid_detail_view,
+                        tags_recovered_project, tags_applied_project,
                         tagid_quicksearch_view)
 
 urlpatterns = patterns("",
@@ -57,6 +59,39 @@ urlpatterns = patterns("",
             view=tagid_quicksearch_view,
             name='tagid_quicksearch'
             ),
+
+
+        url(
+            regex=r'^project_list/tagged_in$',
+            view=ProjectTagsAppliedListView.as_view(),
+            name='projectlist_taggedin'
+            ),
+
+
+        url(
+            regex=r'^project_list/recovered_in$',
+            view=ProjectTagsRecoveredListView.as_view(),
+            name='projectlist_recoveredin'
+            ),
+
+
+
+        url(
+            regex=(r'^recovered_in/'
+                    r'(?P<slug>[A-Za-z]{3}_[A-Za-z]{2}\d{2}_([A-Za-z]|\d){3})/$'),
+            view=tags_recovered_project,
+            name='tags_recovered_in_project'
+            ),
+
+
+        url(
+            regex=(r'^applied_in/'
+                    r'(?P<slug>[A-Za-z]{3}_[A-Za-z]{2}\d{2}_([A-Za-z]|\d){3})/$'),
+            view=tags_applied_project,
+            name='tags_applied_in_project'
+            ),
+
+
 
 
 )

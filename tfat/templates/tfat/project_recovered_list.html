@@ -1,0 +1,57 @@
+{% extends "tfat/tfat_base.html" %}
+
+<!-- {% block pages %}
+
+
+{% endblock %}
+-->
+
+{% block content %}
+
+<div class="row">
+    <h2>Tags Recovered in UGLMU Projects by Year:</h2>
+</div>
+<br />
+{% if object_list %}
+<div class="row">
+    <div class="col-md-6 col-md-offset-1">
+        {% regroup object_list by year as year_list %}
+        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+            {% for yr in year_list %}
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="heading{{ forloop.counter }}">
+                    <h4 class="panel-title">
+                        <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
+                            {{ yr.grouper }}
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapse{{ forloop.counter }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{ forloop.counter }}">
+                    <div class="panel-body">
+
+                        <table class="table">
+                            {% for item in yr.list %}
+
+                            <tr>
+                                <td><a href="{% url 'tags_recovered_in_project' item.slug %}">{{ item.prj_cd }}</a> </td>
+                                <td>{{ item.prj_nm }}</td>
+                            </tr>
+
+                            {% endfor%}
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+{% else %}
+<p>Sorry no projects available.</p>
+{% endif %}
+
+
+
+
+{% endblock %}
