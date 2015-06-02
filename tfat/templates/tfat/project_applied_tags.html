@@ -30,6 +30,11 @@
       <script type="text/javascript">
        function map_init_basic (map, options) {
 
+           {% if mls %}
+           L.geoJson({{ mls|safe }}).addTo(map)
+           {% endif %}
+
+
            var tagging_marker = L.MakiMarkers.icon({icon: "circle", color: "#b0b", size: "s"});
            var recap_marker = L.MakiMarkers.icon({icon: "square", color: "#0a0", size: "s"});
 

@@ -251,7 +251,7 @@ class Encounter(models.Model):
 
 
     class Meta:
-        ordering = ['tagdoc', 'tagid']
+        ordering = ['tagdoc', 'tagid', 'observation_date']
 
 
     def __str__(self):
@@ -277,6 +277,7 @@ class Encounter(models.Model):
             return 'applied'
         else:
             return 'recap'
+
 
     def popup_text(self):
         '''A method to return the information that will appear on leaflet

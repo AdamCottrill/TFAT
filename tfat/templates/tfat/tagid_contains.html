@@ -38,6 +38,11 @@
 
            var applied = L.MakiMarkers.icon({icon: "circle", color: "#b0b", size: "s"});
            var recap = L.MakiMarkers.icon({icon: "square", color: "#0a0", size: "s"});
+
+           {% if mls %}
+           L.geoJson({{ mls|safe }}).addTo(map)
+           {% endif %}
+
            {% for object in encounter_list %}
 
            L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon:{{ object.marker_class }}}).addTo(map)
@@ -52,6 +57,16 @@
       {% leaflet_map "mymap" callback="window.map_init_basic" %}
 
     {% endif %}
+
+
+    {% if tag_paths %}
+
+      {% for tag,pts in tag_paths.items %}
+      <p>{{ tag }} - {{pts}} </p>
+      {% endfor %}
+
+     {% endif %}
+
 
     <br />
     {% if encounter_list %}
@@ -91,7 +106,11 @@
                         <td class="imperial"> {{ object.inches }} </td>
                         <td class="metric"> {{ object.rwt|intcomma }} </td>
                         <td class="imperial"> {{ object.pounds }} </td>
-                        <td> {{ object.project.prj_cd }} </td>
+                        {% if object.tagstat = 'A' %}
+                        <td><a href="{% url 'tags_applied_in_project' object.project.slug %}">{{ object.project.prj_cd }}</a> </td>
+                        {% else %}
+                        <td><a href="{% url 'tags_recovered_in_project' object.project.slug %}">{{ object.project.prj_cd }}</a> </td>
+                        {% endif %}
                         <td> {{ object.project.prj_nm }} </td
                     </tr>
                     {% endfor%}

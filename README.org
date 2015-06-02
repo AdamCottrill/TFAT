@@ -77,3 +77,33 @@
 \combined\recovered_in\<prj_cd>
 \combined\tagged_in\roi
 \combined\recovered_in\roi
+
+
+
+
+** ToDo's
+
+
+- add tests
+- modify database to include fn key fields
+- add queries to process-validate to check for unknown, or undocumented
+  tagdoc values
+- add data from other project types - offshore, cf, sturgeon,
+  sportfish, creel
+- add data from NonMNR
+- add forms to enter tags and tag reports
+- how are we going to handle tags applied to different species -
+  currently the application assumes that the tag number is unique
+  (should really be tagid+tagdoc is unique - does species have to be
+  included in the key)
+
+
+** Notes
+
+get_point_dict
+- given a list of encounter objects extract the tag id,dd_lat, and
+  dd_lon and return a dictionary of observation points - each entry in
+  the dictionary must contain the coordinates of observations in
+  chronological order
+- if a second list of points 'applied' is provided, use it first then
+  append the recoveries on to the dictionary.
