@@ -92,11 +92,13 @@
   sportfish, creel
 - add data from NonMNR
 - add forms to enter tags and tag reports
+- add views/forms to find tags applied and recovered by region-of-interest
 - how are we going to handle tags applied to different species -
   currently the application assumes that the tag number is unique
   (should really be tagid+tagdoc is unique - does species have to be
   included in the key)
-
+- as we add more data from different species and data sources we may
+  need easier ways to filter it - eg - by species.
 
 ** Notes
 

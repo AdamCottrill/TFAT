@@ -97,3 +97,15 @@ FATE_CHOICES = {
     ('R', 'Released'),
     ('K', 'Killed'),
 }
+
+DATE_FLAG_CHOICES = {
+    (0, 'Unknown'),
+    (1, 'Reported'),
+    (2, 'Derived'),
+}
+
+LATLON_FLAG_CHOICES = {
+    (0, 'Unknown'),
+    (1, 'Reported'),
+    (2, 'Derived'), #from grid
+}

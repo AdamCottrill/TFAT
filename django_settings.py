@@ -54,6 +54,8 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", SETTINGS_FILE)
 
 #from: http://sontek.net/blog/detail/tips-and-tricks-for-the-python-interpreter
 if 'DJANGO_SETTINGS_MODULE' in os.environ:
+    import django
+    django.setup()
     from django.db.models.loading import get_models
     from django.test.client import Client
     from django.test.utils import (setup_test_environment,

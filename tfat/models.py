@@ -3,12 +3,14 @@ from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
 
 from .constants import (REPORTING_CHOICES, SEX_CHOICES,
-                       TAG_TYPE_CHOICES,
-                       TAG_POSITION_CHOICES,
-                       TAG_ORIGIN_CHOICES,
-                       TAG_COLOUR_CHOICES,
-                       TAGSTAT_CHOICES,
-                       FATE_CHOICES)
+                        TAG_TYPE_CHOICES,
+                        TAG_POSITION_CHOICES,
+                        TAG_ORIGIN_CHOICES,
+                        TAG_COLOUR_CHOICES,
+                        TAGSTAT_CHOICES,
+                        FATE_CHOICES,
+                        DATE_FLAG_CHOICES,
+                        LATLON_FLAG_CHOICES)
 
 
 
@@ -44,28 +46,32 @@ class JoePublic(models.Model):
 
     first_name = models.CharField(max_length=15)
     last_name = models.CharField(max_length=50)
-    initial = models.CharField(max_length=50)
+    initial = models.CharField(max_length=50, blank=True, null=True)
     # the address should should be 1-many with a default/current
-    address1 = models.CharField(max_length=50)
-    address2 = models.CharField(max_length=50)
-    town = models.CharField(max_length=50)
+    address1 = models.CharField(max_length=50, blank=True, null=True)
+    address2 = models.CharField(max_length=50, blank=True, null=True)
+    town = models.CharField(max_length=50,blank=True, null=True)
     #this could be a lookup
-    province = models.CharField(max_length=12)
-    postal_code = models.CharField(max_length=7)
+    province = models.CharField(max_length=12,blank=True, null=True)
+    postal_code = models.CharField(max_length=7,blank=True, null=True)
     #this should be 1-many with a default/current
-    email = models.CharField(max_length=50)
+    email = models.CharField(max_length=50,blank=True, null=True)
+    phone = models.CharField(max_length=15,blank=True, null=True)
     #this should be 1-many with a default/current
-    affiliation = models.CharField(max_length=50)
+    affiliation = models.CharField(max_length=50,blank=True, null=True)
 
     class Meta:
         ordering = ['last_name', 'first_name']
+        #unique_together = ('last_name', 'first_name')
 
     def __str__(self):
-        if self.initial:
+        if self.initial and self.first_name:
             display = '{} {} {}'.format(self.first_name, self.initial,
                                         self.last_name)
-        else:
+        elif self.first_name:
             display = '{} {}'.format(self.first_name, self.last_name)
+        else:
+            display = '{} {}'.format(self.last_name)
         return display
 
 
@@ -87,7 +93,9 @@ class Report(models.Model):
 
     reported_by  = models.ForeignKey(JoePublic, related_name="Reported_By",
                                   blank=True, null=True)
-    date_reported = models.DateTimeField()
+    date_reported = models.DateTimeField(blank=True, null=True)
+    date_flag = models.IntegerField("Date Flag",
+                               choices=DATE_FLAG_CHOICES, default=1)
     reporting_format = models.CharField("Report Format", max_length=30,
                                choices=REPORTING_CHOICES, default="verbal")
     comment = models.CharField(max_length=500, blank=True, null=True)
@@ -96,8 +104,8 @@ class Report(models.Model):
     follow_up  = models.BooleanField(default=False)
 
     def __str__(self):
-        return '{} on {}'.format(self.reported_by, self.date_reported)
-
+        return '{} on {}'.format(self.reported_by,
+                                 self.date_reported.strftime('%b-%d-%Y'))
 
 class Recovery(models.Model):
     '''
@@ -111,22 +119,25 @@ class Recovery(models.Model):
     + fate
     + comment
 
-
     '''
 
     report  = models.ForeignKey(Report, related_name="Report")
     spc  = models.ForeignKey(Species, related_name="Species")
 
-    recovery_date = models.DateField()
-    general_name = models.CharField(max_length=50)
-    specific_name = models.CharField(max_length=50)
+    recovery_date = models.DateField(blank=True, null=True)
+    date_flag = models.IntegerField("Date Flag",
+                               choices=DATE_FLAG_CHOICES, default=1)
+    general_name = models.CharField(max_length=50,blank=True, null=True)
+    specific_name = models.CharField(max_length=50,blank=True, null=True)
     #eventually this will be an optional map widget
-    dd_lat = models.FloatField()
-    dd_lon = models.FloatField()
+    dd_lat = models.FloatField(blank=True, null=True)
+    dd_lon = models.FloatField(blank=True, null=True)
+    latlon_flag = models.IntegerField("Spatial Flag",
+                               choices=LATLON_FLAG_CHOICES, default=1)
 
-    flen = models.IntegerField()
-    tlen = models.IntegerField()
-    rwt = models.IntegerField()
+    flen = models.IntegerField(blank=True, null=True)
+    tlen = models.IntegerField(blank=True, null=True)
+    rwt = models.IntegerField(blank=True, null=True)
 
     sex  = models.CharField("Sex", max_length=30,
                             choices=SEX_CHOICES, default="9",
@@ -134,25 +145,25 @@ class Recovery(models.Model):
     #clip information may need to be in a child table and presented as
     #multi-checkbox widget (ie - check all that apply - then calculate
     #clipc from that.)
-    clipc = models.CharField(max_length=5)
+    clipc = models.CharField(max_length=5,blank=True, null=True)
     tagid = models.CharField(max_length=10)
-    tag_origin  = models.CharField("Tag Origin", max_length=30,
+    tag_origin  = models.CharField("Tag Origin", max_length=3,
                                choices=TAG_ORIGIN_CHOICES, default="01")
 
-    tag_position  = models.CharField("Tag Position", max_length=30,
+    tag_position  = models.CharField("Tag Position", max_length=3,
                                choices=TAG_POSITION_CHOICES, default="1")
-    tag_type  = models.CharField("Tag Type", max_length=30,
+    tag_type  = models.CharField("Tag Type", max_length=3,
                                choices=TAG_TYPE_CHOICES, default="1")
 
-    tag_colour = models.CharField("Tag Colour", max_length=30,
+    tag_colour = models.CharField("Tag Colour", max_length=3,
                                choices=TAG_COLOUR_CHOICES, default="2")
 
     #tagdoc will be caclulated from tag type, position, origin and
     #colour following fishnet-II definitions
-    tagdoc =  models.CharField(max_length=6)
+    tagdoc =  models.CharField(max_length=6,blank=True, null=True)
 
     tag_removed = models.BooleanField(default=False)
-    fate = models.CharField("Fate", max_length=30,
+    fate = models.CharField("Fate", max_length=30, blank=True, null=True,
                                choices=FATE_CHOICES, default="R")
 
     comment = models.CharField(max_length=500, blank=True, null=True)
@@ -160,14 +171,33 @@ class Recovery(models.Model):
     class Meta:
         ordering = ['tagdoc', 'tagid']
 
-
     def __str__(self):
-        return '{}<{}>({})'.format(self.tagid, self.tagdoc, self.recovery_date)
+        recovery_date = self.recovery_date.strftime('%b-%d-%Y')
+        return '{}<{}>({})'.format(self.tagid, self.tagdoc, recovery_date)
 
-    def save(self):
+
+    def save(self, *args, **kwargs):
         '''We will need a custom save method to generate tagdoc from tag type,
         colour, position and orgin'''
-        pass
+
+#        if self.tagdoc is None:
+#            #see if we have all of the peices to build it:
+#            #self.build_tagdoc()
+#            pass
+#        else:
+#            #verify that it is the correct length and then parse it up
+#            #into its components:
+        if len(self.tagdoc) != 5:
+            self.tag_type = '9'
+            self.tag_position = '9'
+            self.tag_origin = '99'
+            self.tag_colour = '9'
+        else:
+            self.tag_type = self.tagdoc[0]
+            self.tag_position = self.tagdoc[1]
+            self.tag_origin = self.tagdoc[2:4]
+            self.tag_colour = self.tagdoc[4]
+        super(Recovery, self).save(*args, **kwargs)
 
 
 class Project(models.Model):
