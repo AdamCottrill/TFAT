@@ -380,8 +380,8 @@ class Encounter(models.Model):
                 key = self.tagdoc[4]
             except IndexError as e:
                 key = '9'  #unknown
-                choice_dict = {k:v for k,v in TAG_COLOUR_CHOICES}
-                colour = choice_dict.get(key, 'Unknown')
+            choice_dict = {k:v for k,v in TAG_COLOUR_CHOICES}
+            colour = choice_dict.get(key, 'Unknown')
         return colour
 
 

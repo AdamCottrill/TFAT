@@ -11,7 +11,7 @@ I created JoePublic objects from the Angler_master table and then
 creates tag reports and tag recovery events from the 121 and 125
 tables.
 
-The origianl databases treated each fishing trip as a net set
+The original databases treated each fishing trip as a net set
 (generally with one tag).  The new model ignores fishing trips, but
 uses tag report events.  Each event can have one or more associated tags.
 

@@ -1,7 +1,8 @@
 import factory
+from datetime import datetime
+
 
 from tfat.models import *
-
 
 
 class SpeciesFactory(factory.DjangoModelFactory):
@@ -14,10 +15,62 @@ class SpeciesFactory(factory.DjangoModelFactory):
     scientific_name = 'Coregonus clupeaformis'
 
 
+class JoePublicFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = JoePublic
+
+    first_name ='Homer'
+    last_name = 'Simpson'
+    # the address should should be 1-many with a default/current
+    address1 = '742 Evergreen Tarrace'
+    address2 = 'Box 123'
+    town = 'Springfield'
+    #this could be a lookup
+    province = 'Ontario'
+    postal_code = 'N0W2T2'
+    email = 'hsimpson@hotmail.com'
+    phone = '555-321-1234'
+
+
+class ReportFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = Report
+
+    reported_by = factory.SubFactory(JoePublicFactory)
+    date_reported = '2013-11-11'
+    reporting_format = 'e-mail'
+
+
+class RecoveryFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = Recovery
+
+    reported = factory.SubFactory(ReportFactory)
+    spc = factory.SubFactory(SpeciesFactory)
+
+    recovery_date = '2013-10-10'
+    general_name = "Off my dock"
+    specific_name = "The very end."
+    dd_lat = 45.00
+    dd_lon = -81.00
+    tlen = 500
+    flen = 484
+    clipc = 5
+    tagid = 123456
+    tagdoc = 25012
+    tag_type = '2'
+    tag_position = '5'
+    tag_origin = '01'
+    tag_colour = '2'
+    fate = 'K'
+
+
+
 class ProjectFactory(factory.DjangoModelFactory):
     class Meta:
         model = Project
 
+    year = '2012'
     prj_cd = 'LHA_IS12_123'
     prj_nm = 'My Fake Project'
 

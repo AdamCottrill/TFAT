@@ -23,6 +23,10 @@ class SpeciesListView(ListView):
 class ReportListView(ListView):
     model = Report
 
+class AnglerListView(ListView):
+    model = JoePublic
+    template_name = 'tfat/angler_list.html'
+
 class RecoveryListView(ListView):
     model = Recovery
 
@@ -133,6 +137,21 @@ def get_multilinestring(encounters, applied=None):
             mls.append(MultiLineString(v))
 
     return mls
+
+def angler_reports_view(request, angler_id):
+    """
+
+    Arguments:
+    - `request`:
+    - `angler_id`:
+    """
+
+    angler = get_object_or_404(JoePublic, id=angler_id)
+    reports = Report.objects.filter(reported_by=angler)
+
+    return render_to_response('tfat/angler_reports.html',
+                              {'angler':angler, 'reports':reports},
+                              context_instance=RequestContext(request))
 
 
 def tagid_detail_view(request, tagid):

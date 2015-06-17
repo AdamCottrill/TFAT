@@ -3,9 +3,10 @@ from django.views.generic import TemplateView
 
 
 from tfat.views import (JoePublicListView, SpeciesListView, ReportListView,
-                        RecoveryListView, EncounterListView,
+                        RecoveryListView, EncounterListView, AnglerListView,
                         ProjectTagsAppliedListView,ProjectTagsRecoveredListView,
                         tagid_contains_view, tagid_detail_view,
+                        angler_reports_view,
                         tags_recovered_project, tags_applied_project,
                         tagid_quicksearch_view)
 
@@ -22,6 +23,20 @@ urlpatterns = patterns("",
             view=SpeciesListView.as_view(),
             name='species_list'
             ),
+
+        url(
+            regex=r'^anglers/$',
+            view=AnglerListView.as_view(),
+            name='angler_list'
+            ),
+
+
+        url(
+            regex=r'^angler_reports/(?P<angler_id>.+)/$',
+            view=angler_reports_view,
+            name='angler_reports'
+            ),
+
 
         url(
             regex=r'^reports/$',

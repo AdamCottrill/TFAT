@@ -1,0 +1,27 @@
+{% extends "tfat/tfat_base.html" %}
+
+<!-- {% block pages %}
+
+
+{% endblock %}
+-->
+
+{% block content %}
+<div class="container">
+
+    <div class="row">
+        <h2>Tags Reports filed by {{ angler }}</h2>
+    </div>
+    <p>angler details and map here</p>
+    <ul>
+        {% for report in reports %}
+
+        <li> {{ report }}</li>
+
+        {% endfor %}
+
+    </ul>
+
+</div>
+
+{% endblock %}
