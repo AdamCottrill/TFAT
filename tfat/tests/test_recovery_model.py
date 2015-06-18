@@ -66,3 +66,103 @@ def test_recovery_pop_text():
     #expect to see in the popup text and assert they are there:
     for k,v in elements.items():
         assert v in popup_text
+
+
+@pytest.mark.django_db
+def test_recovery_get_comments():
+    """get comments is a little helper function that converts the comments
+    in the general, specific and comments field to a single formatted
+    string.
+
+    """
+
+    elements = {'general_loc':'out there',
+                'specific_loc':'in Georgian Bay',
+                'comment':'It had three eyes.'}
+
+    report = ReportFactory()
+    species = SpeciesFactory()
+    encounter = RecoveryFactory(report=report,
+                                spc=species,
+                                general_name=elements['general_loc'],
+                                specific_name = elements['specific_loc'],
+                                comment=elements['comment'])
+
+    comments = encounter.get_comments()
+    should_be = '{general_loc}({specific_loc})<\br>{comment}'
+    assert comments == should_be.format(**elements)
+
+
+@pytest.mark.django_db
+def test_recovery_get_comments_without_comment():
+    """get comments is a little helper function that converts the comments
+    in the general, specific and comments field to a single formatted
+    string. - if the comment is missing, it should just ignored.
+
+    """
+
+    elements = {'general_loc':'out there',
+                'specific_loc':'in Georgian Bay',
+                'comment':'It had three eyes.'}
+
+    report = ReportFactory()
+    species = SpeciesFactory()
+    encounter = RecoveryFactory(report=report,
+                                spc=species,
+                                general_name=elements['general_loc'],
+                                specific_name = elements['specific_loc'],
+                                comment=None)
+
+    comments = encounter.get_comments()
+    should_be = '{general_loc}({specific_loc})'
+    assert comments == should_be.format(**elements)
+
+
+@pytest.mark.django_db
+def test_recovery_get_comments_without_specific():
+    """get comments is a little helper function that converts the comments
+    in the general, specific and comments field to a single formatted
+    string. - if the comment is missing, it should just ignored.
+
+    """
+
+    elements = {'general_loc':'out there',
+                'specific_loc':'in Georgian Bay',
+                'comment':'It had three eyes.'}
+
+    report = ReportFactory()
+    species = SpeciesFactory()
+    encounter = RecoveryFactory(report=report,
+                                spc=species,
+                                general_name=elements['general_loc'],
+                                specific_name = None,
+                                comment=None)
+
+    comments = encounter.get_comments()
+    should_be = '{general_loc}'
+    assert comments == should_be.format(**elements)
+
+
+@pytest.mark.django_db
+def test_recovery_get_comments_when_all_are_none():
+    """get comments is a little helper function that converts the comments
+    in the general, specific and comments field to a single formatted
+    string. - if the general location, specific lcoation, and comment
+    field are all empty, we should return an empty string.
+
+    """
+
+    elements = {'general_loc':'out there',
+                'specific_loc':'in Georgian Bay',
+                'comment':'It had three eyes.'}
+
+    report = ReportFactory()
+    species = SpeciesFactory()
+    encounter = RecoveryFactory(report=report,
+                                spc=species,
+                                general_name=None,
+                                specific_name = None,
+                                comment=None)
+
+    comments = encounter.get_comments()
+    assert comments == ""

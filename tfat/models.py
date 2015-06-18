@@ -234,12 +234,7 @@ class Recovery(models.Model):
 
         recovery_date = self.recovery_date.strftime('%b-%d-%Y')
 
-        comments = ""
-        comments += self.general_name
-        if self.specific_name:
-            comments += '({})'.format(self.specific_name)
-        if self.comment:
-            comments += '<\br>{}'.format(self.comment)
+        comments = self.get_comments()
 
         href = '<a href="{}">{}</a>'.format(self.get_tagid_url(), self.tagid)
 
@@ -255,6 +250,23 @@ class Recovery(models.Model):
         popup = base_string.format(**encounter_dict)
 
         return popup
+
+    def get_comments(self):
+        """
+
+        Arguments:
+        - `self`:
+        """
+
+        comments = ""
+        if self.general_name:
+            comments += self.general_name
+        if self.specific_name:
+            comments += '({})'.format(self.specific_name)
+        if self.comment:
+            comments += '<\br>{}'.format(self.comment)
+        return comments
+
 
 
 
