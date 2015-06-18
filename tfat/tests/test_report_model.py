@@ -79,3 +79,34 @@ def test_report_str_no_date_or_angler():
 
     report = Report(reported_by=None, report_date=None)
     assert str(report) == "<Report id={}>".format(report.id)
+
+
+
+@pytest.mark.django_db
+def test_get_tags():
+    """the get_tags() method of the report object should return a list of
+    tag numbers associated with the report.
+
+    """
+    report = ReportFactory()
+    species = SpeciesFactory()
+    tag1 = RecoveryFactory(report=report, spc=species)
+    tag2 = RecoveryFactory(report=report, spc=species)
+    tag3 = RecoveryFactory(report=report, spc=species)
+
+    tags = report.get_tags()
+
+    assert tag1 in tags
+    assert tag2 in tags
+    assert tag3 in tags
+
+@pytest.mark.django_db
+def test_get_tags_no_tags():
+    """the get_tags() method of the report object should gracefully return
+    None if no tags where associated with this report.  (I'm not sure why
+    there is a report if there are not tags')
+
+    """
+    report = ReportFactory()
+    tags = report.get_tags()
+    assert len(tags) == len([])

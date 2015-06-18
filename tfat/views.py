@@ -14,6 +14,18 @@ MAX_RECORD_CNT = 50
 
 
 
+class RecoveryReportsListView(ListView):
+    """
+    """
+    model = Report
+    paginate_by = 20
+
+    def get_queryset(self):
+        "projects that re-captured at least one tag"
+        reports = Report.objects.all().order_by('-report_date')
+        return reports
+
+
 class JoePublicListView(ListView):
     model = JoePublic
 

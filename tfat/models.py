@@ -2,6 +2,8 @@ from django.db import models
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
 
+import html
+
 from .constants import (REPORTING_CHOICES, SEX_CHOICES,
                         TAG_TYPE_CHOICES,
                         TAG_POSITION_CHOICES,
@@ -11,8 +13,6 @@ from .constants import (REPORTING_CHOICES, SEX_CHOICES,
                         FATE_CHOICES,
                         DATE_FLAG_CHOICES,
                         LATLON_FLAG_CHOICES)
-
-
 
 
 class Species(models.Model):
@@ -66,12 +66,12 @@ class JoePublic(models.Model):
 
     def __str__(self):
         if self.initial and self.first_name:
-            display = '{} {} {}'.format(self.first_name, self.initial,
-                                        self.last_name)
+            display = '{} {}. {}'.format(self.first_name,
+                                         self.initial, self.last_name)
         elif self.first_name:
             display = '{} {}'.format(self.first_name, self.last_name)
         else:
-            display = '{} {}'.format(self.last_name)
+            display = '{}'.format(self.last_name)
         return display
 
 
@@ -113,6 +113,14 @@ class Report(models.Model):
                                  self.id)
         else:
             return '<Report id={}>'.format(self.id)
+
+    def get_tags(self):
+        """
+
+        Arguments:
+        - `self`:
+        """
+        return self.Report.select_related()
 
 
 
@@ -260,13 +268,12 @@ class Recovery(models.Model):
 
         comments = ""
         if self.general_name:
-            comments += self.general_name
+            comments += html.escape(self.general_name)
         if self.specific_name:
-            comments += '({})'.format(self.specific_name)
+            comments += html.escape('({})'.format(self.specific_name))
         if self.comment:
-            comments += '<\br>{}'.format(self.comment)
+            comments += '<br>' + html.escape('{}'.format(self.comment))
         return comments
-
 
 
 

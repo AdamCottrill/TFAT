@@ -89,7 +89,7 @@ def test_recovery_get_comments():
                                 comment=elements['comment'])
 
     comments = encounter.get_comments()
-    should_be = '{general_loc}({specific_loc})<\br>{comment}'
+    should_be = '{general_loc}({specific_loc})<br>{comment}'
     assert comments == should_be.format(**elements)
 
 

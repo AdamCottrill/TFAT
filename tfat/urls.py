@@ -5,12 +5,28 @@ from django.views.generic import TemplateView
 from tfat.views import (JoePublicListView, SpeciesListView, ReportListView,
                         RecoveryListView, EncounterListView, AnglerListView,
                         ProjectTagsAppliedListView,ProjectTagsRecoveredListView,
+                        RecoveryReportsListView,
                         tagid_contains_view, tagid_detail_view,
                         angler_reports_view,
                         tags_recovered_project, tags_applied_project,
                         tagid_quicksearch_view)
 
 urlpatterns = patterns("",
+
+
+        url(
+            regex=r'^$',
+            view=RecoveryReportsListView.as_view(),
+            name='home'
+            ),
+
+
+        url(
+            regex=r'^recovery_reports/$',
+            view=RecoveryReportsListView.as_view(),
+            name='recovery_report_list'
+            ),
+
 
         url(
             regex=r'^joe_public/$',
