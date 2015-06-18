@@ -37,7 +37,7 @@ class ReportFactory(factory.DjangoModelFactory):
         model = Report
 
     reported_by = factory.SubFactory(JoePublicFactory)
-    date_reported = '2013-11-11'
+    report_date = datetime(2013,11,11)
     reporting_format = 'e-mail'
 
 
@@ -45,10 +45,10 @@ class RecoveryFactory(factory.DjangoModelFactory):
     class Meta:
         model = Recovery
 
-    reported = factory.SubFactory(ReportFactory)
+    report = factory.SubFactory(ReportFactory)
     spc = factory.SubFactory(SpeciesFactory)
 
-    recovery_date = '2013-10-10'
+    recovery_date = datetime(2013,10,10)
     general_name = "Off my dock"
     specific_name = "The very end."
     dd_lat = 45.00
@@ -56,8 +56,8 @@ class RecoveryFactory(factory.DjangoModelFactory):
     tlen = 500
     flen = 484
     clipc = 5
-    tagid = 123456
-    tagdoc = 25012
+    tagid = '123456'
+    tagdoc = '25012'
     tag_type = '2'
     tag_position = '5'
     tag_origin = '01'

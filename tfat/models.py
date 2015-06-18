@@ -93,7 +93,7 @@ class Report(models.Model):
 
     reported_by  = models.ForeignKey(JoePublic, related_name="Reported_By",
                                   blank=True, null=True)
-    date_reported = models.DateTimeField(blank=True, null=True)
+    report_date = models.DateTimeField(blank=True, null=True)
     date_flag = models.IntegerField("Date Flag",
                                choices=DATE_FLAG_CHOICES, default=1)
     reporting_format = models.CharField("Report Format", max_length=30,
@@ -104,8 +104,17 @@ class Report(models.Model):
     follow_up  = models.BooleanField(default=False)
 
     def __str__(self):
-        return '{} on {}'.format(self.reported_by,
-                                 self.date_reported.strftime('%b-%d-%Y'))
+        report = ""
+        if self.reported_by and self.report_date:
+            return '{} on {}'.format(self.reported_by,
+                                 self.report_date.strftime('%b-%d-%Y'))
+        elif self.reported_by:
+            return '{} <Report id={}>'.format(self.reported_by,
+                                 self.id)
+        else:
+            return '<Report id={}>'.format(self.id)
+
+
 
 class Recovery(models.Model):
     '''
@@ -174,6 +183,79 @@ class Recovery(models.Model):
     def __str__(self):
         recovery_date = self.recovery_date.strftime('%b-%d-%Y')
         return '{}<{}>({})'.format(self.tagid, self.tagdoc, recovery_date)
+
+
+    def get_tagid_url(self):
+        '''return the url for this tag id'''
+        url = reverse('tfat.views.tagid_detail_view',
+                      kwargs={'tagid':self.tagid})
+        return url
+
+
+    def popup_text(self):
+        '''A method to return the information that will appear on leaflet
+        markers:
+
+        TagID: XXXXX TagDoc: %%%%
+        Date: MMM-DD-YYY
+        Species: Common Name (Species Code)
+        Reported by: first_name last_name
+        '''
+
+        base_string = ('<table>' +
+                       '    <tr>' +
+                       '        <td>TagID:</td>' +
+                       '        <td>{tagid}</td>' +
+                       '    </tr>' +
+
+                       '    <tr>' +
+                       '        <td>TagDoc:</td>' +
+                       '        <td>{tagdoc}</td>' +
+                       '    </tr>' +
+
+                       '<tr>' +
+                       '    <td>Date:</td>' +
+                       '    <td>{recovery_date}</td>' +
+                       '</tr>' +
+                       '    <tr>' +
+                       '        <td>Species: </td>' +
+                       '        <td>{common_name} ({species_code})</td>' +
+                       '    </tr>' +
+                       '    <tr>' +
+                       '        <td>Repored By:</td>' +
+                       '        <td>{first_name} {last_name}</td>' +
+                       '    </tr>' +
+                       '    <tr>' +
+                       '        <td>Comments:</td>' +
+                       '        <td>{comments}</td>' +
+                       '    </tr>' +
+
+                       '</table>')
+
+        recovery_date = self.recovery_date.strftime('%b-%d-%Y')
+
+        comments = ""
+        comments += self.general_name
+        if self.specific_name:
+            comments += '({})'.format(self.specific_name)
+        if self.comment:
+            comments += '<\br>{}'.format(self.comment)
+
+        href = '<a href="{}">{}</a>'.format(self.get_tagid_url(), self.tagid)
+
+        encounter_dict = {'tagid': href,
+                          'tagdoc':self.tagdoc,
+                          'recovery_date':recovery_date,
+                          'common_name':self.spc.common_name,
+                          'species_code':self.spc.species_code,
+                          'first_name':self.report.reported_by.first_name,
+                          'last_name':self.report.reported_by.last_name,
+                          'comments':comments}
+
+        popup = base_string.format(**encounter_dict)
+
+        return popup
+
 
 
     def save(self, *args, **kwargs):

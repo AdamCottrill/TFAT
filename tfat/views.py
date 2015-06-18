@@ -147,10 +147,13 @@ def angler_reports_view(request, angler_id):
     """
 
     angler = get_object_or_404(JoePublic, id=angler_id)
-    reports = Report.objects.filter(reported_by=angler)
+    #reports = Report.objects.filter(reported_by=angler)
+    recoveries = Recovery.objects.filter(report__reported_by=angler).\
+                 order_by('report__report_date')
+
 
     return render_to_response('tfat/angler_reports.html',
-                              {'angler':angler, 'reports':reports},
+                              {'angler':angler, 'recoveries':recoveries},
                               context_instance=RequestContext(request))
 
 

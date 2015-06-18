@@ -116,7 +116,7 @@ for rep in reports:
         reporting_date = rep[2]
     tag_report = Report(
         reported_by = joe,
-        date_reported = timezone.localize(reporting_date),
+        report_date = timezone.localize(reporting_date),
         date_flag = date_flag,
         reporting_format = rep[3],
         comment = rep[4])
@@ -145,9 +145,9 @@ for record in recoveries:
         joe = JoePublic.objects.get(first_name='N/A')
     report_date = timezone.localize(record[1])
     report  = Report.objects.get(reported_by=joe,
-                                date_reported__year=report_date.year,
-                                date_reported__month=report_date.month,
-                                date_reported__day=report_date.day)
+                                report_date__year=report_date.year,
+                                report_date__month=report_date.month,
+                                report_date__day=report_date.day)
     spc  = Species.objects.get(species_code=record[2])
     if record[3] is None:
         recovery_date = record[1]
@@ -181,8 +181,8 @@ print(msg.format(len(recoveries)))
 
 #joe = JoePublic.objects.get(angler_id_map[record[0]])
 #report  = Report.objects.get(reported_by=joe,
-#                                date_reported__year=report_date.year,
-#                                date_reported__month=report_date.month,
-#                                date_reported__day=report_date.day
+#                                report_date__year=report_date.year,
+#                                report_date__month=report_date.month,
+#                                report_date__day=report_date.day
 #)
 #spc  = Species.objects.get(species_code=record[2])

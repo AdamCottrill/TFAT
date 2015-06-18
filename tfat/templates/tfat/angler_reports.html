@@ -1,27 +1,162 @@
 {% extends "tfat/tfat_base.html" %}
 
-<!-- {% block pages %}
+{% load leaflet_tags %}
+
+{% block extrahead %}
+
+  {% leaflet_js %}
+  {% leaflet_css %}
+
+  <script src="/static/Leaflet.MakiMarkers.js"></script>
+
+
+<style>
+
+    #mymap {  /* all maps */
+        width:  700px;
+        height: 600px;
+    }
+
+</style>
 
 
 {% endblock %}
--->
+
 
 {% block content %}
 <div class="container">
 
     <div class="row">
-        <h2>Tags Reports filed by {{ angler }}</h2>
+        <h2>Tag Reports Filed By {{ angler }}</h2>
     </div>
-    <p>angler details and map here</p>
-    <ul>
-        {% for report in reports %}
 
-        <li> {{ report }}</li>
+    <div class="row">
+        <div class="col-md-4" >
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Angler Details
+                        <button type="button" class="btn btn-default btn-xs pull-right">Edit Details</button>
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <table>
+                        <tr>
+                            <td>Address</td>
+                            <td>{{ angler.address1 }}</td>
+                        </tr>
 
-        {% endfor %}
+                        <tr>
+                            <td></td>
+                            <td>{{ angler.address2 }}</td>
+                        </tr>
 
-    </ul>
+                        <tr>
+                            <td>Town</td>
+                            <td>{{ angler.town }} ({{angler.province}})</td>
+                        </tr>
 
+
+                        <tr>
+                            <td>Postal Code</td>
+                            <td>{{ angler.postal_code }}</td>
+                        </tr>
+
+
+                        <tr>
+                            <td>Phone Number</td>
+                            <td>{{ angler.phone }}</td>
+                        </tr>
+
+                        <tr>
+                            <td>e-mail</td>
+                            <td>{{ angler.email }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="col-md-8" >
+
+            {% if recoveries %}
+            <script type="text/javascript">
+             function map_init_basic (map, options) {
+                 map.setZoom(7)
+
+                     //var marker = L.MakiMarkers.icon({icon: "square", color: "#a0a", size: "s"});
+
+                 {% for object in recoveries %}
+                 L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}]).addTo(map).bindPopup('{{ object.popup_text|safe }}');
+
+                 {% endfor %}
+
+             }
+            </script>
+            {% endif %}
+
+            {% leaflet_map "mymap" callback="window.map_init_basic" %}
+            <br />
+        </div>
+    </div>
+
+
+
+    {% if recoveries %}
+
+    {% regroup recoveries by report.report_date as report_list %}
+    {% for report in report_list %}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                {{ report.grouper|date:"M d, Y" }}
+                <button type="button" class="btn btn-default btn-xs pull-right">Edit Report</button>
+            </h3>
+        </div>
+        <div class="panel-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>TagID </th>
+                        <th>TagDoc </th>
+                        <th>Colour </th>
+                        <th>Species</th>
+                        <th>Tlen</th>
+                        <th>Flen</th>
+                        <th>Date </th>
+                        <th>Location</th>
+                    </tr>
+                </thead>
+
+                {% for item in report.list %}
+                <tr>
+                    <td> <a href="{% url 'tagid_detail_view' tagid=item.tagid %}">{{item.tagid}}</a> </td>
+                    <td>{{ item.tagdoc }} </td>
+                    <td>{{ item.get_tag_colour_display }} </td>
+                    <td>{{ item.spc.common_name }} </td>
+                    <td>{{ item.tlen }} </td>
+                    <td>{{ item.flen }} </td>
+                    <td>{{ item.recovery_date }} </td>
+                    <td>{{ item.general_name }} </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    {% endfor %}
 </div>
+
+{% else %}
+
+  <div class="alert alert-warning">
+    <h3>Oops!</h3>
+
+    <p> There don't seem to be any tag reports associated with this
+        person or organization.</p>
+
+  </div>
+
+{% endif %}
 
 {% endblock %}
