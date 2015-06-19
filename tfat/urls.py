@@ -2,10 +2,9 @@ from django.conf.urls import patterns, include, url
 from django.views.generic import TemplateView
 
 
-from tfat.views import (JoePublicListView, SpeciesListView, ReportListView,
-                        RecoveryListView, EncounterListView, AnglerListView,
+from tfat.views import (SpeciesListView, ReportListView,
+                        RecoveryListView, EncounterListView,
                         ProjectTagsAppliedListView,ProjectTagsRecoveredListView,
-                        RecoveryReportsListView,
                         tagid_contains_view, tagid_detail_view,
                         angler_reports_view,
                         tags_recovered_project, tags_applied_project,
@@ -16,23 +15,17 @@ urlpatterns = patterns("",
 
         url(
             regex=r'^$',
-            view=RecoveryReportsListView.as_view(),
+            view='tfat.views.report_list',
             name='home'
             ),
 
 
         url(
             regex=r'^recovery_reports/$',
-            view=RecoveryReportsListView.as_view(),
+            view='tfat.views.report_list',
             name='recovery_report_list'
             ),
 
-
-        url(
-            regex=r'^joe_public/$',
-            view=JoePublicListView.as_view(),
-            name='joepublic_list'
-            ),
 
         url(
             regex=r'^species/$',
@@ -42,7 +35,7 @@ urlpatterns = patterns("",
 
         url(
             regex=r'^anglers/$',
-            view=AnglerListView.as_view(),
+            view = 'tfat.views.angler_list',
             name='angler_list'
             ),
 
@@ -62,7 +55,7 @@ urlpatterns = patterns("",
 
         url(
             regex=r'^recovery/$',
-            view=JoePublicListView.as_view(),
+            view=RecoveryListView.as_view(),
             name='recovery_list'
             ),
 

@@ -83,14 +83,13 @@
 
 ** ToDo's
 
+- filter angler list
 
 - add tests
 - modify database to include fn key fields
-- add queries to process-validate to check for unknown, or undocumented
-  tagdoc values
 - add data from other project types - offshore, cf, sturgeon,
   sportfish, creel
-- add data from NonMNR
+- add data from NonMNR (started)
 - add forms to enter tags and tag reports
 - add views/forms to find tags applied and recovered by region-of-interest
 - how are we going to handle tags applied to different species -

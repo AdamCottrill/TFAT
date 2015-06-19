@@ -8,26 +8,84 @@ from django.template import RequestContext
 from geojson import MultiLineString
 
 from tfat.models import Species, JoePublic, Report, Recovery, Encounter, Project
-
+from tfat.filters import JoePublicFilter
 
 MAX_RECORD_CNT = 50
+REPORT_PAGE_CNT = 20
+ANGLER_PAGE_CNT = 50
 
+
+class ListFilteredMixin(object):
+    """
+    Mixin that adds support for django-filter
+    https://github.com/rasca/django-enhanced-cbv/blob/master/
+    enhanced_cbv/views/list.py
+    """
+
+    filter_set = None
+
+    def get_filter_set(self):
+        if self.filter_set:
+            return self.filter_set
+        else:
+            raise ImproperlyConfigured(
+                "ListFilterMixin requires either a definition of "
+                "'filter_set' or an implementation of 'get_filter()'")
+
+    def get_filter_set_kwargs(self):
+        """
+        Returns the keyword arguments for instanciating the filterset.
+        """
+        return {
+            'data': self.request.GET,
+            'queryset': self.get_base_queryset(),
+        }
+
+    def get_base_queryset(self):
+        """
+        We can decided to either alter the queryset before or after applying the
+        FilterSet
+        """
+        return super(ListFilteredMixin, self).get_queryset()
+
+    def get_constructed_filter(self):
+        # We need to store the instantiated FilterSet cause we use it in
+        # get_queryset and in get_context_data
+        if getattr(self, 'constructed_filter', None):
+            return self.constructed_filter
+        else:
+            f = self.get_filter_set()(**self.get_filter_set_kwargs())
+            self.constructed_filter = f
+            return f
+
+    def get_queryset(self):
+        return self.get_constructed_filter().qs
+
+    def get_context_data(self, **kwargs):
+        kwargs.update({'filter': self.get_constructed_filter()})
+        return super(ListFilteredMixin, self).get_context_data(**kwargs)
 
 
 class RecoveryReportsListView(ListView):
     """
     """
+
     model = Report
-    paginate_by = 20
+    queryset = Report.objects.all().order_by('-report_date')
+    paginate_by = REPORT_PAGE_CNT
 
-    def get_queryset(self):
-        "projects that re-captured at least one tag"
-        reports = Report.objects.all().order_by('-report_date')
-        return reports
+report_list = RecoveryReportsListView.as_view()
 
 
-class JoePublicListView(ListView):
+class AnglerListView(ListFilteredMixin, ListView):
     model = JoePublic
+    queryset = JoePublic.objects.all()
+    filter_set = JoePublicFilter
+    paginage_by = ANGLER_PAGE_CNT
+    template_name = 'tfat/angler_list.html'
+angler_list = AnglerListView.as_view()
+
+
 
 class SpeciesListView(ListView):
     model = Species
@@ -35,9 +93,6 @@ class SpeciesListView(ListView):
 class ReportListView(ListView):
     model = Report
 
-class AnglerListView(ListView):
-    model = JoePublic
-    template_name = 'tfat/angler_list.html'
 
 class RecoveryListView(ListView):
     model = Recovery

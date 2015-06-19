@@ -1,5 +1,8 @@
 {% extends "tfat/tfat_base.html" %}
 
+{% load pagination_tags %}
+{% autopaginate filter.qs 50 as object_list %}
+
 <!-- {% block pages %}
 
 
@@ -9,40 +12,79 @@
 {% block content %}
 <div class="container">
 
-  <div class="row">
-    <h2>Tag Returnees</h2>
-  </div>
+    <div class="row">
+        <div class="col-md-10" >
+            <h2>Tag Returnees</h2>
+        </div>
+        <div class="col-md-2" >
+            <a class="btn btn-default" href="#" role="button" onclick="toggle_visibility('filter');">Filter </a>
+            <a class="btn btn-default" href="{% url 'angler_list' %}" role="button">Reset</a>
+        </div>
+    </div>
 
+    <br>
+    <div id="filter" class="panel panel-default" style="display: none">
+        <div class="panel-heading">
+            <h3 class="panel-title">Find a Person</h3>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <form action="" method="get" class="form-inline">
+                        <div class="form-group">
+                            <label for="id_first_name">First Name</label>
+                            <input type="text" class="form-control" id="id_first_name" name="first_name" placeholder="Jane">
+                        </div>
+                        <div class="form-group">
+                            <label for="id_last_name">Last Name</label>
+                            <input type="text" class="form-control" id="id_last_name" name="last_name"  placeholder="Doe">
+                        </div>
+                        <div class="form-group">
+                            <label for="id_phone">Phone Number</label>
+                            <input type="text" class="form-control" id="id_phone" name="phone" placeholder="(555) 321-1234">
+                        </div>
+                        <button type="submit" class="btn btn-default">Submit</button>
 
-  <div class="panel panel-default">
-      <div class="panel-heading">
-          <h3 class="panel-title">Find Person</h3>
-      </div>
-      <div class="panel-body">
-          <div class="row">
-              <div class="col-md-10">
-              <form class="form-inline">
-                  <div class="form-group">
-                      <label for="FindFirstName">Name</label>
-                      <input type="text" class="form-control" id="FindFirstName" placeholder="Jane Doe">
-                  </div>
-                  <div class="form-group">
-                      <label for="FindPhoneNumber">Phone Number</label>
-                      <input type="text" class="form-control" id="FindPhoneNumber" placeholder="(555) 321-1234">
-                  </div>
-                  <button type="submit" class="btn btn-default">Submit</button>
-              </form>
-              </div>
-          </div>
-      </div>
-  </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
   <br />
 
   {% if object_list %}
+
+    {% if page_obj %}
+    {% if page_obj.paginator.num_pages > 1 %}
+    <ul class="pager">
+        {% if page_obj.has_previous %}
+        <li class="previous"><a href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+        {% else %}
+        <li class="previous disabled"><a href="#">Previous</a></li>
+        {% endif %}
+
+        <span class="page-current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+        <li class="next"><a href="?page={{ page_obj.next_page_number }}">Next</a></li>
+        {% else %}
+        <li class="next disabled"><a href="#">Next</a></li>
+        {% endif %}
+    </ul>
+    {% else %}
+    <br />
+    {% endif %}
+    {% endif %}
+
+
+
+
   <div class="row">
-    <div class="col-md-10">
+    <div class="col-md-12">
       <table class="table">
 
 
@@ -65,6 +107,20 @@
 
 
 </div>
+
+
+<script type="text/javascript">
+<!--
+
+function toggle_visibility(id) {
+var e = document.getElementById(id);
+if(e.style.display == 'block')
+e.style.display = 'none';
+else
+e.style.display = 'block';
+}
+
+</script>
 
 
 
