@@ -10,6 +10,8 @@ from geojson import MultiLineString
 from tfat.models import Species, JoePublic, Report, Recovery, Encounter, Project
 from tfat.filters import JoePublicFilter
 
+from tfat.utils import *
+
 MAX_RECORD_CNT = 50
 REPORT_PAGE_CNT = 20
 ANGLER_PAGE_CNT = 50
@@ -86,7 +88,6 @@ class AnglerListView(ListFilteredMixin, ListView):
 angler_list = AnglerListView.as_view()
 
 
-
 class SpeciesListView(ListView):
     model = Species
 
@@ -112,6 +113,7 @@ class ProjectTagsAppliedListView(ListView):
 
 
 class ProjectTagsRecoveredListView(ListView):
+
     model = Project
     template_name = 'tfat/project_recovered_list.html'
 
@@ -122,88 +124,6 @@ class ProjectTagsRecoveredListView(ListView):
         return projects
 
 
-
-
-def connect_the_dots(encounters):
-    """given a list of tag encounters, convert the point observations to
-    poly-lines.  If there is only one pt, return None, otherwise connect
-    the dots by copying the points and offseting by 1, producing N-1 line
-    segments.
-
-    Arguments: - `encounters`: a list of point observations of the
-    form [[lat1,lon1],[lat2, lon2], ... ]
-
-    """
-
-    if len(encounters)>1:
-        pts = [(x[1], x[0]) for x in encounters]
-        A = pts[:-1]
-        B = pts[1:]
-
-        coords = list(zip(A,B))
-        return coords
-    else:
-        return None
-
-
-
-def get_points_dict(encounters, applied=None):
-    """given a queryset contain encounter objects, return a dictionary of
-    tagids and thier associated lat-longs.  The order of the lat-long
-    should appear in chronological order that is consistent/determined
-    by observation date.
-
-    returns dictionary of the form:
-    tagid: [[lat1,lon1],[lat2, lon2], ... ]
-
-    Arguments:
-    - `encounters`:
-
-    """
-    tags = []
-    if applied:
-        tags = [[x.tagid, x.dd_lat, x.dd_lon] for x in applied]
-
-    #get the tag and spatial data for our encounter events and turn it
-    #into a list of three element lists
-    recaps = [[x.tagid, x.dd_lat, x.dd_lon] for x in encounters]
-
-    tags.extend(recaps)
-
-    #stack the encounters by tag id - for each tag, add each
-    #additional occurence
-    tag_dict = {}
-    for tag in tags:
-        if tag_dict.get(tag[0]):
-            tag_dict[tag[0]].append(tag[1:])
-        else:
-            tag_dict[tag[0]] = [tag[1:]]
-
-    return tag_dict
-
-
-def get_multilinestring(encounters, applied=None):
-    """given a list of tag encounters, extract the spatial data,
-    'normalize' multiple obserations, and return a geojson
-    MULTILINESTRING string that can be plotted by leaflet.
-
-    Arguments:
-    - `encounters`:
-
-    """
-    tag_paths = {}
-    #extract the spatial data
-    pts_dict = get_points_dict(encounters, applied)
-    for tag,pts in pts_dict.items():
-        tag_paths[tag] = connect_the_dots(pts)
-
-    #create a line string for each tag number
-    mls = []
-    for k,v in tag_paths.items():
-        if v:
-            mls.append(MultiLineString(v))
-
-    return mls
 
 def angler_reports_view(request, angler_id):
     """
@@ -225,21 +145,33 @@ def angler_reports_view(request, angler_id):
 
 
 def tagid_detail_view(request, tagid):
-    """
+    """This view returns all of the omnr encounters and any angler
+    returns associated with a tag id.
+
+    If there is more than one species or tagdoc associated with this
+    tag number, a warning should be issued.
 
     Arguments:
     - `tagid`:
+
     """
     encounter_list = get_list_or_404(Encounter, tagid=tagid)
 
-    mls = get_multilinestring(encounter_list)
+    detail_data = get_tagid_detail_data(tagid, encounter_list)
+
+    #angler_recaps = Recovery.objects.filter(tagid=tagid)
+    #mls = get_multilinestring(encounter_list)
 
     return render_to_response('tfat/tagid_contains.html',
                               {'tagid':tagid,
                                'encounter_list':encounter_list,
-                               'mls': mls,
+                               'angler_recaps':detail_data.get('angler_recaps'),
+                               'mls': detail_data.get('mls'),
+                               'spc_warn': detail_data.get('spc_warn'),
+                               'tagdoc_warn': detail_data.get('tagdoc_warn'),
                                'max_record_count':MAX_RECORD_CNT
                            }, context_instance=RequestContext(request))
+
 
 
 def tagid_quicksearch_view(request):

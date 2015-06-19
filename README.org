@@ -83,7 +83,11 @@
 
 ** ToDo's
 
-- filter angler list
+
+- test warning messages for multiple spc or inconsistent tagdocs
+- add angler recaps to multi-line string.
+- add angler recaps to summary pages somehow.
+- filter angler list <DONE>
 
 - add tests
 - modify database to include fn key fields
