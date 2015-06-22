@@ -184,19 +184,24 @@ def tagid_contains_view(request, partial):
     Arguments:
     - `tagid`:
     """
-    encounter_list = Encounter.objects.filter(tagid__icontains=partial)
 
+    encounter_list = Encounter.objects.filter(tagid__icontains=partial)
     if not encounter_list:
         raise Http404
     else:
         encouter_list = encounter_list.order_by('tagid',
                                                 'tagstat')[:MAX_RECORD_CNT]
-    mls = get_multilinestring(encounter_list)
+
+    detail_data = get_tagid_detail_data(partial, encounter_list, partial=True)
+    #mls = get_multilinestring([encounter_list])
 
     return render_to_response('tfat/tagid_contains.html',
                               {'partial':partial,
                                'encounter_list':encounter_list,
-                               'mls':mls,
+                               'angler_recaps':detail_data.get('angler_recaps'),
+                               'mls': detail_data.get('mls'),
+                               'spc_warn': detail_data.get('spc_warn'),
+                               'tagdoc_warn': detail_data.get('tagdoc_warn'),
                                'max_record_count':MAX_RECORD_CNT
                            }, context_instance=RequestContext(request))
 
@@ -222,12 +227,25 @@ def tags_applied_project(request, slug):
        JOIN
        tfat_project AS ap ON ap.id = applied.project_id
     WHERE ap.slug = %s AND
-       applied.tagstat = 'A' AND
-       recap.tagstat = 'C'
+       applied.tagstat = 'A'
+    AND recap.tagstat = 'C'
+--    AND recap.dd_lat is not null
+--    AND recap.dd_lon is not null
     ORDER BY recap.tagid"""
 
     recovered = Encounter.objects.raw(sql,[slug])
-    #import pdb;pdb.set_trace()
+
+    sql2 = """
+    SELECT recovery.*
+    FROM tfat_recovery recovery
+    JOIN tfat_encounter encounter ON encounter.tagid=recovery.tagid
+    JOIN tfat_project proj ON proj.id=encounter.project_id
+    WHERE encounter.tagstat='A'
+--    AND recovery.dd_lat is not null
+--    AND recovery.dd_lon is not null
+    AND proj.slug=%s"""
+
+    angler_recaps = Recovery.objects.raw(sql2,[slug])
 
     try:
         recaps_bool = recovered[0]
@@ -239,7 +257,7 @@ def tags_applied_project(request, slug):
     else:
         recap_cnt = 0
 
-    mls = get_multilinestring(recovered,applied)
+    mls = get_multilinestring([recovered, applied, angler_recaps])
 
     return render_to_response('tfat/project_applied_tags.html',
                               {'project':project,
@@ -247,14 +265,14 @@ def tags_applied_project(request, slug):
                                'recovered':recovered,
                                'recaps_bool': recaps_bool,
                                'recap_cnt':recap_cnt,
-                               'mls':mls
+                               'mls':mls,
+                               'angler_recaps':angler_recaps
                            }, context_instance=RequestContext(request))
 
 
 
 def tags_recovered_project(request, slug):
-    '''A view to show the where recoveries in a particular project originated
-    project'''
+    '''A view to show the where recoveries in a particular project originated'''
 
     project = Project.objects.get(slug=slug)
 
@@ -290,7 +308,7 @@ def tags_recovered_project(request, slug):
     else:
         applied_cnt = 0
 
-    mls = get_multilinestring(recovered,applied)
+    mls = get_multilinestring([recovered,applied])
 
     return render_to_response('tfat/project_recovered_tags.html',
                               {'project':project,

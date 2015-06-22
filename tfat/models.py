@@ -123,7 +123,6 @@ class Report(models.Model):
         return self.Report.select_related()
 
 
-
 class Recovery(models.Model):
     '''
 
@@ -187,6 +186,19 @@ class Recovery(models.Model):
 
     class Meta:
         ordering = ['tagdoc', 'tagid']
+
+    def _get_observation_date(self):
+        """An aliase for recovery date - if recovery date is available use it,
+        if not use report date, otherwise return None.
+        """
+        if self.recovery_date:
+            return self.recovery_date
+        elif self.report.report_date:
+            return self.report.report_date
+        else:
+            return None
+
+    observation_date = property(_get_observation_date)
 
     def __str__(self):
         recovery_date = self.recovery_date.strftime('%b-%d-%Y')
@@ -274,6 +286,7 @@ class Recovery(models.Model):
         if self.comment:
             comments += '<br>' + html.escape('{}'.format(self.comment))
         return comments
+
 
 
 

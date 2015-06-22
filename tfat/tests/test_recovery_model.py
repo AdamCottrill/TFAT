@@ -166,3 +166,51 @@ def test_recovery_get_comments_when_all_are_none():
 
     comments = encounter.get_comments()
     assert comments == ""
+
+
+@pytest.mark.django_db
+def test_recovery_observation_date():
+    """If a recovery has a recovery date, recovery.observation_date()
+    should return the recovery date.
+    """
+    obs_date = datetime(2013,6,15)
+
+    species = SpeciesFactory()
+    report = ReportFactory()
+    recovery = RecoveryFactory(report=report,
+                               spc=species,
+                               recovery_date=obs_date)
+
+    assert recovery.observation_date() == obs_date
+
+
+@pytest.mark.django_db
+def test_recovery_observation_date_report_date():
+    """If a recovery has does not have recovery date, but there is a
+    report date, recovery.observation_date() should use it.
+    """
+
+    obs_date = datetime(2013,6,15)
+
+    species = SpeciesFactory()
+    report = ReportFactory(report_date=obs_date)
+    recovery = RecoveryFactory(report=report,
+                               spc=species,
+                               recovery_date=None)
+
+    assert recovery.observation_date() == obs_date
+
+
+@pytest.mark.django_db
+def test_recovery_observation_date_none():
+    """If a recovery has doe not have recovery_date or a report date,
+    recovery.observation_date() should return None.
+    """
+
+    species = SpeciesFactory()
+    report = ReportFactory(report_date=None)
+    recovery = RecoveryFactory(report=report,
+                               spc=species,
+                               recovery_date=None)
+
+    assert recovery.observation_date() is None
