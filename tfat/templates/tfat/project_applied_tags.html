@@ -46,13 +46,15 @@
             .bindPopup('{{ object.popup_text|safe }}');
            {% endfor %}
 
-           {% for object in recovered %}
+           {% if recovered.nobs %}
+           {% for object in recovered.queryset %}
            L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon:recap_marker}).addTo(map)
             .bindPopup('{{ object.popup_text|safe }}');
            {% endfor %}
+           {% endif %}
 
-                      {% if angler_recaps %}
-           {% for object in angler_recaps %}
+           {% if angler_recaps.nobs %}
+           {% for object in angler_recaps.queryset %}
 
            L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon: angler}).addTo(map)
                .bindPopup('{{ object.popup_text|safe }}');
@@ -77,7 +79,8 @@
         <!-- Nav tabs -->
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active"><a href="#applied" aria-controls="applied" role="tab" data-toggle="tab">Tagging Events (N = {{ applied|length }}) </a></li>
-            <li role="presentation"><a href="#recovered" aria-controls="recovered" role="tab" data-toggle="tab">Recovery Events (N = {{ recap_cnt }})</a></li>
+            <li role="presentation"><a href="#recovered" aria-controls="recovered" role="tab" data-toggle="tab">UGLMU Recovery Events (N = {{ recovered.nobs }})</a></li>
+            <li role="presentation"><a href="#angler_recaps" aria-controls="angler_recaps" role="tab" data-toggle="tab">Non-MNR Recoveries (N = {{ angler_recaps.nobs }})</a></li>
         </ul>
 
         <!-- Tab panes -->
@@ -134,13 +137,17 @@
                 </div> <!-- class="row" -->
                 {% else %}
                 <p>Sorry no tags match that criteria.</p>
-                {% endif %}
-        </div><!-- applied tabpanel -->
+                <hr />
+                <br />
+                <br />
 
-        <div role="tabpanel" class="tab-pane" id="recovered">
+                {% endif %}
+            </div><!-- applied tabpanel -->
+
+            <div role="tabpanel" class="tab-pane" id="recovered">
         </br>
+        {% if recovered.nobs %}
         <p>There are the subsequent recovery events for tags applied in {{ project.prj_cd }}.</p>
-        {% if recaps_bool %}
         <div class="row">
             <div class="col-md-12">
                 <table class="tablesorter table" id="myTable">
@@ -163,7 +170,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for object in recovered %}
+                        {% for object in recovered.queryset %}
                         <tr>
                             <td> <a href="{% url 'tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
                             <td> {{ object.spc.common_name }} </td>
@@ -196,47 +203,122 @@
         </div>
         {% else %}
         <p>Sorry no tags match that criteria.</p>
+        <hr />
+        <br />
+        <br />
         {% endif %}
-       </div><!-- recovered tabpanel -->
+            </div><!-- recovered tabpanel -->
+
+
+
+
+            <div role="tabpanel" class="tab-pane" id="angler_recaps">
+    </br>
+    {% if angler_recaps.nobs %}
+    <p>There are the subsequent recovery events reported by the
+        general public for tags applied in {{ project.prj_cd }}.</p>
+    <div class="row">
+        <div class="col-md-12">
+            <table class="tablesorter table" id="myTable">
+                <thead>
+                    <tr>
+                        <th>TagID</th>
+                        <th>Species</th>
+                        <th>Date</th>
+                        <th>Grid</th>
+                        <th>Type</th>
+                        <th>Colour</th>
+                        <th>Origin</th>
+                        <th class="metric">Length <br /> (mm)</th>
+                        <th class="imperial">Length <br />(in)</th>
+                        <th class="metric">Weight <br />(g)</th>
+                        <th class="imperial">Weight <br />(lbs)</th>
+                        <th>Returned By</th>
+                        <th>General Location</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for object in angler_recaps.queryset %}
+                    <tr>
+                        <td> <a href="{% url 'tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
+                        <td> {{ object.spc.common_name }} </td>
+                        <td> {{ object.observation_date }} </td>
+                        <td> {{ object.grid }} </td>
+                        <td> {{ object.get_tag_type_display }} </td>
+                        <td> {{ object.get_tag_colour_display }} </td>
+                        <td> {{ object.get_tag_origin_display }} </td>
+                        <td class="metric"> {{ object.tlen|intcomma }} </td>
+                        <td class="imperial"> {{ object.inches }} </td>
+                        <td class="metric"> {{ object.rwt|intcomma }} </td>
+                        <td class="imperial"> {{ object.pounds }} </td>
+                        <td> {{ object.report.reported_by}} </td>
+                        <td> {{ object.general_name }} </td>
+                    </tr>
+                    {% endfor%}
+                </tbody>
+            </table>
+            <div class="checkbox pull-right">
+                <label>
+                    <input type='checkbox' onclick='handleClick(this);'>metric/imperial
+                </label>
+            </div>
+        </div>
     </div>
-  </div>
+    {% else %}
+    <p>Sorry no tags match that criteria.</p>
+
+    <hr />
+    <br />
+    <br />
+
+    {% endif %}
+            </div><!-- angler_recaps tabpanel -->
 
 
-<script type="text/javascript">
-
-    $(".tablesorter").tablesorter({
-    theme: 'bootstrap',
-    widthFixed: true,
-    showProcessing: true,
-    headerTemplate: '{content} {icon}',
-    widgets: ['zebra', 'uitheme', 'scroller'],
-    widgetOptions: {
-    scroller_height: 300,
-    scroller_barWidth: 17,
-    scroller_jumpToHeader: true,
-    scroller_idPrefix: 's_'
-    }
-    });
 
 
-    $(document).ready(function(){
-        $("#myTable").tablesorter();
-        $('.metric').show();
-        $('.imperial').hide();
-    }
-    );
 
 
-    function handleClick(cb) {
-        $('.metric').toggle();
-        $('.imperial').toggle();
-    }
 
- $('#myTab a').click(function (e) {
-     e.preventDefault()
-         $(this).tab('show')
- })
+        </div>
+    </div>
 
-</script>
 
-{% endblock %}
+    <script type="text/javascript">
+
+     $(".tablesorter").tablesorter({
+         theme: 'bootstrap',
+         widthFixed: true,
+         showProcessing: true,
+         headerTemplate: '{content} {icon}',
+         widgets: ['zebra', 'uitheme', 'scroller'],
+         widgetOptions: {
+             scroller_height: 300,
+             scroller_barWidth: 17,
+             scroller_jumpToHeader: true,
+             scroller_idPrefix: 's_'
+         }
+     });
+
+
+     $(document).ready(function(){
+         $("#myTable").tablesorter();
+         $('.metric').show();
+         $('.imperial').hide();
+     }
+     );
+
+
+     function handleClick(cb) {
+         $('.metric').toggle();
+         $('.imperial').toggle();
+     }
+
+     $('#myTab a').click(function (e) {
+         e.preventDefault()
+             $(this).tab('show')
+     })
+
+    </script>
+
+    {% endblock %}

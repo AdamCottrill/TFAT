@@ -271,6 +271,15 @@ class Recovery(models.Model):
 
         return popup
 
+
+
+    def get_tagid_url(self):
+        '''return the url for this tag id'''
+        url = reverse('tfat.views.tagid_detail_view',
+                      kwargs={'tagid':self.tagid})
+        return url
+
+
     def get_comments(self):
         """
 
@@ -288,6 +297,19 @@ class Recovery(models.Model):
         return comments
 
 
+    def inches(self):
+        if self.tlen:
+            length = round(self.tlen * 0.03937, 1)
+        else:
+            length = None
+        return length
+
+    def pounds(self):
+        if self.rwt:
+            wt = round(self.rwt * 0.00220462, 1)
+        else:
+            wt = None
+        return  wt
 
 
     def save(self, *args, **kwargs):

@@ -208,66 +208,114 @@ def tagid_contains_view(request, partial):
 
 def tags_applied_project(request, slug):
     '''A view to show the of all tags applied in a particular
-    project and their assoiciated recoveries'''
+    project and their assoiciated recoveries
+
+    Required data elements:
+
+    - tags applied in this project
+    - subsequent recoveries of those tags:
+      + in other UGLMU Projects
+      + in recaptured by anglers/non-mnr sources
+    - mls line connecting encounters with the same tagid
+
+    Only recaptures of the same species will be included - no warning
+    is issued if multiple tagdocs are returned - this is only relevant
+    on an individual tag id basis (there could very well be more than
+    one tagdoc deployed and subsequently recovered in a project)
+
+    '''
     project = Project.objects.get(slug=slug)
 
-    #getting the tags that were applied is easy enough
     applied = Encounter.objects.filter(tagstat='A', project=project)
-    #tagids = [x.tagid for x in applied]
-    #recovered = Encounter.objects.filter(tagstat='C', tagid__in=tagids)
+    recovered = get_omnr_tags_recoveies(slug)
+    angler_recaps = get_angler_tag_recoveries(slug)
 
-    #getting their associated recoveries requires a semi-complicated
-    #self join (which means we need to use raw sql)
-
-    sql = """
-    SELECT recap.*
-    FROM tfat_encounter recap
-       JOIN
-       tfat_encounter applied ON applied.tagid = recap.tagid
-       JOIN
-       tfat_project AS ap ON ap.id = applied.project_id
-    WHERE ap.slug = %s AND
-       applied.tagstat = 'A'
-    AND recap.tagstat = 'C'
---    AND recap.dd_lat is not null
---    AND recap.dd_lon is not null
-    ORDER BY recap.tagid"""
-
-    recovered = Encounter.objects.raw(sql,[slug])
-
-    sql2 = """
-    SELECT recovery.*
-    FROM tfat_recovery recovery
-    JOIN tfat_encounter encounter ON encounter.tagid=recovery.tagid
-    JOIN tfat_project proj ON proj.id=encounter.project_id
-    WHERE encounter.tagstat='A'
---    AND recovery.dd_lat is not null
---    AND recovery.dd_lon is not null
-    AND proj.slug=%s"""
-
-    angler_recaps = Recovery.objects.raw(sql2,[slug])
-
-    try:
-        recaps_bool = recovered[0]
-    except IndexError as err:
-        recaps_bool = False
-
-    if recaps_bool:
-        recap_cnt = len([x.id for x in recovered])
-    else:
-        recap_cnt = 0
-
-    mls = get_multilinestring([recovered, applied, angler_recaps])
+    mls = get_multilinestring([applied, recovered.get('queryset'),
+                               angler_recaps.get('queryset')])
 
     return render_to_response('tfat/project_applied_tags.html',
                               {'project':project,
                                'applied':applied,
                                'recovered':recovered,
-                               'recaps_bool': recaps_bool,
-                               'recap_cnt':recap_cnt,
+                               'angler_recaps':angler_recaps,
                                'mls':mls,
-                               'angler_recaps':angler_recaps
                            }, context_instance=RequestContext(request))
+
+
+
+def get_omnr_tags_recoveies(project_slug):
+    """This is a helper function used by tags_applied_project(). It uses
+    raw sql to retrieve all of the subsequent OMNR recoveries of tags
+    applied in a particular project.  The sql string uses a self join
+    on tfat_encounter.  Only recap's with both a lat and lon and of
+    the same species as the original tagging event are returned.
+
+    Arguments:
+    - `project_slug`: unique identify for project in which tags were applied
+
+    Returns dictionary with the following elements:
+    queryset - a raw sql queryset.
+    Nobs - the number of records in the queryset
+
+    """
+
+    sql = """
+    SELECT recap.*
+    FROM tfat_encounter recap
+       JOIN
+       tfat_encounter applied
+         ON applied.tagid = recap.tagid
+         AND applied.spc_id = recap.spc_id
+       JOIN
+       tfat_project AS ap ON ap.id = applied.project_id
+    WHERE ap.slug = %s AND
+       applied.tagstat = 'A'
+    AND recap.tagstat = 'C'
+    AND recap.dd_lat is not null
+    AND recap.dd_lon is not null
+    ORDER BY recap.observation_date"""
+
+    queryset = Encounter.objects.raw(sql,[project_slug])
+
+    nobs = len([x.id for x in queryset])
+
+    return { 'queryset':queryset, 'nobs':nobs }
+
+
+
+def get_angler_tag_recoveries(project_slug):
+    """This is a helper function used by tags_applied_project(). It uses
+    raw sql to retrieve all of the non-MNR recoveries of tags applied
+    in a particular project.  Only recap's with both a lat and lon and
+    of the same species as the original tagging event are returned.
+
+    Arguments:
+    - `project_slug`: unique identify for project in which tags were applied
+
+    Returns a raw sql queryset.
+
+    """
+
+
+    sql = """
+    SELECT recovery.*
+    FROM tfat_recovery recovery
+    JOIN tfat_encounter encounter
+        ON encounter.tagid=recovery.tagid
+        AND encounter.spc_id=recovery.spc_id
+    JOIN tfat_project proj ON proj.id=encounter.project_id
+    WHERE encounter.tagstat='A'
+    AND recovery.dd_lat is not null
+    AND recovery.dd_lon is not null
+    AND proj.slug=%s
+    ORDER BY recovery.recovery_date
+    """
+
+    queryset = Recovery.objects.raw(sql,[project_slug])
+
+    nobs = len([x.id for x in queryset])
+
+    return { 'queryset':queryset, 'nobs':nobs }
 
 
 
