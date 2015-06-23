@@ -354,8 +354,8 @@ class Project(models.Model):
         '''return the url for the project'''
         #url = reverse('pjtk2.views.project_detail', kwargs={'slug':self.slug})
         url = 'http://142.143.160.56:8000/projects/projectdetail/{}/'
-
-        return url.format(slug)
+        url = url.format(slug)
+        return url
 
     def save(self, *args, **kwargs):
         """
@@ -368,6 +368,7 @@ class Project(models.Model):
             self.slug = slugify(self.prj_cd)
 
         super(Project, self).save( *args, **kwargs)
+        #super(Project, self).save()
 
 
 class Encounter(models.Model):
@@ -480,7 +481,7 @@ class Encounter(models.Model):
                        '    </tr>' +
                        '    <tr>' +
                        '        <td>FN Fields:</td>' +
-                       '        <td>{fn_key}-SAM-EFF-SPC-GRP-FISH)</td>' +
+                       '        <td>{fn_key}-SAM-EFF-SPC-GRP-FISH</td>' +
                        '    </tr>' +
                        '</table>')
 

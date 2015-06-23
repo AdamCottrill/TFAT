@@ -112,8 +112,8 @@
                         <th class="imperial">Length <br />(in)</th>
                         <th class="metric">Weight <br />(g)</th>
                         <th class="imperial">Weight <br />(lbs)</th>
-                        <th>Project Code</th>
-                        <th>Project Name</th>
+                        <th>Project Code/<br>Returned By</th>
+                        <th>Project Name/Comments</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -139,6 +139,28 @@
                         <td> {{ object.project.prj_nm }} </td
                     </tr>
                     {% endfor%}
+
+                    {% for object in angler_recaps %}
+                    <tr>
+                        <td> <a href="{% url 'tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
+                        <td> {{ object.spc.common_name }} </td>
+                        <td> {{ object.observation_date }} </td>
+                        <td> {{ object.grid }} </td>
+                        <td> {{ object.get_tag_type_display }} </td>
+                        <td> {{ object.get_tag_colour_display }} </td>
+                        <td> {{ object.get_tag_origin_display }} </td>
+                        <td>C</td>
+                        <td class="metric"> {{ object.tlen|intcomma }} </td>
+                        <td class="imperial"> {{ object.inches }} </td>
+                        <td class="metric"> {{ object.rwt|intcomma }} </td>
+                        <td class="imperial"> {{ object.pounds }} </td>
+                        <td> {{ object.report.reported_by}} </td>
+                        <td> {{ object.general_name }} </td>
+                    </tr>
+                    {% endfor%}
+
+
+
                 </tbody>
             </table>
             <div class="checkbox pull-right">

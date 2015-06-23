@@ -74,6 +74,8 @@ class ProjectFactory(factory.DjangoModelFactory):
     prj_cd = 'LHA_IS12_123'
     prj_nm = 'My Fake Project'
 
+    #slug = factory.LazyAttribute(lambda o: o.prj_cd.lower())
+
 
 class EncounterFactory(factory.DjangoModelFactory):
     class Meta:

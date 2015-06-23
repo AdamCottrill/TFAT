@@ -24,26 +24,41 @@ from datetime import datetime
 def db_setup():
     """
     """
+
+
     spc1 = SpeciesFactory(species_code='334', common_name='Walleye')
     spc2 = SpeciesFactory(species_code='091', common_name='Whitefish')
 
+    project = ProjectFactory(prj_cd='LHA_IA11_111', prj_nm='Fake Project')
+
     #same species, same tagdoc - everything is A-Ok.
-    encounter1 = EncounterFactory(spc=spc1, tagid='11111',
+    encounter1 = EncounterFactory(spc=spc1, tagid='11111', project=project,
                                   tagdoc='25012')
-    encounter2 = EncounterFactory(spc=spc1, tagid='11111',
+    encounter2 = EncounterFactory(spc=spc1, tagid='11111', project=project,
+                                  tagdoc='25012')
+
+    encounter2 = EncounterFactory(spc=spc1, tagid='11111', project=project,
                                   tagdoc='25012')
 
     #different species
-    encounter3 = EncounterFactory(spc=spc1, tagid='22222',
+    encounter3 = EncounterFactory(spc=spc1, tagid='22222', project=project,
                                   tagdoc='25012')
-    encounter4 = EncounterFactory(spc=spc2, tagid='22222',
+    encounter4 = EncounterFactory(spc=spc2, tagid='22222', project=project,
                                   tagdoc='25012')
 
     #same species, different tagdoc
-    encounter3 = EncounterFactory(spc=spc1, tagid='33333',
+    encounter3 = EncounterFactory(spc=spc1, tagid='33333', project=project,
                                   tagdoc='25012')
-    encounter4 = EncounterFactory(spc=spc1, tagid='33333',
+    encounter4 = EncounterFactory(spc=spc1, tagid='33333', project=project,
                                   tagdoc='15012')
+
+
+    angler1 = JoePublicFactory.create(first_name='Homer',
+                                           last_name='Simpson')
+    #angler report filed by Homer
+    report = ReportFactory(reported_by=angler1)
+    recovery = RecoveryFactory(report=report,spc=spc1,tagid='11111')
+
 
 
 @pytest.mark.django_db
@@ -111,3 +126,43 @@ def test_multiple_tagdoc_warning_ok(client, db_setup):
            "with the records on this page. Interpret with caution.")
 
     assert msg not in content
+
+
+@pytest.mark.django_db
+def test_tagid_details_includes_encounters_and_angler_recaps(client, db_setup):
+    """The tagid details page should include encounter events from both
+    the MNR and any angler returns.
+
+    Arguments:
+    - `client`:
+    - `db_setup`:
+
+    """
+    url = reverse('tagid_detail_view', kwargs={'tagid':'11111'})
+
+    response = client.get(url)
+    content = str(response.content)
+
+    assert 'Homer Simpson' in content  #angler return record
+    assert 'LHA_IA11_111' in content   #omnr project code
+    assert 'Fake Project' in content   #omnr project name
+
+
+@pytest.mark.django_db
+def test_tagid_contains_includes_encounters_and_angler_recaps(client, db_setup):
+    """The tagid contains page should include encounter events from both
+    the MNR and any angler returns.
+
+    Arguments:
+    - `client`:
+    - `db_setup`:
+
+    """
+    url = reverse('tagid_contains', kwargs={'partial':'111'})
+
+    response = client.get(url)
+    content = str(response.content)
+
+    assert 'Homer Simpson' in content  #angler return record
+    assert 'LHA_IA11_111' in content   #omnr project code
+    assert 'Fake Project' in content   #omnr project name

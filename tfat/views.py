@@ -175,14 +175,25 @@ def tagid_detail_view(request, tagid):
 
 
 def tagid_quicksearch_view(request):
+    '''This is a super quick view - if it is called, get the value of q
+    and redirect to tagid_contains passing the value of q as a parameter.'''
+
     partial = request.GET.get('q')
     return redirect('tagid_contains', partial=partial)
 
+
 def tagid_contains_view(request, partial):
     """
+    This view returns all of the omnr encounters and any angler
+    returns associated with tagid that contain <partial>
+    partial '123' will return tags '1234' and '5123'.
+
+    If there is more than one species or tagdoc associated with this
+    tag number, a warning should be issued.
 
     Arguments:
     - `tagid`:
+
     """
 
     encounter_list = Encounter.objects.filter(tagid__icontains=partial)
@@ -271,8 +282,6 @@ def get_omnr_tag_recoveries(project_slug):
     WHERE ap.slug = %s AND
        applied.tagstat = 'A'
     AND recap.tagstat = 'C'
-    AND recap.dd_lat is not null
-    AND recap.dd_lon is not null
     ORDER BY recap.observation_date"""
 
     queryset = Encounter.objects.raw(sql,[project_slug])
@@ -305,8 +314,6 @@ def get_angler_tag_recoveries(project_slug):
         AND encounter.spc_id=recovery.spc_id
     JOIN tfat_project proj ON proj.id=encounter.project_id
     WHERE encounter.tagstat='A'
-    -- AND recovery.dd_lat is not null
-    -- AND recovery.dd_lon is not null
     AND proj.slug=%s
     ORDER BY recovery.recovery_date
     """
