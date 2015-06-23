@@ -203,6 +203,62 @@ def tag_querysets():
     )
 
 
+
+
+@pytest.mark.django_db
+def test_qs_to_tagdict_missing_latlong():
+    """records with missing lat or long should not appear in resultant
+    dictionary - the dict is used for plotting and lat or lon of None
+    can't be plotted'
+
+    Create 4 tag recoveries, only one has both lat and lon populated.
+
+    """
+
+
+    spc = SpeciesFactory()
+    RecoveryFactory(tagid = 'good',
+                     recovery_date = datetime(1999,11,15),
+                     dd_lat = 43.000,
+                     dd_lon = -81.000,
+                     spc = spc
+    )
+
+    RecoveryFactory(tagid = 'no_lat',
+                     recovery_date = datetime(1999,11,15),
+                     dd_lat = None,
+                     dd_lon = -81.000,
+                     spc = spc
+    )
+
+    RecoveryFactory(tagid = 'no_long',
+                     recovery_date = datetime(1999,11,15),
+                     dd_lat = 46.00,
+                     dd_lon = None,
+                     spc = spc
+    )
+
+
+    RecoveryFactory(tagid = 'no_latlong',
+                     recovery_date = datetime(1999,11,15),
+                     dd_lat = None,
+                     dd_lon = None,
+                     spc = spc
+    )
+
+
+    qs = Recovery.objects.all()
+    tag_dict = qs_to_tagdict(qs)
+    keys = list(tag_dict.keys())
+    keys.sort()
+    assert keys == ['good']
+    assert len(keys) == 1
+    assert 'no_lat' not in keys
+    assert 'no_long' not in keys
+    assert 'no_latlong' not in keys
+
+
+
 @pytest.mark.django_db
 def test_qs_to_tagdict_new_keys(tag_querysets):
     """If we pass a queryset like object to qs_to_tagdict() we should get

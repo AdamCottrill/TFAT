@@ -227,7 +227,7 @@ def tags_applied_project(request, slug):
     project = Project.objects.get(slug=slug)
 
     applied = Encounter.objects.filter(tagstat='A', project=project)
-    recovered = get_omnr_tags_recoveies(slug)
+    recovered = get_omnr_tag_recoveries(slug)
     angler_recaps = get_angler_tag_recoveries(slug)
 
     mls = get_multilinestring([applied, recovered.get('queryset'),
@@ -243,7 +243,7 @@ def tags_applied_project(request, slug):
 
 
 
-def get_omnr_tags_recoveies(project_slug):
+def get_omnr_tag_recoveries(project_slug):
     """This is a helper function used by tags_applied_project(). It uses
     raw sql to retrieve all of the subsequent OMNR recoveries of tags
     applied in a particular project.  The sql string uses a self join
@@ -305,8 +305,8 @@ def get_angler_tag_recoveries(project_slug):
         AND encounter.spc_id=recovery.spc_id
     JOIN tfat_project proj ON proj.id=encounter.project_id
     WHERE encounter.tagstat='A'
-    AND recovery.dd_lat is not null
-    AND recovery.dd_lon is not null
+    -- AND recovery.dd_lat is not null
+    -- AND recovery.dd_lon is not null
     AND proj.slug=%s
     ORDER BY recovery.recovery_date
     """
