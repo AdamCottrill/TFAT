@@ -38,98 +38,123 @@
 
            var tagging_marker = L.MakiMarkers.icon({icon: "circle", color: "#b0b", size: "s"});
            var recap_marker = L.MakiMarkers.icon({icon: "square", color: "#0a0", size: "s"});
+           var angler = L.MakiMarkers.icon({icon: "star", color: "#00f", size: "s"});
+
+           {% if recovered %}
            {% for object in recovered %}
            L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon:recap_marker}).addTo(map)
             .bindPopup('{{ object.popup_text|safe }}');
            {% endfor %}
+           {% endif %}
 
-           {% for object in applied %}
+           {% if angler_recaps.nobs %}
+           {% for object in angler_recaps.queryset %}
+           L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon: angler}).addTo(map)
+               .bindPopup('{{ object.popup_text|safe }}');
+           {% endfor %}
+           {% endif %}
+
+
+           {% if other_recoveries.nobs %}
+           {% for object in other_recoveries.queryset %}
+           L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon:recap_marker}).addTo(map)
+            .bindPopup('{{ object.popup_text|safe }}');
+           {% endfor %}
+           {% endif %}
+
+           {% if applied.nobs %}
+           {% for object in applied.queryset %}
            L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon:tagging_marker}).addTo(map)
             .bindPopup('{{ object.popup_text|safe }}');
            {% endfor %}
+           {% endif %}
+
        }
       </script>
 
-      {% leaflet_map "mymap" callback="window.map_init_basic" %}
-
-      {% else %}
-
-      {% leaflet_map "mymap" callback="window.map_init_basic" %}
-
       {% endif %}
+
+      {% leaflet_map "mymap" callback="window.map_init_basic" %}
 
     <br />
 
-<div role="tabpanel">
+    <div role="tabpanel">
 
-  <!-- Nav tabs -->
-    <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" class="active"><a href="#recapture" aria-controls="recapture" role="tab" data-toggle="tab">Recapture Events (N = {{ recovered|length }}) </a></li>
-        <li role="presentation"><a href="#applied" aria-controls="applied" role="tab" data-toggle="tab">Application Events (N = {{ applied_cnt }})</a></li>
-    </ul>
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#recapture" aria-controls="recapture" role="tab" data-toggle="tab">Recapture Events (N = {{ recovered|length }}) </a></li>
 
-  <!-- Tab panes -->
-  <div class="tab-content">
-    <div role="tabpanel" class="tab-pane active" id="recapture">
-        <br />
-        <p>These are tags that were recovered in this project.</p>
+            <li role="presentation"><a href="#applied" aria-controls="applied" role="tab" data-toggle="tab">Application Events (N = {{ applied.nobs }})</a></li>
 
-        {% if recovered %}
-        <div class="row">
-            <div class="col-md-12">
-                <table class="tablesorter table" id="myTable">
-                    <thead>
-                        <tr>
-                            <th>TagID</th>
-                            <th>Species</th>
-                            <th>Date</th>
-                            <th>Grid</th>
-                            <th>Type</th>
-                            <th>Colour</th>
-                            <th>Origin</th>
-                            <th>TagStat</th>
-                            <th class="metric">Length <br /> (mm)</th>
-                            <th class="imperial">Length <br />(in)</th>
-                            <th class="metric">Weight <br />(g)</th>
-                            <th class="imperial">Weight <br />(lbs)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for object in recovered %}
-                        <tr>
-                            <td> <a href="{% url 'tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
-                            <td> {{ object.spc.common_name }} </td>
-                            <td> {{ object.observation_date }} </td>
-                            <td> {{ object.grid }} </td>
-                            <td> {{ object.tag_type }} </td>
-                            <td> {{ object.tag_colour }} </td>
-                            <td> {{ object.tag_origin }} </td>
-                            <td> {{ object.tagstat }} </td>
-                            <td class="metric"> {{ object.tlen|intcomma }} </td>
-                            <td class="imperial"> {{ object.inches }} </td>
-                            <td class="metric"> {{ object.rwt|intcomma }} </td>
-                            <td class="imperial"> {{ object.pounds }} </td>
-                        </tr>
-                        {% endfor%}
-                    </tbody>
-                </table>
-                <div class="checkbox pull-right">
-                    <label>
-                        <input type='checkbox' onclick='handleClick(this);'>metric/imperial
-                    </label>
-                </div>
-            </div>
-        </div>
-        {% else %}
-        <p>Sorry no tags match that criteria.</p>
-        {% endif %}
+            <li role="presentation"><a href="#other_recoveries" aria-controls="other_recoveries" role="tab" data-toggle="tab">Other Recoveries (N = {{ other_recoveries.nobs }})</a></li>
 
+            <li role="presentation"><a href="#angler_recaps" aria-controls="angler_recaps" role="tab" data-toggle="tab">Angler Recaps (N = {{ angler_recaps.nobs }})</a></li>
 
-    </div>
-    <div role="tabpanel" class="tab-pane" id="applied">
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="recapture">
+                <br />
+                <p>These are tags that were recovered in this project.</p>
+
+                {% if recovered %}
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="tablesorter table" id="myTable">
+                            <thead>
+                                <tr>
+                                    <th>TagID</th>
+                                    <th>Species</th>
+                                    <th>Date</th>
+                                    <th>Grid</th>
+                                    <th>Type</th>
+                                    <th>Colour</th>
+                                    <th>Origin</th>
+                                    <th>TagStat</th>
+                                    <th class="metric">Length <br /> (mm)</th>
+                                    <th class="imperial">Length <br />(in)</th>
+                                    <th class="metric">Weight <br />(g)</th>
+                                    <th class="imperial">Weight <br />(lbs)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for object in recovered %}
+                                <tr>
+                                    <td> <a href="{% url 'tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
+                                    <td> {{ object.spc.common_name }} </td>
+                                    <td> {{ object.observation_date }} </td>
+                                    <td> {{ object.grid }} </td>
+                                    <td> {{ object.tag_type }} </td>
+                                    <td> {{ object.tag_colour }} </td>
+                                    <td> {{ object.tag_origin }} </td>
+                                    <td> {{ object.tagstat }} </td>
+                                    <td class="metric"> {{ object.tlen|intcomma }} </td>
+                                    <td class="imperial"> {{ object.inches }} </td>
+                                    <td class="metric"> {{ object.rwt|intcomma }} </td>
+                                    <td class="imperial"> {{ object.pounds }} </td>
+                                </tr>
+                                {% endfor%}
+                            </tbody>
+                        </table>
+                        <div class="checkbox pull-right">
+                            <label>
+                                <input type='checkbox' onclick='handleClick(this);'>metric/imperial
+                            </label>
+                        </div> <!-- checkbox -->
+                    </div> <!-- col-md-12 -->
+                </div>  <!-- row -->
+                {% else %}
+                <p>Sorry no tags match that criteria.</p>
+                <hr />
+                <br />
+                <br />
+                {% endif %}
+            </div> <!-- panel -->
+            <div role="tabpanel" class="tab-pane" id="applied">
         </br>
         <p>There are the original tagging events associated with the recaptures on the previous page.</p>
-        {% if applied_bool %}
+        {% if applied.nobs %}
         <div class="row">
             <div class="col-md-12">
                 <table class="tablesorter table" id="myTable">
@@ -152,7 +177,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for object in applied %}
+                        {% for object in applied.queryset %}
                         <tr>
                             <td> <a href="{% url 'tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
                             <td> {{ object.spc.common_name }} </td>
@@ -185,51 +210,176 @@
         </div>
         {% else %}
         <p>Sorry no tags match that criteria.</p>
+        <hr />
+        <br />
+        <br />
         {% endif %}
+            </div>
 
-
-
+            <div role="tabpanel" class="tab-pane" id="other_recoveries">
+    </br>
+    <p>There are recoveries of the same tags in other UGLMU projects.</p>
+    {% if other_recoveries.nobs %}
+    <div class="row">
+        <div class="col-md-12">
+            <table class="tablesorter table" id="myTable">
+                <thead>
+                    <tr>
+                        <th>TagID</th>
+                        <th>Species</th>
+                        <th>Date</th>
+                        <th>Grid</th>
+                        <th>Type</th>
+                        <th>Colour</th>
+                        <th>Origin</th>
+                        <th>TagStat</th>
+                        <th class="metric">Length <br /> (mm)</th>
+                        <th class="imperial">Length <br />(in)</th>
+                        <th class="metric">Weight <br />(g)</th>
+                        <th class="imperial">Weight <br />(lbs)</th>
+                        <th>Project Code</th>
+                        <th>Project Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for object in other_recoveries.queryset %}
+                    <tr>
+                        <td> <a href="{% url 'tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
+                        <td> {{ object.spc.common_name }} </td>
+                        <td> {{ object.observation_date }} </td>
+                        <td> {{ object.grid }} </td>
+                        <td> {{ object.tag_type }} </td>
+                        <td> {{ object.tag_colour }} </td>
+                        <td> {{ object.tag_origin }} </td>
+                        <td> {{ object.tagstat }} </td>
+                        <td class="metric"> {{ object.tlen|intcomma }} </td>
+                        <td class="imperial"> {{ object.inches }} </td>
+                        <td class="metric"> {{ object.rwt|intcomma }} </td>
+                        <td class="imperial"> {{ object.pounds }} </td>
+                        {% if object.tagstat = 'A' %}
+                        <td><a href="{% url 'tags_applied_in_project' object.project.slug %}">{{ object.project.prj_cd }}</a> </td>
+                        {% else %}
+                        <td><a href="{% url 'tags_recovered_in_project' object.project.slug %}">{{ object.project.prj_cd }}</a> </td>
+                        {% endif %}
+                        <td> {{ object.project.prj_nm }} </td
+                    </tr>
+                    {% endfor%}
+                </tbody>
+            </table>
+            <div class="checkbox pull-right">
+                <label>
+                    <input type='checkbox' onclick='handleClick(this);'>metric/imperial
+                </label>
+            </div>
+        </div>
     </div>
-  </div>
+    {% else %}
+    <p>Sorry no tags match that criteria.</p>
+    <hr />
+    <br />
+    <br />
+    {% endif %}
+            </div>
+            <div role="tabpanel" class="tab-pane" id="angler_recaps">
+    </br>
+    <p>These are recaptures of the tags on the first tab returned by anlgers or the general public.</p>
+    {% if angler_recaps.nobs %}
+    <div class="row">
+        <div class="col-md-12">
+            <table class="tablesorter table" id="myTable">
+                <thead>
+                    <tr>
+                        <th>TagID</th>
+                        <th>Species</th>
+                        <th>Date</th>
+                        <th>Grid</th>
+                        <th>Type</th>
+                        <th>Colour</th>
+                        <th>Origin</th>
+                        <th>TagStat</th>
+                        <th class="metric">Length <br /> (mm)</th>
+                        <th class="imperial">Length <br />(in)</th>
+                        <th class="metric">Weight <br />(g)</th>
+                        <th class="imperial">Weight <br />(lbs)</th>
+                        <th>Project Code</th>
+                        <th>Project Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for object in angler_recaps.queryset %}
+                    <tr>
+                        <td> <a href="{% url 'tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
+                        <td> {{ object.spc.common_name }} </td>
+                        <td> {{ object.observation_date }} </td>
+                        <td> {{ object.grid }} </td>
+                        <td> {{ object.tag_type }} </td>
+                        <td> {{ object.tag_colour }} </td>
+                        <td> {{ object.tag_origin }} </td>
+                        <td> {{ object.tagstat }} </td>
+                        <td class="metric"> {{ object.tlen|intcomma }} </td>
+                        <td class="imperial"> {{ object.inches }} </td>
+                        <td class="metric"> {{ object.rwt|intcomma }} </td>
+                        <td class="imperial"> {{ object.pounds }} </td>
+                        <td> {{ object.report.reported_by}} </td>
+                        <td> {{ object.general_name }} </td>
+                    </tr>
+                    {% endfor%}
+                </tbody>
+            </table>
+            <div class="checkbox pull-right">
+                <label>
+                    <input type='checkbox' onclick='handleClick(this);'>metric/imperial
+                </label>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <p>Sorry no tags match that criteria.</p>
+    <hr />
+    <br />
+    <br />
+    {% endif %}
+            </div> <!-- tabpanel -->
 
-</div>
+
+        </div><!-- tabcontent -->
+    </div><!-- tab panel -->
+
+  <script type="text/javascript">
+
+   $(".tablesorter").tablesorter({
+       theme: 'bootstrap',
+       widthFixed: true,
+       showProcessing: true,
+       headerTemplate: '{content} {icon}',
+       widgets: ['zebra', 'uitheme', 'scroller'],
+       widgetOptions: {
+           scroller_height: 300,
+           scroller_barWidth: 17,
+           scroller_jumpToHeader: true,
+           scroller_idPrefix: 's_'
+       }
+   });
 
 
-<script type="text/javascript">
-
-    $(".tablesorter").tablesorter({
-    theme: 'bootstrap',
-    widthFixed: true,
-    showProcessing: true,
-    headerTemplate: '{content} {icon}',
-    widgets: ['zebra', 'uitheme', 'scroller'],
-    widgetOptions: {
-    scroller_height: 300,
-    scroller_barWidth: 17,
-    scroller_jumpToHeader: true,
-    scroller_idPrefix: 's_'
-    }
-    });
+   $(document).ready(function(){
+       $("#myTable").tablesorter();
+       $('.metric').show();
+       $('.imperial').hide();
+   }
+   );
 
 
-    $(document).ready(function(){
-        $("#myTable").tablesorter();
-        $('.metric').show();
-        $('.imperial').hide();
-    }
-    );
+   function handleClick(cb) {
+       $('.metric').toggle();
+       $('.imperial').toggle();
+   }
 
+   $('#myTab a').click(function (e) {
+       e.preventDefault()
+           $(this).tab('show')
+   })
 
-    function handleClick(cb) {
-        $('.metric').toggle();
-        $('.imperial').toggle();
-    }
+  </script>
 
- $('#myTab a').click(function (e) {
-     e.preventDefault()
-         $(this).tab('show')
- })
-
-</script>
-
-{% endblock %}
+  {% endblock %}

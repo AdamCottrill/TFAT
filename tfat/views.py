@@ -91,6 +91,7 @@ angler_list = AnglerListView.as_view()
 class SpeciesListView(ListView):
     model = Species
 
+
 class ReportListView(ListView):
     model = Report
 
@@ -98,8 +99,10 @@ class ReportListView(ListView):
 class RecoveryListView(ListView):
     model = Recovery
 
+
 class EncounterListView(ListView):
     model = Encounter
+
 
 class ProjectTagsAppliedListView(ListView):
     model = Project
@@ -124,7 +127,6 @@ class ProjectTagsRecoveredListView(ListView):
         return projects
 
 
-
 def angler_reports_view(request, angler_id):
     """
 
@@ -134,15 +136,13 @@ def angler_reports_view(request, angler_id):
     """
 
     angler = get_object_or_404(JoePublic, id=angler_id)
-    #reports = Report.objects.filter(reported_by=angler)
+
     recoveries = Recovery.objects.filter(report__reported_by=angler).\
                  order_by('report__report_date')
-
 
     return render_to_response('tfat/angler_reports.html',
                               {'angler':angler, 'recoveries':recoveries},
                               context_instance=RequestContext(request))
-
 
 def tagid_detail_view(request, tagid):
     """This view returns all of the omnr encounters and any angler
@@ -158,9 +158,6 @@ def tagid_detail_view(request, tagid):
     encounter_list = get_list_or_404(Encounter, tagid=tagid)
 
     detail_data = get_tagid_detail_data(tagid, encounter_list)
-
-    #angler_recaps = Recovery.objects.filter(tagid=tagid)
-    #mls = get_multilinestring(encounter_list)
 
     return render_to_response('tfat/tagid_contains.html',
                               {'tagid':tagid,
@@ -180,6 +177,7 @@ def tagid_quicksearch_view(request):
 
     partial = request.GET.get('q')
     return redirect('tagid_contains', partial=partial)
+
 
 
 def tagid_contains_view(request, partial):
@@ -217,6 +215,7 @@ def tagid_contains_view(request, partial):
                            }, context_instance=RequestContext(request))
 
 
+
 def tags_applied_project(request, slug):
     '''A view to show the of all tags applied in a particular
     project and their assoiciated recoveries
@@ -239,7 +238,7 @@ def tags_applied_project(request, slug):
 
     applied = Encounter.objects.filter(tagstat='A', project=project)
     recovered = get_omnr_tag_recoveries(slug)
-    angler_recaps = get_angler_tag_recoveries(slug)
+    angler_recaps = get_angler_tag_recoveries(slug, 'A')
 
     mls = get_multilinestring([applied, recovered.get('queryset'),
                                angler_recaps.get('queryset')])
@@ -254,122 +253,43 @@ def tags_applied_project(request, slug):
 
 
 
-def get_omnr_tag_recoveries(project_slug):
-    """This is a helper function used by tags_applied_project(). It uses
-    raw sql to retrieve all of the subsequent OMNR recoveries of tags
-    applied in a particular project.  The sql string uses a self join
-    on tfat_encounter.  Only recap's with both a lat and lon and of
-    the same species as the original tagging event are returned.
-
-    Arguments:
-    - `project_slug`: unique identify for project in which tags were applied
-
-    Returns dictionary with the following elements:
-    queryset - a raw sql queryset.
-    Nobs - the number of records in the queryset
-
-    """
-
-    sql = """
-    SELECT recap.*
-    FROM tfat_encounter recap
-       JOIN
-       tfat_encounter applied
-         ON applied.tagid = recap.tagid
-         AND applied.spc_id = recap.spc_id
-       JOIN
-       tfat_project AS ap ON ap.id = applied.project_id
-    WHERE ap.slug = %s AND
-       applied.tagstat = 'A'
-    AND recap.tagstat = 'C'
-    ORDER BY recap.observation_date"""
-
-    queryset = Encounter.objects.raw(sql,[project_slug])
-
-    nobs = len([x.id for x in queryset])
-
-    return { 'queryset':queryset, 'nobs':nobs }
-
-
-
-def get_angler_tag_recoveries(project_slug):
-    """This is a helper function used by tags_applied_project(). It uses
-    raw sql to retrieve all of the non-MNR recoveries of tags applied
-    in a particular project.  Only recap's with both a lat and lon and
-    of the same species as the original tagging event are returned.
-
-    Arguments:
-    - `project_slug`: unique identify for project in which tags were applied
-
-    Returns a raw sql queryset.
-
-    """
-
-
-    sql = """
-    SELECT recovery.*
-    FROM tfat_recovery recovery
-    JOIN tfat_encounter encounter
-        ON encounter.tagid=recovery.tagid
-        AND encounter.spc_id=recovery.spc_id
-    JOIN tfat_project proj ON proj.id=encounter.project_id
-    WHERE encounter.tagstat='A'
-    AND proj.slug=%s
-    ORDER BY recovery.recovery_date
-    """
-
-    queryset = Recovery.objects.raw(sql,[project_slug])
-
-    nobs = len([x.id for x in queryset])
-
-    return { 'queryset':queryset, 'nobs':nobs }
-
-
-
 def tags_recovered_project(request, slug):
-    '''A view to show the where recoveries in a particular project originated'''
+    '''A view to show the where recoveries in a particular project originated
+
+    Required data elements:
+
+    - tags recovered in this project
+    - application events (ie. - OMNR encounters were tagstat=A)
+    - subsequent recoveries of those tags:
+      + in other UGLMU Projects (tagstat=C, id different that this event)
+      + in recaptured by anglers/non-mnr sources
+    - mls line connecting encounters with the same tagid
+
+    Only recaptures/application events of the same species will be
+    included - no warning is issued if multiple tagdocs are returned -
+    this is only relevant on an individual tag id basis (there could
+    very well be more than one tagdoc deployed and subsequently
+    recovered in a project)
+
+    '''
 
     project = Project.objects.get(slug=slug)
 
     recovered = Encounter.objects.filter(tagstat='C', project=project)
-    #tagids = [x.tagid for x in recovered]
-    #applied = Encounter.objects.filter(tagstat='A', tagid__in=tagids)
 
-    #again - getting the original tagging information for our
-    #recaptures is too complicated for the django orm and requires
-    #that we us raw sql:
+    applied = get_omnr_tag_application(slug)
+    other_recoveries = get_other_omnr_recoveries(slug)
+    angler_recaps = get_angler_tag_recoveries(slug, tagstat='C')
 
-    sql = """
-    SELECT applied.*
-      FROM tfat_encounter applied
-           JOIN
-           tfat_encounter recap ON recap.tagid = applied.tagid
-           JOIN
-           tfat_project AS cp ON cp.id = recap.project_id
-     WHERE cp.slug = %s AND
-           recap.tagstat = 'C' AND
-           applied.tagstat = 'A'
-     ORDER BY applied.tagid """
-
-
-    applied = Encounter.objects.raw(sql,[slug])
-    try:
-        applied_bool = applied[0]
-    except IndexError as err:
-        applied_bool = False
-
-    if applied_bool:
-        applied_cnt = len([x.id for x in applied])
-    else:
-        applied_cnt = 0
-
-    mls = get_multilinestring([recovered,applied])
+    mls = get_multilinestring([applied.get('queryset'), recovered,
+                               other_recoveries.get('queryset'),
+                               angler_recaps.get('queryset')])
 
     return render_to_response('tfat/project_recovered_tags.html',
                               {'project':project,
                                'recovered':recovered,
+                               'other_recoveries':other_recoveries,
+                               'angler_recaps':angler_recaps,
                                'applied':applied,
-                               'applied_bool':applied_bool,
-                               'applied_cnt':applied_cnt,
                                'mls':mls
                            }, context_instance=RequestContext(request))

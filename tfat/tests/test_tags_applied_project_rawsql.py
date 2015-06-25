@@ -15,7 +15,7 @@ A. Cottrill
 '''
 
 from tfat.tests.factories import *
-from tfat.views import get_omnr_tag_recoveries, get_angler_tag_recoveries
+from tfat.utils import get_omnr_tag_recoveries, get_angler_tag_recoveries
 
 import pytest
 
@@ -102,6 +102,25 @@ def test_get_angler_tags_recoveries(db_setup):
     three tag recovery events.  Two are complete and match perfectly,
     one is missing lat-long, but is still returned.  The record with
     the different species should not be included in the queryset.
+    """
+
+    recoveries = get_angler_tag_recoveries('lha_is10_111', tagstat='A')
+
+    nobs = recoveries.get('nobs')
+    assert nobs == 3
+    tagids = [x.tagid for x in recoveries.get('queryset')]
+    should_be = ['5', '6', '7']
+    assert tagids == should_be
+
+    assert '8' not in tagids # different species
+
+
+@pytest.mark.django_db
+def test_get_angler_tags_recoveries_without_tagstat(db_setup):
+    """The function get_get_angler_tags_recoveries() has an option
+    argument to specify the tag status of OMNR encounter events to
+    include.  By default it is 'A' and as a consequence, this test is
+    identical to the previous one.
     """
 
     recoveries = get_angler_tag_recoveries('lha_is10_111')

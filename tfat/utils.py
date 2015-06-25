@@ -224,3 +224,168 @@ def get_points_dict(encounters, applied=None):
             tag_dict[tag[0]] = [tag[1:]]
 
     return tag_dict
+
+
+
+
+
+def get_omnr_tag_recoveries(project_slug):
+    """This is a helper function used by tags_applied_project(). It uses
+    raw sql to retrieve all of the subsequent OMNR recoveries of tags
+    applied in a particular project.  The sql string uses a self join
+    on tfat_encounter.  Only recap's with both a lat and lon and of
+    the same species as the original tagging event are returned.
+
+    Arguments:
+    - `project_slug`: unique identify for project in which tags were applied
+
+    Returns dictionary with the following elements:
+    queryset - a raw sql queryset.
+    Nobs - the number of records in the queryset
+
+    """
+
+    sql = """
+    SELECT recap.*
+    FROM tfat_encounter recap
+       JOIN
+       tfat_encounter applied
+         ON applied.tagid = recap.tagid
+         AND applied.spc_id = recap.spc_id
+       JOIN
+       tfat_project AS ap ON ap.id = applied.project_id
+    WHERE ap.slug = %s AND
+       applied.tagstat = 'A'
+    AND recap.tagstat = 'C'
+    ORDER BY recap.observation_date"""
+
+    queryset = Encounter.objects.raw(sql,[project_slug])
+
+    nobs = len([x.id for x in queryset])
+
+    return { 'queryset':queryset, 'nobs':nobs }
+
+
+
+def get_angler_tag_recoveries(project_slug, tagstat='A'):
+    """This is a helper function used by tags_applied_project(). It uses
+    raw sql to retrieve all of the non-MNR recoveries of tags applied
+    in a particular project.  Only recap's with both a lat and lon and
+    of the same species as the original tagging event are returned.
+
+    Arguments:
+    - `project_slug`: unique identify for project in which tags were applied
+
+    - `tagstat`: the tag status of the tags in project identified by
+      project slug.  'A' returns agler recaps of tags applied in the
+      project, 'C' will return angler recaps of tags also recaptured
+      by the OMNR
+
+    Returns dictionary with the following elements:
+    queryset - a raw sql queryset.
+    Nobs - the number of records in the queryset
+
+
+    TODO - TEST tagstat argument
+
+    """
+
+    sql = """
+    SELECT recovery.*
+    FROM tfat_recovery recovery
+    JOIN tfat_encounter encounter
+        ON encounter.tagid=recovery.tagid
+        AND encounter.spc_id=recovery.spc_id
+    JOIN tfat_project proj ON proj.id=encounter.project_id
+    WHERE encounter.tagstat='{tagstat}'
+    AND proj.slug=%s
+    ORDER BY recovery.recovery_date
+    """
+
+    sql = sql.format(**{'tagstat':tagstat})
+
+    queryset = Recovery.objects.raw(sql,[project_slug])
+
+    nobs = len([x.id for x in queryset])
+
+    return { 'queryset':queryset, 'nobs':nobs }
+
+
+
+def get_other_omnr_recoveries(project_slug):
+    """This is a helper function used by tags_recovered_project(). It uses
+    raw sql to retrieve all of the other MNR recoveries of tags
+    recovered in a particular project.  Only recap's of the same
+    species as the original tagging event are returned where tagstat
+    is C on both encounters and the project code on other occurences is
+    different than 'slug'.
+
+    Arguments:
+    - `project_slug`: unique identify for project in which tags were recovered
+
+    Returns a dictionary containing a raw sql queryset and the number
+    of observations in the queryeset
+
+    """
+
+    sql = """
+    SELECT recap2.*
+      FROM tfat_encounter recap2
+         JOIN
+         tfat_encounter recap1
+           ON recap1.tagid = recap2.tagid
+           AND recap1.spc_id = recap2.spc_id
+         JOIN tfat_project AS prj1 ON prj1.id = recap1.project_id
+         JOIN tfat_project AS prj2 ON prj2.id = recap2.project_id
+      WHERE prj1.slug = %s AND
+         recap1.tagstat = 'C'
+      AND recap2.tagstat = 'C'
+      and prj1.slug!=prj2.slug
+      ORDER BY recap2.observation_date
+
+    """
+
+    queryset = Encounter.objects.raw(sql,[project_slug])
+
+    nobs = len([x.id for x in queryset])
+
+    return { 'queryset':queryset, 'nobs':nobs }
+
+
+
+def get_omnr_tag_application(project_slug):
+    """This is a helper function used by tags_recovered_project(). It uses
+    raw sql to retrieve all of the OMNR tag application events tags
+    recovered in a particular project.  The sql string uses a self
+    join on tfat_encounter.  Only encounter events with tagstat A, and
+    matching tagid and spc code are returned.
+
+    Arguments:
+    - `project_slug`: unique identify for project in which tags were applied
+
+    Returns dictionary with the following elements:
+    queryset - a raw sql queryset.
+    Nobs - the number of records in the queryset
+
+    """
+
+
+    sql = """
+    SELECT applied.*
+      FROM tfat_encounter applied
+           JOIN tfat_encounter recap
+             ON recap.tagid = applied.tagid
+             AND recap.spc_id = applied.spc_id
+           JOIN
+           tfat_project AS cp
+             ON cp.id = recap.project_id
+     WHERE cp.slug = %s AND
+           recap.tagstat = 'C' AND
+           applied.tagstat = 'A'
+     ORDER BY applied.tagid """
+
+    queryset = Encounter.objects.raw(sql,[project_slug])
+
+    nobs = len([x.id for x in queryset])
+
+    return { 'queryset':queryset, 'nobs':nobs }
