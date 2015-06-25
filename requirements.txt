@@ -1,12 +1,16 @@
+CherryPy==3.7.0
 Django==1.8.2
 Werkzeug==0.10.4
 colorama==0.2.7
 django-extensions==1.5.5
+django-filter==0.10.0
 django-geojson==2.8.0
 django-leaflet==0.16.0
+django-pagination==1.0.7
 factory-boy==2.5.2
 geojson==1.0.9
 ipython==3.1.0
+jedi==0.9.0
 logilab-common==0.63.2
 psycopg2==2.6
 py==1.4.28
@@ -16,3 +20,4 @@ pytest==2.7.1
 pytest-django==2.8.0
 pytz==2013.7
 six==1.9.0
+ws4py==0.3.4
