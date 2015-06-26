@@ -162,21 +162,22 @@ class Recovery(models.Model):
     #multi-checkbox widget (ie - check all that apply - then calculate
     #clipc from that.)
     clipc = models.CharField(max_length=5,blank=True, null=True)
-    tagid = models.CharField(max_length=10)
-    tag_origin  = models.CharField("Tag Origin", max_length=3,
+    tagid = models.CharField(max_length=10, db_index=True)
+    tag_origin  = models.CharField("Tag Origin", max_length=3,db_index=True,
                                choices=TAG_ORIGIN_CHOICES, default="01")
 
-    tag_position  = models.CharField("Tag Position", max_length=3,
-                               choices=TAG_POSITION_CHOICES, default="1")
-    tag_type  = models.CharField("Tag Type", max_length=3,
+    tag_position = models.CharField("Tag Position", max_length=3, db_index=True,
+                                    choices=TAG_POSITION_CHOICES, default="1")
+    tag_type = models.CharField("Tag Type", max_length=3, db_index=True,
                                choices=TAG_TYPE_CHOICES, default="1")
 
-    tag_colour = models.CharField("Tag Colour", max_length=3,
+    tag_colour = models.CharField("Tag Colour", max_length=3, db_index=True,
                                choices=TAG_COLOUR_CHOICES, default="2")
 
     #tagdoc will be caclulated from tag type, position, origin and
     #colour following fishnet-II definitions
-    tagdoc =  models.CharField(max_length=6,blank=True, null=True)
+    tagdoc =  models.CharField(max_length=6,blank=True, null=True,
+                               db_index=True)
 
     tag_removed = models.BooleanField(default=False)
     fate = models.CharField("Fate", max_length=30, blank=True, null=True,
