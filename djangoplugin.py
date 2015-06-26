@@ -43,7 +43,6 @@ class DjangoAppPlugin(plugins.SimplePlugin):
         )
         cherrypy.tree.mount(static_handler, settings.STATIC_URL)
 
-        #
         media_handler = cherrypy.tools.staticdir.handler(
             section="/",
             dir = os.path.abspath(os.path.split(settings.MEDIA_ROOT)[0])

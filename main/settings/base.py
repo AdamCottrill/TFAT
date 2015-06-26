@@ -31,7 +31,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 DJANGO_APPS = (
@@ -88,7 +87,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'main.wsgi.application'
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
@@ -106,18 +104,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-MEDIA_ROOT = root("media/")
-MEDIA_URL = 'media/'
-
-STATIC_ROOT = root("static/")
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "../static"),
-    'c:/1work/Python/djcode/tfat/static',
- )
-
-print('STATICFILES_DIRS={}'.format(STATICFILES_DIRS))
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, "../media"))
 
 STATIC_URL = '/static/'
+STATIC_ROOT = root("static/")
+STATICFILES_DIRS = (
+    os.path.abspath(os.path.join(BASE_DIR, "../static")),
+ )
 
 
 LEAFLET_CONFIG = {
