@@ -49,6 +49,7 @@ def db_setup():
     #a report filed by Monty Burns
     report = ReportFactory(reported_by=angler2, follow_up=True,
                                 report_date = report_date)
+
     tagids = ['4444','5555','6666']
     for tag in tagids:
         recovery = RecoveryFactory(report=report,spc=spc,tagid=tag)
@@ -100,3 +101,20 @@ def test_follow_up_in_tag_report_list(client, db_setup):
     response = client.get(reverse('recovery_report_list'))
     content = str(response.content)
     assert 'Follow-up Required' in content
+
+
+@pytest.mark.django_db
+def test_follow_up_not_in_tag_report_list(client, db_setup):
+    '''If there there are no more follow-ups required for a report,
+    "Follow-up Required" it should not appear in the list of reports
+    '''
+
+    #get the only report with a follow required and update it
+    report = Report.objects.get(reported_by__last_name='Burns')
+    report.follow_up = False
+    report.save()
+
+    #verify that follow-up required is not in the list now:
+    response = client.get(reverse('recovery_report_list'))
+    content = str(response.content)
+    assert 'Follow-up Required' not in content

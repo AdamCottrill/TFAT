@@ -119,8 +119,22 @@
     <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">
-                {{ report.grouper|date:"M d, Y" }}
-                <button type="button" class="btn btn-default btn-xs pull-right">Edit Report</button>
+                <div class="row" >
+                    <div  class="col-md-8" >
+                        {{ report.grouper|date:"M d, Y" }}
+                    </div>
+                    {% with report.list|first as recovery1 %}
+                    {% if recovery1.report.follow_up %}
+                    <div class="col-md-2" >
+                        <button type="button" class="btn btn-danger btn-xs pull-right">Follow-up Required</button>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+                    <div class="col-md-2" >
+                        <button type="button" class="btn btn-default btn-xs pull-right">Edit Report</button>
+                    </div>
+                </div>
+
             </h3>
         </div>
         <div class="panel-body">
