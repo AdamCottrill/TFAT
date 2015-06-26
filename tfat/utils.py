@@ -123,11 +123,13 @@ def get_tagid_detail_data(tagid, encounter_list, partial=False):
     spc_warn = spc_warning([encounter_list, angler_recaps])
     tagdoc_warn = tagdoc_warning([encounter_list, angler_recaps])
 
+    nobs = len(angler_recaps) + len(encounter_list)
 
     return {'encounter_list': encounter_list,
             'angler_recaps':angler_recaps,
             'spc_warn':spc_warn, 'tagdoc_warn':tagdoc_warn,
-            'mls':mls}
+            'mls':mls,
+            'nobs':nobs}
 
 
 def get_points_dict2(observations):

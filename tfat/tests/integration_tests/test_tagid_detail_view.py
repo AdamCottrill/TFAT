@@ -166,3 +166,78 @@ def test_tagid_contains_includes_encounters_and_angler_recaps(client, db_setup):
     assert 'Homer Simpson' in content  #angler return record
     assert 'LHA_IA11_111' in content   #omnr project code
     assert 'Fake Project' in content   #omnr project name
+
+
+@pytest.mark.django_db
+def test_tagid_contains_includes_nobs_with_angler_recaps(client, db_setup):
+    """The tagid contains page should include the string N = {nobs} that
+    correctly indicates the number of times this tags matching <partial>
+    have been observed including both OMNR encounters and angler
+    recaptures.
+
+    Arguments:
+    - `client`:
+    - `db_setup`:
+
+    """
+    url = reverse('tagid_contains', kwargs={'partial':'111'})
+
+    response = client.get(url)
+    content = str(response.content)
+
+    assert 'N = 4' in content
+
+@pytest.mark.django_db
+def test_tagid_details_includes_nobs_with_anlger_recaps(client, db_setup):
+    """The tagid details page should include the string 'N = {nobs}' that
+    correctly indicates the number of times this tag number has been
+    observed including both OMNR encounters and angler recaptures.
+
+    Arguments:
+    - `client`:
+    - `db_setup`:
+
+    """
+    url = reverse('tagid_detail_view', kwargs={'tagid':'11111'})
+
+    response = client.get(url)
+    content = str(response.content)
+
+    assert 'N = 4' in content
+
+
+@pytest.mark.django_db
+def test_tagid_detail_includes_nobs_without_angler_recaps(client, db_setup):
+    """The tagid details page should include the string 'N = {nobs}' that
+    correctly indicates the number of times this tag number has been
+    observed - even if it has not been reported by any anglers.
+
+    Arguments:
+    - `client`:
+    - `db_setup`:
+
+    """
+    url = reverse('tagid_contains', kwargs={'partial':'222'})
+
+    response = client.get(url)
+    content = str(response.content)
+
+    assert 'N = 2' in content
+
+@pytest.mark.django_db
+def test_tagid_detail_includes_nobs_without_anlger_recaps(client, db_setup):
+    """The tagid detail page should include the string 'N = {nobs}' that
+    correctly indicates the number of times this tag number has been
+    observed even without any angler recaps.
+
+    Arguments:
+    - `client`:
+    - `db_setup`:
+
+    """
+    url = reverse('tagid_detail_view', kwargs={'tagid':'22222'})
+
+    response = client.get(url)
+    content = str(response.content)
+
+    assert 'N = 2' in content

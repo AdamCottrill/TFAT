@@ -166,7 +166,8 @@ def tagid_detail_view(request, tagid):
                                'mls': detail_data.get('mls'),
                                'spc_warn': detail_data.get('spc_warn'),
                                'tagdoc_warn': detail_data.get('tagdoc_warn'),
-                               'max_record_count':MAX_RECORD_CNT
+                               'max_record_count':MAX_RECORD_CNT,
+                               'nobs':detail_data.get('nobs',0),
                            }, context_instance=RequestContext(request))
 
 
@@ -211,7 +212,8 @@ def tagid_contains_view(request, partial):
                                'mls': detail_data.get('mls'),
                                'spc_warn': detail_data.get('spc_warn'),
                                'tagdoc_warn': detail_data.get('tagdoc_warn'),
-                               'max_record_count':MAX_RECORD_CNT
+                               'max_record_count':MAX_RECORD_CNT,
+                               'nobs':detail_data.get('nobs',0),
                            }, context_instance=RequestContext(request))
 
 

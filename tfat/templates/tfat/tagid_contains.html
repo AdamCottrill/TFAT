@@ -17,9 +17,9 @@
 
     <div class="row">
         {% if partial %}
-        <h2>Tags that contain '{{ partial }}' (N = {{ encounter_list|length }} ) </h2>
+        <h2>Tags that contain '{{ partial }}' (N = {{ nobs }} ) </h2>
         {% else %}
-        <h2>Encounters with tag number:{{ tagid }} (N = {{ encounter_list|length }} ) </h2>
+        <h2>Encounters with tag number:{{ tagid }} (N = {{ nobs }} ) </h2>
         {% endif %}
     </div>
 
