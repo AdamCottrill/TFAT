@@ -82,6 +82,8 @@ def test_report_detail_has_crud_links(client, db_setup):
     response = client.get(reverse('angler_reports',
                                   kwargs={'angler_id':angler.id}))
     content = str(response.content)
+
+    assert 'Edit Details' in content #angler details
     assert 'Create New Report' in content
     assert 'Edit Report' in content
 
@@ -150,7 +152,6 @@ def test_report_follow_up_not_in_response(client, db_setup):
     """If a follow is requested for this report, it should be included in
     the reponse.
     """
-
 
     angler = JoePublic.objects.get(first_name='Homer')
     #verify that follow-up required is not in the list now:

@@ -1,0 +1,229 @@
+{% extends "tfat/tfat_base.html" %}
+
+
+{% block content %}
+<div class="container">
+
+
+    <form method="post" action="{{ request.path }}">
+        {% csrf_token %}
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            Please fix the errors in the form below.
+            {% for error in form.non_field_errors %}
+            <p class="error">{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Tag Reporter</h3>
+            </div>
+            <div class="panel-body">
+
+                <!-- Name -->
+                <div class="row" >
+                    <div class="col-md-2 text-right" >
+                        {{ form.first_name.label_tag }}
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group {% if form.first_name.errors %}has-error{% endif %}">
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                            {% for error in form.first_name.errors %}
+                            <div class="has-error help-block text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 text-right" >
+                        {{ form.initial.label_tag }}
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group {% if form.initial.errors %}has-error{% endif %}">
+                            {{ form.initial }}
+                            {% if form.initial.errors %}
+                            {% for error in form.initial.errors %}
+                            <div class="has-error help-block text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-2 text-right" >
+                        {{ form.last_name.label_tag }}
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group {% if form.last_name.errors %}has-error{% endif %}">
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                            {% for error in form.last_name.errors %}
+                            <div class="has-error help-block text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+                <hr />
+
+                <!-- Address -->
+                <div class="row" >
+
+                    <div class="col-md-2 text-right" >
+                        {{ form.address1.label_tag }}
+                    </div>
+
+                    <div class="col-md-2">
+                        <div class="form-group {% if form.address1.errors %}has-error{% endif %}">
+                            {{ form.address1 }}
+                            {% if form.address1.errors %}
+                            {% for error in form.address1.errors %}
+                            <div class="has-error help-block text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 text-right" >
+                        {{ form.address2.label_tag }}
+                    </div>
+                    <div class="form-group {% if form.address2.errors %}has-error{% endif %}">
+                        <div class="col-md-2">
+                            {{ form.address2 }}
+                            {% if form.address2.errors %}
+                            {% for error in form.address2.errors %}
+                            <div class="has-error help-block text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Town, Province, Postal Code, -->
+                <div class="row" >
+                    <div class="col-md-2 text-right" >
+                        {{ form.town.label_tag }}
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group {% if form.town.errors %}has-error{% endif %}">
+                            {{ form.town }}
+                            {% if form.town.errors %}
+                            {% for error in form.town.errors %}
+                            <div class="has-error help-block text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-2 text-right" >
+                        {{ form.province.label_tag }}
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group {% if form.province.errors %}has-error{% endif %}">
+                            {{ form.province }}
+                            {% if form.province.errors %}
+                            {% for error in form.province.errors %}
+                            <div class="has-error help-block text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 text-right" >
+                        {{ form.postal_code.label_tag }}
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group {% if form.postal_code.errors %}has-error{% endif %}">
+                            {{ form.postal_code }}
+                            {% if form.postal_code.errors %}
+                            {% for error in form.postal_code.errors %}
+                            <div class="has-error help-block text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+
+                <!-- Phone, Cell, e-mail -->
+                <div class="row" >
+
+                    <div class="col-md-2 text-right" >
+                            {{ form.phone.label_tag }}
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group {% if form.phone.errors %}has-error{% endif %}">
+                            {{ form.phone }}
+                            {% if form.phone.errors %}
+                            {% for error in form.phone.errors %}
+                            <div class="has-error help-block text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 text-right" >
+                            {{ form.email.label_tag }}
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group {% if form.email.errors %}has-error{% endif %}">
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                            {% for error in form.email.errors %}
+                            <div class="has-error help-block text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <hr />
+
+                <!-- Phone, Cell, e-mail -->
+                <div class="row" >
+                    <div class="col-md-2 text-right" >
+                        {{ form.affiliation.label_tag }}
+                    </div>
+
+                    <div class="col-md-2">
+                        <div class="form-group {% if form.affiliation.errors %}has-error{% endif %}">
+                            {{ form.affiliation }}
+                            {% if form.affiliation.errors %}
+                            {% for error in form.affiliation.errors %}
+                            <div class="has-error help-block text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row" >
+                    <div class="col-md-1 col-md-offset-11">
+                        <input class="btn btn-default pull-right" type="submit" value="Submit">
+                    </div>
+                </div>
+
+
+                {% if redirect_to %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_to }}">
+                {% endif %}
+                {% for field in form.hidden_fields %}
+                {{ field }}
+                {% endfor %}
+
+
+            </div>
+        </div>
+    </form>
+
+
+
+</div>
+{% endblock %}

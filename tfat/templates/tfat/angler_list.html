@@ -102,7 +102,11 @@
     <br />
     <div  class="row" >
         <div class="col-md-3" >
-            <button type="button" class="btn btn-primary">Add New Person</button>
+                        <a class="btn btn-primary"
+                           href="{% url 'create_angler'%}"
+                           role="button">
+                            <span class="glyphicon glyphicon-plus-sign"></span>
+                            Add New Person</a>
         </div>
     </div>
     <br />

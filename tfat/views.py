@@ -9,6 +9,7 @@ from geojson import MultiLineString
 
 from tfat.models import Species, JoePublic, Report, Recovery, Encounter, Project
 from tfat.filters import JoePublicFilter
+from tfat.forms import JoePublicForm
 
 from tfat.utils import *
 
@@ -295,3 +296,40 @@ def tags_recovered_project(request, slug):
                                'applied':applied,
                                'mls':mls
                            }, context_instance=RequestContext(request))
+
+
+
+def update_angler(request, angler_id):
+    """This view is used to update or edit an existing tag reporter / angler.
+
+    """
+    angler = get_object_or_404(JoePublic, id=angler_id)
+    form = JoePublicForm(request.POST or None, instance = angler)
+    if form.is_valid():
+        #TODO - make sure that an angler with the same first and last
+        #name does not already exist - if so we need to figure out if
+        #this is an update to them or somebody completely different.
+        form.save()
+        return redirect('angler_reports', angler_id=angler.id)
+    else:
+        return render(request, 'tfat/angler_form.html', {'form': form})
+
+
+def create_angler(request):
+    """This view is used to create a new tag reporter / angler.
+
+    """
+
+    if request.method == 'POST':
+        form = JoePublicForm(request.POST)
+        if form.is_valid():
+            #TODO - make sure that an angler with the same first and last
+            #name does not already exist - if so we need to figure out if
+            #this is an update to them or somebody completely different.
+            angler = form.save()
+            return redirect('angler_reports', angler_id=angler.id)
+    else:
+        form = JoePublicForm()
+
+
+    return render(request, 'tfat/angler_form.html', {'form': form})
