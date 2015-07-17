@@ -75,7 +75,7 @@ def test_angler_list_filter_first_name(client, db_setup):
 
     #These should not appear in the response if people are returned
     assert 'Sorry no people match that criteria' not in content
-    assert 'Add New Person' not in content
+    assert 'Add New Person' in content
 
 
 @pytest.mark.django_db
@@ -95,7 +95,7 @@ def test_angler_list_filter_last_name(client, db_setup):
 
     #These should not appear in the response if people are returned
     assert 'Sorry no people match that criteria' not in content
-    assert 'Add New Person' not in content
+    assert 'Add New Person' in content
 
 
 @pytest.mark.django_db

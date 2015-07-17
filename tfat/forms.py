@@ -12,7 +12,6 @@ A. Cottrill
 =============================================================
 '''
 
-
 from django import forms
 from django.forms import ModelForm
 from django.forms.widgets import HiddenInput
@@ -23,8 +22,6 @@ class JoePublicForm(ModelForm):
     '''A form to capture basic contact information about an angler or
     member of the general public who are reporting a recovered tag.
     '''
-
-    force_save = forms.BooleanField(initial=False, widget=HiddenInput())
 
     class Meta:
         model = JoePublic
@@ -41,37 +38,39 @@ class JoePublicForm(ModelForm):
             'phone',
             'affiliation',]
 
+class CreateJoePublicForm(JoePublicForm):
+    '''A form to capture basic contact information about an angler or
+    member of the general public who are reporting a recovered tag
+    when creating a new user.  This form inherits from the basic
+    JoePublic model form and adds a checkbox widget and additional
+    logic to catch users with the same first and last name.  The first
+    time it is called, the widget is hidden and the form will fail if
+    a user by that name already exists.  When the form is returned to
+    the user, the checkbox is made visible and must be checked for the
+    form to work - in which case a user with the same first and last
+    name is created.
+
+    '''
+
+    same_name = forms.BooleanField(widget=HiddenInput(attrs={'value':False}),
+                                   initial=False, required=False)
+
 
     def clean(self):
+        cleaned_data = super(JoePublicForm, self).clean()
+        same_name = cleaned_data.get('same_name', False)
+        first_name = cleaned_data.get('first_name')
+        last_name = cleaned_data.get('last_name')
+        anglers = JoePublic.objects.filter(first_name__iexact=first_name,
+                                           last_name__iexact=last_name).all()
 
-        force = self.cleaned_data.get('force_save',False)
-        first_name = self.cleaned_data.get('first_name')
-        last_name = self.cleaned_data.get('last_name')
-        anglers = JoePublic.objects.filter(first_name=first_name,
-                                           last_name=last_name).all()
-        if not force and len(anglers)>0:
-            self.fields['force_save'] = forms.BooleanField(initial = True,
-                                                           widget=HiddenInput())
-            msg = '{} {} already exists? View existing anglers with that name or create another?'
+        if not same_name and len(anglers)>0:
+            self.fields['same_name'].widget = forms.CheckboxInput()
+            msg = ('{} {} already exists. Do you want to use one of the '
+                   ' existing anglers with that name or create another?')
             raise forms.ValidationError(msg.format(first_name, last_name))
-        return self.cleaned_data
+        return cleaned_data
 
-
-#    first_name = forms.CharField(max_length=15)
-#    last_name = forms.CharField(max_length=50)
-#    initial = forms.CharField(max_length=50)
-#    # the address should should be 1-many with a default/current
-#    address1 = forms.CharField(max_length=50)
-#    address2 = forms.CharField(max_length=50)
-#    town = forms.CharField(max_length=50)
-#    #this could be a lookup
-#    province = forms.CharField(max_length=12)
-#    postal_code = forms.CharField(max_length=7)
-#    #this should be 1-many with a default/current
-#    email = forms.EmailField()
-#    phone = forms.CharField(max_length=15)
-#    affiliation = forms.CharField(max_length=50)
-#
 
 class ReportForm(forms.Form):
     '''A form to capture information with a report of one or more

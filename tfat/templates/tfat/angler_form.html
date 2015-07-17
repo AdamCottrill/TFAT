@@ -13,13 +13,20 @@
             {% for error in form.non_field_errors %}
             <p class="error">{{ error }}</p>
             {% endfor %}
+
+        </div>
+        {% endif %}
+
+        {% if msg %}
+        <div class="alert alert-danger">
+            {{ msg }}
         </div>
         {% endif %}
 
 
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title">Tag Reporter</h3>
+                <h3 class="panel-title">{{ action }}Tag Reporter</h3>
             </div>
             <div class="panel-body">
 
@@ -156,7 +163,7 @@
                 <div class="row" >
 
                     <div class="col-md-2 text-right" >
-                            {{ form.phone.label_tag }}
+                        {{ form.phone.label_tag }}
                     </div>
                     <div class="col-md-2">
                         <div class="form-group {% if form.phone.errors %}has-error{% endif %}">
@@ -170,7 +177,7 @@
                     </div>
 
                     <div class="col-md-2 text-right" >
-                            {{ form.email.label_tag }}
+                        {{ form.email.label_tag }}
                     </div>
                     <div class="col-md-2">
                         <div class="form-group {% if form.email.errors %}has-error{% endif %}">
@@ -205,11 +212,24 @@
 
 
                 <div class="row" >
-                    <div class="col-md-1 col-md-offset-11">
+                    <div class="col-md-3">
+                        {% if form.same_name %}
+                        {% if not form.hidden_fields %}
+                        <div class="checkbox" >
+                            <label>
+                                {{ form.same_name }} Use Duplicate Name Anyway
+                            </label>
+                        </div>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                    <div class="col-md-1 col-md-offset-8">
+                        {% if anglers %}
+                        <input class="btn btn-default pull-right" type="submit" value="Create New Angler"> {% else %}
                         <input class="btn btn-default pull-right" type="submit" value="Submit">
+                        {% endif %}
                     </div>
                 </div>
-
 
                 {% if redirect_to %}
                 <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_to }}">
@@ -221,9 +241,59 @@
 
             </div>
         </div>
+
+        {% if anglers %}
+        <h3>Existing Anglers:</h3>
+        {% for angler in anglers %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">{{angler.first_name}} {{angler.initial}} {{angler.last_name}}
+                    <a class="btn btn-default btn-xs pull-right"
+                       href="{% url 'update_angler' angler_id=angler.id %}"
+                       role="button">Edit Details</a>
+                </h3>
+            </div>
+            <div class="panel-body">
+                <table>
+                    <tr>
+                        <td>Address</td>
+                        <td>{{ angler.address1 }}</td>
+                    </tr>
+
+                    <tr>
+                        <td></td>
+                        <td>{{ angler.address2 }}</td>
+                    </tr>
+
+                    <tr>
+                        <td>Town</td>
+                        <td>{{ angler.town }} ({{angler.province}})</td>
+                    </tr>
+
+
+                    <tr>
+                        <td>Postal Code</td>
+                        <td>{{ angler.postal_code }}</td>
+                    </tr>
+
+
+                    <tr>
+                        <td>Phone Number</td>
+                        <td>{{ angler.phone }}</td>
+                    </tr>
+
+                    <tr>
+                        <td>e-mail</td>
+                        <td>{{ angler.email }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        {% endfor %}
+        {% endif %}
+
     </form>
-
-
 
 </div>
 {% endblock %}

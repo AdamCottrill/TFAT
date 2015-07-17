@@ -11,12 +11,16 @@
 <div class="container">
 
     <div class="row">
-        <div class="col-md-10" >
+        <div class="col-md-8" >
             <h2>Tag Returnees</h2>
         </div>
-        <div class="col-md-2" >
+        <div class="col-md-4" >
             <a class="btn btn-default" href="#" role="button" onclick="toggle_visibility('filter');">Filter </a>
             <a class="btn btn-default" href="{% url 'angler_list' %}" role="button">Reset</a>
+            {% if request.GET %}
+            <a class="btn btn-primary" href="{% url 'create_angler'%}" role="button">
+                <span class="glyphicon glyphicon-plus-sign"></span> Add New Person</a>
+            {% endif %}
         </div>
     </div>
 

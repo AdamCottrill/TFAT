@@ -9,7 +9,7 @@ from geojson import MultiLineString
 
 from tfat.models import Species, JoePublic, Report, Recovery, Encounter, Project
 from tfat.filters import JoePublicFilter
-from tfat.forms import JoePublicForm
+from tfat.forms import JoePublicForm, CreateJoePublicForm
 
 from tfat.utils import *
 
@@ -86,6 +86,7 @@ class AnglerListView(ListFilteredMixin, ListView):
     filter_set = JoePublicFilter
     paginage_by = ANGLER_PAGE_CNT
     template_name = 'tfat/angler_list.html'
+
 angler_list = AnglerListView.as_view()
 
 
@@ -305,31 +306,42 @@ def update_angler(request, angler_id):
     """
     angler = get_object_or_404(JoePublic, id=angler_id)
     form = JoePublicForm(request.POST or None, instance = angler)
+
     if form.is_valid():
-        #TODO - make sure that an angler with the same first and last
-        #name does not already exist - if so we need to figure out if
-        #this is an update to them or somebody completely different.
         form.save()
         return redirect('angler_reports', angler_id=angler.id)
     else:
-        return render(request, 'tfat/angler_form.html', {'form': form})
-
+        return render(request, 'tfat/angler_form.html', {'form': form,
+                                                         'action':'Edit '})
 
 def create_angler(request):
     """This view is used to create a new tag reporter / angler.
 
+    when we create a new angler, we do not want to duplicate entries
+    with the same first name and last name by default.  If there
+    already angers with the same first and last name, add them to the
+    reponse we will return with the form and ask the user to confirm
+    that this new user really does have the same name as and existing
+    (but different) angler.
+
     """
 
     if request.method == 'POST':
-        form = JoePublicForm(request.POST)
+        form = CreateJoePublicForm(request.POST)
         if form.is_valid():
-            #TODO - make sure that an angler with the same first and last
-            #name does not already exist - if so we need to figure out if
-            #this is an update to them or somebody completely different.
             angler = form.save()
             return redirect('angler_reports', angler_id=angler.id)
+        else:
+            first_name = form.cleaned_data.get('first_name')
+            last_name = form.cleaned_data.get('last_name')
+            anglers = JoePublic.objects.filter(first_name__iexact=first_name,
+                                           last_name__iexact=last_name).all()
+            if len(anglers):
+                return render(request, 'tfat/angler_form.html',
+                              {'form': form, 'anglers':anglers,
+                               'action':'Create New '})
     else:
-        form = JoePublicForm()
+        form = CreateJoePublicForm()
 
-
-    return render(request, 'tfat/angler_form.html', {'form': form})
+    return render(request, 'tfat/angler_form.html', {'form': form,
+                                                     'action':'Create New '})
