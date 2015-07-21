@@ -19,6 +19,7 @@ REPORTING_CHOICES = {
     ('verbal', 'verbal'),
     ('e-mail', 'e-mail'),
     ('letter', 'letter'),
+    ('dcr', 'DCR'),
     ('other', 'other'),
 }
 

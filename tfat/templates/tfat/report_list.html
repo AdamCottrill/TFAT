@@ -48,7 +48,14 @@
                     {% endif %}
                     </div>
                     <div class="col-md-2" >
-                        <button type="button" class="btn btn-default btn-xs pull-right">Edit Report</button>
+
+                        <a class="btn btn-default btn-xs pull-right"
+                           href="{% url 'update_report' angler_id=object.reported_by.id report_id=object.id %}"
+                           role="button">Edit Report</a>
+
+
+
+
                     </div>
                 </div>
             </h3>

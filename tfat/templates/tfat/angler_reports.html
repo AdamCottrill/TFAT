@@ -108,7 +108,9 @@
 
     <div  class="row" >
         <div class="col-md-3" >
-            <button type="button" class="btn btn-primary">Create New Report</button>
+                        <a class="btn btn-primary"
+                           href="{% url 'create_report' angler_id=angler.id %}"
+                           role="button">Create New Report</a>
         </div>
     </div>
     <br />

@@ -1,0 +1,265 @@
+{% extends "tfat/tfat_base.html" %}
+
+{% block extrahead %}
+
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+
+
+<style type="text/css" media="screen">
+.btn-file {
+  position: relative;
+  overflow: hidden;
+}
+.btn-file input[type=file] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 100%;
+  min-height: 100%;
+  font-size: 100px;
+  text-align: right;
+  filter: alpha(opacity=0);
+  opacity: 0;
+  background: red;
+  cursor: inherit;
+  display: block;
+}
+input[readonly] {
+  background-color: white !important;
+  cursor: text !important;
+}
+
+</style>
+
+{% endblock extrahead%}
+
+{% block content %}
+
+<div class="container">
+
+
+    <form method="post" action="{{ request.path }}">
+        {% csrf_token %}
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            Please fix the errors in the form below.
+            {% for error in form.non_field_errors %}
+            <p class="error">{{ error }}</p>
+            {% endfor %}
+
+        </div>
+        {% endif %}
+
+        {% if msg %}
+        <div class="alert alert-danger">
+            {{ msg }}
+        </div>
+        {% endif %}
+
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">{{ action }}Tag Report</h3>
+            </div>
+            <div class="panel-body">
+
+                <h4>Tag Reporter: <a href="{% url 'angler_reports' angler.id %}">{{ angler }}</a></h4>
+                <hr />
+
+
+
+                <div class="row" >
+                    <div class="col-md-2 text-right" >
+                        {{ form.report_date.label_tag }}
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group {% if form.report_date.errors %}has-error{% endif %}">
+                            {{ form.report_date }}
+                            {% if form.report_date.errors %}
+                            {% for error in form.report_date.errors %}
+                            <div class="has-error help-block text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 text-right" >
+                        {{ form.date_flag.label_tag }}
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group {% if form.date_flag.errors %}has-error{% endif %}">
+                            {{ form.date_flag }}
+                            {% if form.date_flag.errors %}
+                            {% for error in form.date_flag.errors %}
+                            <div class="has-error help-block text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+
+
+
+
+                <div class="row" >
+                    <div class="col-md-2 text-right" >
+                        {{ form.reporting_format.label_tag }}
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group {% if form.reporting_format.errors %}has-error{% endif %}">
+                            {{ form.reporting_format }}
+                            {% if form.reporting_format.errors %}
+                            {% for error in form.reporting_format.errors %}
+                            <div class="has-error help-block text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 text-right" >
+                        {{ form.report_file.label_tag }}
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group {% if form.report_file.errors %}has-error{% endif %}">
+
+
+                            <div class="input-group">
+                                <span class="input-group-btn">
+                                    <span class="btn btn-primary btn-file">
+                                        Browse&hellip; {{ form.report_file }}
+                                    </span>
+                                </span>
+                                <input type="text" class="form-control" readonly>
+                            </div>
+
+
+                            {% if form.report_file.errors %}
+                            {% for error in form.report_file.errors %}
+                            <div class="has-error help-block text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+
+                <div class="row" >
+                    <div class="col-md-2 text-right" >
+                        <label for="id_dcr">DCR:</label>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group {% if form.dcr.errors %}has-error{% endif %}">
+                            {{ form.dcr }}
+                            {% if form.dcr.errors %}
+                            {% for error in form.dcr.errors %}
+                            <div class="has-error help-block text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 text-right" >
+                        <label for="id_eff_num">Effort Number:</label>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group {% if form.eff_num.errors %}has-error{% endif %}">
+                            {{ form.eff_num }}
+                            {% if form.eff_num.errors %}
+                            {% for error in form.eff_num.errors %}
+                            <div class="has-error help-block text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" >
+                    <div class="col-md-12">
+                        <div class="form-group {% if form.eff_num.errors %}has-error{% endif %}">
+                            {{ form.comment.label_tag }}
+                            {{ form.comment }}
+                            {% if form.comment.errors %}
+                            {% for error in form.comment.errors %}
+                            <div class="has-error help-block text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" >
+                    <div class="col-md-10">
+                        <div class="form-group {% if form.eff_num.errors %}has-error{% endif %}">
+                            <div class="checkbox">
+                                <label>
+                                    {{ form.follow_up }}
+                                    Follow-up Required or Requested
+                                </label>
+                            </div>
+                            {% if form.follow_up.errors %}
+                            {% for error in form.follow_up.errors %}
+                            <div class="has-error help-block text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+
+                    </div>
+                    <div class="col-md-2">
+                        <input class="btn btn-default pull-right" type="submit" value="Submit">
+                    </div>
+                </div>
+
+                {% if redirect_to %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_to }}">
+                {% endif %}
+                {% for field in form.hidden_fields %}
+                {{ field }}
+                {% endfor %}
+
+            </div>
+        </div>
+
+    </form>
+
+</div>
+
+<script type="text/javascript">
+
+$(document).on('change', '.btn-file :file', function() {
+  var input = $(this),
+      numFiles = input.get(0).files ? input.get(0).files.length : 1,
+      label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+  input.trigger('fileselect', [numFiles, label]);
+});
+
+$(document).ready( function() {
+    $('.btn-file :file').on('fileselect', function(event, numFiles, label) {
+
+        var input = $(this).parents('.input-group').find(':text'),
+            log = numFiles > 1 ? numFiles + ' files selected' : label;
+
+        if( input.length ) {
+            input.val(log);
+        } else {
+            if( log ) alert(log);
+        }
+
+    });
+});
+
+
+</script>
+
+<script>
+  $(function() {
+    $( ".datepicker" ).datepicker();
+  });
+</script>
+
+{% endblock %}

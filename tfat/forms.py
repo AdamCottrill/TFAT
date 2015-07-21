@@ -16,7 +16,9 @@ from django import forms
 from django.forms import ModelForm
 from django.forms.widgets import HiddenInput
 from django.db.models.fields import BLANK_CHOICE_DASH
-from tfat.models import JoePublic, Recovery
+from tfat.models import JoePublic, Report, Recovery
+
+from datetime import datetime
 
 from .constants import (REPORTING_CHOICES, SEX_CHOICES,
                         TAG_TYPE_CHOICES,
@@ -58,6 +60,7 @@ class JoePublicForm(ModelForm):
             'phone',
             'affiliation',]
 
+
 class CreateJoePublicForm(JoePublicForm):
     '''A form to capture basic contact information about an angler or
     member of the general public who are reporting a recovered tag
@@ -92,10 +95,36 @@ class CreateJoePublicForm(JoePublicForm):
         return cleaned_data
 
 
-class ReportForm(forms.Form):
+class ReportForm(ModelForm):
     '''A form to capture information with a report of one or more
     recaptured tags.'''
-    pass
+
+    dcr = forms.CharField(required=False)
+    eff_num = forms.CharField(required=False)
+    report_file = forms.FileField(required=False)
+
+    class Meta:
+        model = Report
+        fields = ['report_date', 'date_flag', 'reporting_format', 'comment',
+                  'follow_up']
+
+        widgets = {
+            'report_date':forms.DateInput(attrs={'class':'datepicker'}),
+            'reporting_format':forms.Select(attrs={'class':'form-control'}),
+            'date_flag':forms.Select(attrs={'class':'form-control'}),
+            'comment': forms.Textarea(attrs={'class': 'form-control',
+                                             'rows': 10}),
+        }
+
+    def clean(self):
+        cleaned_data = super(ReportForm, self).clean()
+        report_date = cleaned_data.get('report_date')
+        if not report_date:
+            cleaned_data['date_flag'] = 0 #unknown
+            cleaned_data['report_date'] = datetime.today().date()
+        return cleaned_data
+
+
 
 #    reported_by  = forms.ForeignKey(JoePublic, related_name="Reported_By",
 #                                  blank=True, null=True)
@@ -115,6 +144,8 @@ class RecoveryForm(forms.Form):
     reported by an angler'''
 
     pass
+
+
 #    report  = forms.ForeignKey(Report, related_name="Report")
 #    spc  = forms.ForeignKey(Species, related_name="Species")
 #

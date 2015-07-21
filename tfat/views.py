@@ -9,7 +9,7 @@ from geojson import MultiLineString
 
 from tfat.models import Species, JoePublic, Report, Recovery, Encounter, Project
 from tfat.filters import JoePublicFilter
-from tfat.forms import JoePublicForm, CreateJoePublicForm
+from tfat.forms import JoePublicForm, CreateJoePublicForm, ReportForm
 
 from tfat.utils import *
 
@@ -345,3 +345,31 @@ def create_angler(request):
 
     return render(request, 'tfat/angler_form.html', {'form': form,
                                                      'action':'Create New '})
+
+
+
+def create_report(request, angler_id, report_id=None):
+    """This view is used to create a new tag report.
+    """
+
+    angler = get_object_or_404(JoePublic, id=angler_id)
+    report = Report.objects.filter(id=report_id).first()
+    #form = JoePublicForm(request.POST or None, instance = angler)
+
+    if request.method == 'POST':
+        form = ReportForm(request.POST)
+        if form.is_valid():
+            report = form.save(commit=False)
+            report.reported_by = angler
+            report.save()
+            #redirect to report details:
+            return redirect('angler_reports', angler_id=report.reported_by.id)
+            #return redirect('report_detail', report_id=report.id)
+    else:
+        if report:
+            form = ReportForm(instance=report)
+        else:
+            form = ReportForm()
+
+    return render(request, 'tfat/report_form.html', {'form': form,
+                                                     'angler':angler})
