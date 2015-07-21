@@ -15,13 +15,33 @@ A. Cottrill
 from django import forms
 from django.forms import ModelForm
 from django.forms.widgets import HiddenInput
+from django.db.models.fields import BLANK_CHOICE_DASH
 from tfat.models import JoePublic, Recovery
+
+from .constants import (REPORTING_CHOICES, SEX_CHOICES,
+                        TAG_TYPE_CHOICES,
+                        TAG_POSITION_CHOICES,
+                        TAG_ORIGIN_CHOICES,
+                        TAG_COLOUR_CHOICES,
+                        TAGSTAT_CHOICES,
+                        FATE_CHOICES,
+                        DATE_FLAG_CHOICES,
+                        LATLON_FLAG_CHOICES,
+                        PROVINCES_STATE_CHOICES)
 
 
 class JoePublicForm(ModelForm):
     '''A form to capture basic contact information about an angler or
     member of the general public who are reporting a recovered tag.
     '''
+
+    province = forms.ChoiceField(choices=BLANK_CHOICE_DASH +
+                                 list(PROVINCES_STATE_CHOICES),
+                                 widget=forms.Select(attrs={'class':'form-control'}),
+                                 required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(JoePublicForm, self).__init__(*args, **kwargs)
 
     class Meta:
         model = JoePublic

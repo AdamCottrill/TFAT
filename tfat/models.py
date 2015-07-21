@@ -12,7 +12,8 @@ from .constants import (REPORTING_CHOICES, SEX_CHOICES,
                         TAGSTAT_CHOICES,
                         FATE_CHOICES,
                         DATE_FLAG_CHOICES,
-                        LATLON_FLAG_CHOICES)
+                        LATLON_FLAG_CHOICES,
+                        PROVINCES_STATE_CHOICES)
 
 
 class Species(models.Model):
@@ -51,8 +52,10 @@ class JoePublic(models.Model):
     address1 = models.CharField(max_length=50, blank=True, null=True)
     address2 = models.CharField(max_length=50, blank=True, null=True)
     town = models.CharField(max_length=50,blank=True, null=True)
-    #this could be a lookup
-    province = models.CharField(max_length=12,blank=True, null=True)
+
+    province = models.CharField(max_length=12, choices=PROVINCES_STATE_CHOICES,
+                                blank=True, null=True)
+
     postal_code = models.CharField(max_length=7,blank=True, null=True)
     #this should be 1-many with a default/current
     email = models.CharField(max_length=50,blank=True, null=True)
@@ -174,7 +177,7 @@ class Recovery(models.Model):
     tag_colour = models.CharField("Tag Colour", max_length=3, db_index=True,
                                choices=TAG_COLOUR_CHOICES, default="2")
 
-    #tagdoc will be caclulated from tag type, position, origin and
+    #tagdoc will be calculated from tag type, position, origin and
     #colour following fishnet-II definitions
     tagdoc =  models.CharField(max_length=6,blank=True, null=True,
                                db_index=True)
