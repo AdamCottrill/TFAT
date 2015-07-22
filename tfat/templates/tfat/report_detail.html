@@ -1,0 +1,177 @@
+{% extends "tfat/tfat_base.html" %}
+
+{% load leaflet_tags %}
+
+{% block extrahead %}
+
+  {% leaflet_js %}
+  {% leaflet_css %}
+
+  <script src="/static/Leaflet.MakiMarkers.js"></script>
+
+
+<style>
+
+    #mymap {  /* all maps */
+        width:  700px;
+        height: 600px;
+    }
+
+</style>
+
+
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+
+    <div class="row">
+        <h2>Tag Report {{ report.id }}</h2>
+    </div>
+
+    <hr />
+
+    <div class="row">
+        <div class="col-md-4" >
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Report Details
+                        <a class="btn btn-default btn-xs pull-right"
+                           href="#"
+                           role="button">Edit Report</a>
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <table>
+
+                        <tr>
+                            <td><em>Reported By:</em></td>
+                            <td><a href="{% url 'angler_reports' report.reported_by.id %}">{{ report.reported_by }}</a> </td>
+                        </tr>
+
+
+                        <tr>
+                            <td><em>Report Date:</em></td>
+                            <td>{{ report.report_date|date:"M d, Y" }} ({{ report.get_date_flag_display }})</td>
+                        </tr>
+
+                        {% if report.dcr %}
+                        <tr>
+                            <td><em>DCR:</em></td>
+                            <td>{{ report.dcr }}</td>
+                        </tr>
+
+                        <tr>
+                            <td><em>Effort:</em></td>
+                            <td>{{ report.effort }}</td>
+                        </tr>
+
+                        {% endif %}
+
+                        <tr>
+                            <td><em>Format:</em></td>
+                            <td>{{ report.reporting_format }}</td>
+                        </tr>
+
+                        {% if report.file %}
+                        <tr>
+                            <td><em>Associated File:</em></td>
+                            <td><a href="#">FakeFile</a></td>
+                        </tr>
+                        {% endif %}
+
+                    </table>
+
+                    <br />
+                    <p><em>Comments:</em></p>
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            {{ report.comment }}
+
+                        </div>
+                    </div>
+
+                    {% if report.follow_up %}
+                    <button type="button" class="btn btn-danger btn-xs pull-right">Follow-up Required</button>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8" >
+
+            {% if report.get_tags %}
+            <script type="text/javascript">
+             function map_init_basic (map, options) {
+                 map.setZoom(7)
+
+                 {% for object in report.get_tags %}
+                 L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}]).addTo(map).bindPopup('{{ object.popup_text|safe }}');
+
+                 {% endfor %}
+
+             }
+            </script>
+            {% endif %}
+
+            {% leaflet_map "mymap" callback="window.map_init_basic" %}
+            <br>
+        </div>
+    </div>
+
+    <hr />
+
+
+    <h2>Tag Recoveries</h2>
+{% if report.get_tags %}
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>TagID </th>
+                        <th>TagDoc </th>
+                        <th>Colour </th>
+                        <th>Species</th>
+                        <th>Tlen</th>
+                        <th>Flen</th>
+                        <th>Date </th>
+                        <th>Location</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                {% for item in report.get_tags %}
+                <tr>
+                    <td> <a href="{% url 'tagid_detail_view' tagid=item.tagid %}">{{item.tagid}}</a> </td>
+                    <td>{{ item.tagdoc }} </td>
+                    <td>{{ item.get_tag_colour_display }} </td>
+                    <td>{{ item.spc.common_name }} </td>
+                    <td>{{ item.tlen }} </td>
+                    <td>{{ item.flen }} </td>
+                    <td>{{ item.recovery_date }} </td>
+                    <td>{{ item.general_name }} </td>
+                    <td> <a class="btn btn-primary pull-right" href="#" role="button">
+                        <span class="glyphicon glyphicon-edit"></span>  Edit</a></td>
+                </tr>
+                {% endfor %}
+            </table>
+
+{% else %}
+
+  <div class="alert alert-warning">
+    <h3>Oops!</h3>
+    <p> There don't seem to be any tags associated with this report.</p>
+  </div>
+
+{% endif %}
+
+
+            <hr />
+            <a class="btn btn-danger pull-right" href="#" role="button">
+                <span class="glyphicon glyphicon-plus-sign"></span>  Add New Tag</a>
+
+</div>
+
+{% endblock content%}

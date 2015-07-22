@@ -8,7 +8,8 @@ from tfat.views import (SpeciesListView, ReportListView,
                         tagid_contains_view, tagid_detail_view,
                         angler_reports_view, create_angler, update_angler,
                         tags_recovered_project, tags_applied_project,
-                        tagid_quicksearch_view, create_report)
+                        tagid_quicksearch_view, create_report,
+                        report_detail_view)
 
 urlpatterns = patterns("",
 
@@ -84,6 +85,14 @@ urlpatterns = patterns("",
             ),
 
 
+
+        url(
+            regex=r'^report_detail/(?P<report_id>\d+)/$',
+            view=report_detail_view,
+            name='report_detail'
+            ),
+
+
         url(
             regex=r'^project_list/tagged_in$',
             view=ProjectTagsAppliedListView.as_view(),
@@ -137,6 +146,7 @@ urlpatterns = patterns("",
             ),
 
         url(
+            #TODO - once reported, all we need is report ID, not angler
             regex=r'^update_report/(?P<angler_id>\d+)/(?P<report_id>\d+)/$',
             view=create_report,
             name='update_report'

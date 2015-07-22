@@ -50,11 +50,8 @@
                     <div class="col-md-2" >
 
                         <a class="btn btn-default btn-xs pull-right"
-                           href="{% url 'update_report' angler_id=object.reported_by.id report_id=object.id %}"
-                           role="button">Edit Report</a>
-
-
-
+                           href="{% url 'report_detail' report_id=object.id %}"
+                           role="button">Report Detail</a>
 
                     </div>
                 </div>

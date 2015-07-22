@@ -174,6 +174,21 @@ def tagid_detail_view(request, tagid):
 
 
 
+def report_detail_view(request, report_id):
+    """This view returns the detailed information and a summary of tags
+    associated with a particular report.
+
+    Arguments:
+    - `report_id`:
+
+    """
+    report = get_object_or_404(Report, id=report_id)
+
+    return render_to_response('tfat/report_detail.html',
+                              {'report':report,},
+                              context_instance=RequestContext(request))
+
+
 def tagid_quicksearch_view(request):
     '''This is a super quick view - if it is called, get the value of q
     and redirect to tagid_contains passing the value of q as a parameter.'''
