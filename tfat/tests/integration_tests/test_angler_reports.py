@@ -1,12 +1,11 @@
 '''=============================================================
-c:/1work/Python/djcode/tfat/tfat/tests/integration_tests/test_report_detail.py
+c:/1work/Python/djcode/tfat/tfat/tests/integration_tests/test_anlger_reports.py
 Created: 26 Jun 2015 13:25:34
-
 
 DESCRIPTION:
 
-This script contains an integraion test to verify that the report
-detail page renders as expected.
+This script contains an integraion test to verify that the angler reports
+page renders as expected.
 
 A. Cottrill
 =============================================================
@@ -59,8 +58,8 @@ def db_setup():
 
 
 @pytest.mark.django_db
-def test_report_detail(client, db_setup):
-    """Verify that we can navigate to the report detail page (status
+def test_anlger_reports(client, db_setup):
+    """Verify that we can navigate to the angler reports page (status
     code=200) and that the template is the one we think it is.
     """
 
@@ -73,7 +72,7 @@ def test_report_detail(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_report_detail_has_crud_links(client, db_setup):
+def test_anlger_report_has_crud_links(client, db_setup):
     """The report list for a partuclar angler should have links to allow
     us to create and update reports.
     """
@@ -89,9 +88,9 @@ def test_report_detail_has_crud_links(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_tagids_in_report_detail(client, db_setup):
+def test_tagids_in_anlger_reports(client, db_setup):
     """The tags reported by a particular individual should appear in the
-    report details pages but tags reported by other anlgers should
+    angler reports pages but tags reported by other anlgers should
     not.
     """
 
@@ -110,8 +109,8 @@ def test_tagids_in_report_detail(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_report_date_in_report_detail(client, db_setup):
-    """The data each report was filed on should appear on the report details
+def test_report_date_in_anlger_reports(client, db_setup):
+    """The data each report was filed on should appear on the angler reports
     page."""
 
     report_date = datetime(2010,10,10)
@@ -127,7 +126,7 @@ def test_report_date_in_report_detail(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_angler_info_in_report_detail(client, db_setup):
+def test_angler_info_in_anlger_reports(client, db_setup):
     """The basic angler information should be included in the report list
     - who filled all of these reports and how do we get in touch with
     them.
