@@ -83,6 +83,7 @@
 
                     </table>
 
+                    {% if report.comment %}
                     <br />
                     <p><em>Comments:</em></p>
                     <div class="panel panel-default">
@@ -91,6 +92,7 @@
 
                         </div>
                     </div>
+                    {% endif %}
 
                     {% if report.follow_up %}
                     <button type="button" class="btn btn-danger btn-xs pull-right">Follow-up Required</button>
@@ -122,7 +124,6 @@
     </div>
 
     <hr />
-
 
     <h2>Tag Recoveries</h2>
 {% if report.get_tags %}
