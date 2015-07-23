@@ -169,9 +169,29 @@ class ReportForm(ModelForm):
         cleaned_data = super(ReportForm, self).clean()
         report_date = cleaned_data.get('report_date')
 
+        report_format = cleaned_data.get('reporting_format')
+        dcr = cleaned_data.get('dcr')
+        effort = cleaned_data.get('effort')
+
+        if report_format =='dcr':
+            if dcr is None or dcr=='':
+                err_msg = 'DCR number is required if reported by "DCR".'
+                raise forms.ValidationError(err_msg)
+            if effort is None or effort=='':
+                err_msg = 'Effort number is required if reported by "DCR".'
+                raise forms.ValidationError(err_msg)
+        else:
+            if dcr and dcr!='':
+                err_msg = 'DCR should be empty if Report Format is not "DCR".'
+                raise forms.ValidationError(err_msg)
+            if effort and effort!='':
+                err_msg = 'Effort should be empty if Report Format is not "DCR".'
+                raise forms.ValidationError(err_msg)
+
         if not report_date:
             cleaned_data['date_flag'] = 0 #unknown
             cleaned_data['report_date'] = datetime.today().date()
+
         return cleaned_data
 
 

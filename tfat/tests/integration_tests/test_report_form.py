@@ -154,8 +154,11 @@ def test_edit_report_url_404(client, db_setup):
 @pytest.mark.django_db
 def test_create_report_minimal_data(client, db_setup):
     '''if we post minimal data, a report should be created for this
-    angler.  Date should be today, date flag should be 'derived', and the
-    other fields should all be empty'''
+    angler.  Date should be today, date flag should be 'unknown', and
+    the other fields should all be empty, and we should be re-directed
+    to the report's detail page
+    '''
+
 
     angler = JoePublic.objects.get(first_name='Barney')
     url = reverse('create_report', kwargs={'angler_id':angler.id})
@@ -214,12 +217,10 @@ def test_create_report_future_date(client, db_setup):
     assert 'Dates in the future are not allowed.' in content
 
 
-
 @pytest.mark.django_db
 def test_create_report_dcr_complete(client, db_setup):
     '''If we post data with format=dcr, and provide a dcr number and
     effort number, the report should be created.'''
-    pass
 
     angler = JoePublic.objects.get(first_name='Barney')
     url = reverse('create_report', kwargs={'angler_id':angler.id})
@@ -252,7 +253,7 @@ def test_create_report_dcr_missing_dcr_number(client, db_setup):
     response = client.post(url, data, follow=True)
 
     content = str(response.content)
-    assert 'DCR number is required if reported by DCR.' in content
+    assert 'DCR number is required if reported by &quot;DCR&quot;.' in content
 
 
 @pytest.mark.django_db
@@ -260,6 +261,7 @@ def test_create_report_dcr_missing_effort_number(client, db_setup):
     '''If we post data with format=dcr, but omit the effort number, an error
     should be thrown.
     '''
+
     angler = JoePublic.objects.get(first_name='Barney')
     url = reverse('create_report', kwargs={'angler_id':angler.id})
 
@@ -270,7 +272,7 @@ def test_create_report_dcr_missing_effort_number(client, db_setup):
     response = client.post(url, data, follow=True)
 
     content = str(response.content)
-    assert 'Effort is required if reported by DCR.' in content
+    assert 'Effort number is required if reported by &quot;DCR&quot;.' in content
 
 
 @pytest.mark.django_db
@@ -280,6 +282,7 @@ def test_create_report_not_dcr_with_effort_number(client, db_setup):
     unless reporting format is dcr
 
     '''
+
     angler = JoePublic.objects.get(first_name='Barney')
     url = reverse('create_report', kwargs={'angler_id':angler.id})
 
@@ -290,9 +293,8 @@ def test_create_report_not_dcr_with_effort_number(client, db_setup):
     response = client.post(url, data, follow=True)
 
     content = str(response.content)
-    assert 'Effort should be empty if format is not DCR.' in content
-
-
+    msg = 'Effort should be empty if Report Format is not &quot;DCR&quot;.'
+    assert msg in content
 
 
 @pytest.mark.django_db
@@ -302,6 +304,7 @@ def test_create_report_not_dcr_with_dcr_number(client, db_setup):
     unless reporting format is dcr
 
     '''
+
     angler = JoePublic.objects.get(first_name='Barney')
     url = reverse('create_report', kwargs={'angler_id':angler.id})
 
@@ -312,30 +315,49 @@ def test_create_report_not_dcr_with_dcr_number(client, db_setup):
     response = client.post(url, data, follow=True)
 
     content = str(response.content)
-    assert 'DCR should be empty if format is not DCR.' in content
+    msg = 'DCR should be empty if Report Format is not &quot;DCR&quot;.'
 
+    print(content)
+    assert msg in content
 
 
 @pytest.mark.django_db
 def test_create_report_with_file(client, db_setup):
     '''if we post data with an associated file object, the report should
     be created and have an associated file object.'''
-    pass
+    assert 0==1
 
 
 @pytest.mark.django_db
 def test_create_report_with_comment(client, db_setup):
     '''if we post data with a comment, the report should
     be created and have that comment associated with it.'''
-    pass
+
+    angler = JoePublic.objects.get(first_name='Barney')
+    url = reverse('create_report', kwargs={'angler_id':angler.id})
+    data = {'reported_by':angler.id,
+            'comment':'My Fake Comment'}
+    response = client.post(url, data, follow=True)
+
+    #query the database and make sure the data is how we expect it.
+    report = Report.objects.get(reported_by__first_name='Barney')
+    assert report.comment == 'My Fake Comment'
 
 
 @pytest.mark.django_db
 def test_create_report_with_follow_up(client, db_setup):
     '''if we post data with follow_up=True, the report should
     be created and its follow_up value should be TRUE.'''
-    pass
 
+    angler = JoePublic.objects.get(first_name='Barney')
+    url = reverse('create_report', kwargs={'angler_id':angler.id})
+    data = {'reported_by':angler.id,
+            'follow_up':True}
+    response = client.post(url, data, follow=True)
+
+    #query the database and make sure the data is how we expect it.
+    report = Report.objects.get(reported_by__first_name='Barney')
+    assert report.follow_up is True
 
 
 # REPORT EDITING:
