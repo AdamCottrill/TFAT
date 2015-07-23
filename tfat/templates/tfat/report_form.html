@@ -32,12 +32,11 @@ input[readonly] {
 
 </style>
 
-{% endblock extrahead%}
+{% endblock extrahead %}
 
 {% block content %}
 
 <div class="container">
-
 
     <form method="post" action="{{ request.path }}">
         {% csrf_token %}
@@ -47,7 +46,7 @@ input[readonly] {
             {% for error in form.non_field_errors %}
             <p class="error">{{ error }}</p>
             {% endfor %}
-
+            <p class="error">{{ form.errors }}</p>
         </div>
         {% endif %}
 
@@ -57,17 +56,14 @@ input[readonly] {
         </div>
         {% endif %}
 
-
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title">{{ action }}Tag Report</h3>
+                <h3 class="panel-title">{{ action }} Tag Report</h3>
             </div>
             <div class="panel-body">
 
                 <h4>Tag Reporter: <a href="{% url 'angler_reports' angler.id %}">{{ angler }}</a></h4>
                 <hr />
-
-
 
                 <div class="row" >
                     <div class="col-md-2 text-right" >
@@ -100,9 +96,6 @@ input[readonly] {
 
                 </div>
 
-
-
-
                 <div class="row" >
                     <div class="col-md-2 text-right" >
                         {{ form.reporting_format.label_tag }}
@@ -124,7 +117,6 @@ input[readonly] {
                     <div class="col-md-3">
                         <div class="form-group {% if form.report_file.errors %}has-error{% endif %}">
 
-
                             <div class="input-group">
                                 <span class="input-group-btn">
                                     <span class="btn btn-primary btn-file">
@@ -134,7 +126,6 @@ input[readonly] {
                                 <input type="text" class="form-control" readonly>
                             </div>
 
-
                             {% if form.report_file.errors %}
                             {% for error in form.report_file.errors %}
                             <div class="has-error help-block text-danger">{{ error }}</div>
@@ -143,11 +134,6 @@ input[readonly] {
                         </div>
                     </div>
                 </div>
-
-
-
-
-
 
                 <div class="row" >
                     <div class="col-md-2 text-right" >
@@ -165,13 +151,13 @@ input[readonly] {
                     </div>
 
                     <div class="col-md-2 text-right" >
-                        <label for="id_eff_num">Effort Number:</label>
+                        <label for="id_effort">Effort Number:</label>
                     </div>
                     <div class="col-md-3">
-                        <div class="form-group {% if form.eff_num.errors %}has-error{% endif %}">
-                            {{ form.eff_num }}
-                            {% if form.eff_num.errors %}
-                            {% for error in form.eff_num.errors %}
+                        <div class="form-group {% if form.effort.errors %}has-error{% endif %}">
+                            {{ form.effort}}
+                            {% if form.effort.errors %}
+                            {% for error in form.effort.errors %}
                             <div class="has-error help-block text-danger">{{ error }}</div>
                             {% endfor %}
                             {% endif %}
@@ -181,7 +167,7 @@ input[readonly] {
 
                 <div class="row" >
                     <div class="col-md-12">
-                        <div class="form-group {% if form.eff_num.errors %}has-error{% endif %}">
+                        <div class="form-group {% if form.effort.errors %}has-error{% endif %}">
                             {{ form.comment.label_tag }}
                             {{ form.comment }}
                             {% if form.comment.errors %}
@@ -195,7 +181,7 @@ input[readonly] {
 
                 <div class="row" >
                     <div class="col-md-10">
-                        <div class="form-group {% if form.eff_num.errors %}has-error{% endif %}">
+                        <div class="form-group {% if form.effort.errors %}has-error{% endif %}">
                             <div class="checkbox">
                                 <label>
                                     {{ form.follow_up }}
@@ -215,9 +201,6 @@ input[readonly] {
                     </div>
                 </div>
 
-                {% if redirect_to %}
-                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_to }}">
-                {% endif %}
                 {% for field in form.hidden_fields %}
                 {{ field }}
                 {% endfor %}
@@ -262,4 +245,4 @@ $(document).ready( function() {
   });
 </script>
 
-{% endblock %}
+{% endblock content %}

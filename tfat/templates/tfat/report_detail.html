@@ -38,7 +38,7 @@
                 <div class="panel-heading">
                     <h3 class="panel-title">Report Details
                         <a class="btn btn-default btn-xs pull-right"
-                           href="#"
+                           href="{% url 'edit_report' report_id=report.id %}"
                            role="button">Edit Report</a>
                     </h3>
                 </div>
@@ -47,7 +47,7 @@
 
                         <tr>
                             <td><em>Reported By:</em></td>
-                            <td><a href="{% url 'angler_reports' report.reported_by.id %}">{{ report.reported_by }}</a> </td>
+                            <td><a href="{% url 'angler_reports' angler_id=report.reported_by.id %}">{{ report.reported_by }}</a> </td>
                         </tr>
 
 
@@ -74,10 +74,12 @@
                             <td>{{ report.reporting_format }}</td>
                         </tr>
 
-                        {% if report.file %}
+                        {% if report.associated_file %}
                         <tr>
                             <td><em>Associated File:</em></td>
-                            <td><a href="#">FakeFile</a></td>
+
+                            <td><a href="{% url 'serve_file' filename=report.associated_file %}">
+                                {{ report.associated_file }} </a></td>
                         </tr>
                         {% endif %}
 

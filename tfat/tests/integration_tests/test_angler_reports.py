@@ -84,7 +84,7 @@ def test_anlger_report_has_crud_links(client, db_setup):
 
     assert 'Edit Details' in content #angler details
     assert 'Create New Report' in content
-    assert 'Edit Report' in content
+    assert 'Report Details' in content
 
 
 @pytest.mark.django_db

@@ -133,10 +133,12 @@
                         <button type="button" class="btn btn-danger btn-xs pull-right">Follow-up Required</button>
                     </div>
                     {% endif %}
-                    {% endwith %}
                     <div class="col-md-2" >
-                        <button type="button" class="btn btn-default btn-xs pull-right">Edit Report</button>
+                        <a class="btn btn-default btn-xs pull-right"
+                           href="{% url 'report_detail' report_id=recovery1.report.id %}"
+                           role="button">Report Details</a>
                     </div>
+                    {% endwith %}
                 </div>
 
             </h3>

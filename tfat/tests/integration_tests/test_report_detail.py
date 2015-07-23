@@ -42,11 +42,17 @@ A. Cottrill
 '''
 
 import pytest
+from django.core.files import File
 from django.core.urlresolvers import reverse
 
 from tfat.tests.factories import *
 
 from datetime import datetime
+
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 
 @pytest.fixture(scope='class')
@@ -60,12 +66,15 @@ def db_setup():
     angler2 = JoePublicFactory.create(first_name='Montgomery',
                                            last_name='Burns')
 
+    mock_file = StringIO('fake file content.')
+    mock_file.name = "path/to/some/fake/fake_test_file.txt"
+
     #report filed by Homer
     report = ReportFactory(reported_by=angler1,
                            report_date = report_date,
                            reporting_format = 'dcr',
-#                           dcr = 'dcr123', effort='eff001',
-#                           assocaited_file = 'foobar.txt',
+                           dcr = 'dcr123', effort='eff001',
+                           associated_file = File(mock_file),
                            comment='A fake comment.',
                            follow_up=True
     )
@@ -251,7 +260,7 @@ def test_report_detail_with_follow_up(client, db_setup):
     assert "Follow-up Required" in content
 
 
-@pytest.mark.xfail
+
 @pytest.mark.django_db
 def test_report_detail_with_dcr(client, db_setup):
     """if the report has a dcr and effort number, they should be included
@@ -259,6 +268,7 @@ def test_report_detail_with_dcr(client, db_setup):
 
     """
     report = Report.objects.get(reported_by__first_name='Homer')
+
     response = client.get(reverse('report_detail',
                                   kwargs={'report_id':report.id}))
     content = str(response.content)
@@ -269,7 +279,7 @@ def test_report_detail_with_dcr(client, db_setup):
     assert "eff001" in content
 
 
-@pytest.mark.xfail
+#@pytest.mark.xfail
 @pytest.mark.django_db
 def test_report_detail_with_associated_file(client, db_setup):
     """if the report has an associated file, a link to download the
@@ -282,7 +292,7 @@ def test_report_detail_with_associated_file(client, db_setup):
     content = str(response.content)
 
     assert "Associated File:" in content
-    assert "foobar.txt" in content
+    assert "./fake_test_file" in content
 
 
 @pytest.mark.django_db
@@ -292,8 +302,9 @@ def test_report_detail_with_comment(client, db_setup):
 
     """
     report = Report.objects.get(reported_by__first_name='Homer')
-    response = client.get(reverse('report_detail',
-                                  kwargs={'report_id':report.id}))
+
+    url = reverse('report_detail', kwargs={'report_id':report.id})
+    response = client.get(url)
     content = str(response.content)
 
     assert "Comments:" in content

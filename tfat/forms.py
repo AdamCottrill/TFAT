@@ -100,25 +100,75 @@ class ReportForm(ModelForm):
     recaptured tags.'''
 
     dcr = forms.CharField(required=False)
-    eff_num = forms.CharField(required=False)
-    report_file = forms.FileField(required=False)
+    efffort = forms.CharField(required=False)
+    associated_file = forms.FileField(required=False)
 
     class Meta:
         model = Report
-        fields = ['report_date', 'date_flag', 'reporting_format', 'comment',
-                  'follow_up']
+        fields = ['reported_by', 'report_date', 'date_flag', 'reporting_format',
+                  'comment', 'associated_file', 'dcr', 'effort', 'follow_up']
 
         widgets = {
-            'report_date':forms.DateInput(attrs={'class':'datepicker'}),
-            'reporting_format':forms.Select(attrs={'class':'form-control'}),
+            'reported_by':forms.HiddenInput(),
+            'report_date':forms.DateInput(attrs={'class':
+                                                 'form-control datepicker'}),
             'date_flag':forms.Select(attrs={'class':'form-control'}),
+            'reporting_format':forms.Select(attrs={'class':'form-control'}),
+            'dcr':forms.TextInput(attrs={'class':'form-control'}),
+            'effort':forms.TextInput(attrs={'class':'form-control'}),
             'comment': forms.Textarea(attrs={'class': 'form-control',
                                              'rows': 10}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super(ReportForm, self).__init__(*args, **kwargs)
+        self.fields['reporting_format'].required = False
+        self.fields['date_flag'].required = False
+
+    def clean_reporting_format(self):
+        """Provide a default value if it is null.
+
+        Arguments:
+        - `self`:
+        """
+        report_format = self.cleaned_data['reporting_format']
+
+        if report_format is None or report_format == '':
+            report_format = 'verbal'
+        return report_format
+
+
+    def clean_report_date(self):
+        """dates in the future are not allowed!
+
+        Arguments:
+        - `self`:
+        """
+        report_date = self.cleaned_data['report_date']
+        today = datetime.today()
+
+        if report_date:
+            if report_date.date() > today.date():
+                err_msg = 'Dates in the future are not allowed.'
+                raise forms.ValidationError(err_msg)
+        return report_date
+
+
+    def clean_date_flag(self):
+        """Provide a default value if it is null.
+        Arguments:
+        - `self`:
+        """
+        date_flag = self.cleaned_data['date_flag']
+        if date_flag is None or date_flag == '':
+            date_flag = 0
+        return date_flag
+
+
     def clean(self):
         cleaned_data = super(ReportForm, self).clean()
         report_date = cleaned_data.get('report_date')
+
         if not report_date:
             cleaned_data['date_flag'] = 0 #unknown
             cleaned_data['report_date'] = datetime.today().date()

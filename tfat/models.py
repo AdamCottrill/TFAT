@@ -96,11 +96,14 @@ class Report(models.Model):
 
     reported_by  = models.ForeignKey(JoePublic, related_name="Reported_By",
                                   blank=True, null=True)
-    report_date = models.DateTimeField(blank=True, null=True)
+    report_date = models.DateTimeField('Report Date', blank=True, null=True)
     date_flag = models.IntegerField("Date Flag",
                                choices=DATE_FLAG_CHOICES, default=1)
     reporting_format = models.CharField("Report Format", max_length=30,
                                choices=REPORTING_CHOICES, default="verbal")
+    dcr =  models.CharField(max_length=15, blank=True, null=True)
+    effort =  models.CharField(max_length=15, blank=True, null=True)
+    associated_file = models.FileField(blank=True, null=True)
     comment = models.CharField(max_length=500, blank=True, null=True)
     #this should be a model like comments in ticket-tracker -what
     #exactly is the follow up and who is it assigned to, who did it.

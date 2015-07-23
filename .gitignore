@@ -5,3 +5,4 @@ db/*
 *.ldb
 *.pyc
 static/*
+media/*

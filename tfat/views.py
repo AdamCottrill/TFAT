@@ -185,7 +185,7 @@ def report_detail_view(request, report_id):
     report = get_object_or_404(Report, id=report_id)
 
     return render_to_response('tfat/report_detail.html',
-                              {'report':report,},
+                              {'report':report},
                               context_instance=RequestContext(request))
 
 
@@ -363,28 +363,78 @@ def create_angler(request):
 
 
 
-def create_report(request, angler_id, report_id=None):
+def create_report(request, angler_id):
     """This view is used to create a new tag report.
     """
 
     angler = get_object_or_404(JoePublic, id=angler_id)
-    report = Report.objects.filter(id=report_id).first()
-    #form = JoePublicForm(request.POST or None, instance = angler)
 
-    if request.method == 'POST':
+    if request.method == 'POST' and angler:
         form = ReportForm(request.POST)
         if form.is_valid():
             report = form.save(commit=False)
             report.reported_by = angler
             report.save()
             #redirect to report details:
-            return redirect('angler_reports', angler_id=report.reported_by.id)
-            #return redirect('report_detail', report_id=report.id)
+            return redirect('report_detail', report_id=report.id)
     else:
-        if report:
-            form = ReportForm(instance=report)
-        else:
-            form = ReportForm()
+        form = ReportForm(initial={'reported_by':angler})
 
     return render(request, 'tfat/report_form.html', {'form': form,
-                                                     'angler':angler})
+                                                     'angler':angler,
+                                                     'action': 'Create',})
+
+
+
+def edit_report(request, report_id):
+    """This view is used to edit an existing tag report.
+    """
+
+    report = get_object_or_404(Report, id=report_id)
+
+
+    if request.method == 'POST':
+        form = ReportForm(request.POST, instance=report)
+        if form.is_valid():
+            form.save()
+            #redirect to report details:
+            return redirect('report_detail', report_id=report.id)
+    else:
+        form = ReportForm(instance=report)
+    angler = report.reported_by
+    return render(request, 'tfat/report_form.html', {'form': form,
+                                                     'angler':angler,
+                                                     'action': 'Edit'})
+
+
+
+
+def serve_file(request, filename):
+    '''from:http://stackoverflow.com/questions/2464888/
+    downloading-a-csv-file-in-django?rq=1
+
+    This function is my first attempt at a function used to
+    serve/download files.  It works for basic text files, but seems to
+    corrupt pdf and ppt files (maybe other binaries too).  It also
+    should be updated to include some error trapping just incase the
+    file doesn t actully exist.
+    '''
+
+    fname = os.path.join(settings.MEDIA_ROOT, filename)
+
+    if os.path.isfile(fname):
+
+        content_type = mimetypes.guess_type(filename)[0]
+
+        filename = os.path.split(filename)[-1]
+        wrapper = FileWrapper(file(fname, 'rb'))
+        response = HttpResponse(wrapper, content_type=content_type)
+        response['Content-Disposition'] = (
+            'attachment; filename=%s' % os.path.basename(fname))
+        response['Content-Length'] = os.path.getsize(fname)
+
+        return response
+    else:
+        return render_to_response('pjtk2/MissingFile.html',
+                                  { 'filename': filename},
+                                  context_instance=RequestContext(request))
