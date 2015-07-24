@@ -183,9 +183,12 @@ def report_detail_view(request, report_id):
 
     """
     report = get_object_or_404(Report, id=report_id)
+    #angler = report.reported_by
 
     return render_to_response('tfat/report_detail.html',
-                              {'report':report},
+                              {'report':report,
+                               #'angler':angler
+                           },
                               context_instance=RequestContext(request))
 
 
@@ -391,17 +394,18 @@ def edit_report(request, report_id):
     """
 
     report = get_object_or_404(Report, id=report_id)
-
-
+    angler = report.reported_by
     if request.method == 'POST':
         form = ReportForm(request.POST, instance=report)
         if form.is_valid():
-            form.save()
+            report = form.save(commit=False)
+            report.reported_by = angler
+            report.save()
             #redirect to report details:
             return redirect('report_detail', report_id=report.id)
     else:
         form = ReportForm(instance=report)
-    angler = report.reported_by
+
     return render(request, 'tfat/report_form.html', {'form': form,
                                                      'angler':angler,
                                                      'action': 'Edit'})

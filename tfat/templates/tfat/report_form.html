@@ -112,22 +112,22 @@ input[readonly] {
                     </div>
 
                     <div class="col-md-2 text-right" >
-                        {{ form.report_file.label_tag }}
+                        {{ form.associated_file.label_tag }}
                     </div>
                     <div class="col-md-3">
-                        <div class="form-group {% if form.report_file.errors %}has-error{% endif %}">
+                        <div class="form-group {% if form.associated_file.errors %}has-error{% endif %}">
 
                             <div class="input-group">
                                 <span class="input-group-btn">
                                     <span class="btn btn-primary btn-file">
-                                        Browse&hellip; {{ form.report_file }}
+                                        Browse&hellip; {{ form.associated_file }}
                                     </span>
                                 </span>
                                 <input type="text" class="form-control" readonly>
                             </div>
 
-                            {% if form.report_file.errors %}
-                            {% for error in form.report_file.errors %}
+                            {% if form.associated_file.errors %}
+                            {% for error in form.associated_file.errors %}
                             <div class="has-error help-block text-danger">{{ error }}</div>
                             {% endfor %}
                             {% endif %}
@@ -241,7 +241,7 @@ $(document).ready( function() {
 
 <script>
   $(function() {
-    $( ".datepicker" ).datepicker();
+    $( ".datepicker" ).datepicker({ dateFormat: 'yy-mm-dd' });
   });
 </script>
 

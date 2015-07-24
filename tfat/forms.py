@@ -31,6 +31,7 @@ from .constants import (REPORTING_CHOICES, SEX_CHOICES,
                         LATLON_FLAG_CHOICES,
                         PROVINCES_STATE_CHOICES)
 
+TODAY = datetime.today().date()
 
 class JoePublicForm(ModelForm):
     '''A form to capture basic contact information about an angler or
@@ -111,7 +112,8 @@ class ReportForm(ModelForm):
         widgets = {
             'reported_by':forms.HiddenInput(),
             'report_date':forms.DateInput(attrs={'class':
-                                                 'form-control datepicker'}),
+                                                 'form-control datepicker',
+                                                 'placeholder':TODAY}),
             'date_flag':forms.Select(attrs={'class':'form-control'}),
             'reporting_format':forms.Select(attrs={'class':'form-control'}),
             'dcr':forms.TextInput(attrs={'class':'form-control'}),
@@ -152,6 +154,35 @@ class ReportForm(ModelForm):
                 err_msg = 'Dates in the future are not allowed.'
                 raise forms.ValidationError(err_msg)
         return report_date
+
+
+    def clean_dcr(self):
+        """If dcr contains and empty string, return None, otherwise return
+        it's value.'
+
+        Arguments:
+        - `self`:
+
+        """
+        dcr = self.cleaned_data['dcr']
+        if dcr == '':
+            return None
+        return dcr
+
+
+    def clean_effort(self):
+        """If the effort contains and empty string, return None otherwise
+        return it's value.'
+
+        Arguments:
+        - `self`:
+
+        """
+        effort = self.cleaned_data['effort']
+        if effort == '':
+            return None
+        return effort
+
 
 
     def clean_date_flag(self):

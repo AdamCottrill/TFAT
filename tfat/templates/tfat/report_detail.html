@@ -47,13 +47,19 @@
 
                         <tr>
                             <td><em>Reported By:</em></td>
-                            <td><a href="{% url 'angler_reports' angler_id=report.reported_by.id %}">{{ report.reported_by }}</a> </td>
+                            {% url 'angler_reports' report.reported_by.id as the_url %}
+                            <td><a href="{{ the_url }}">{{ report.reported_by }}</a> </td>
                         </tr>
 
 
                         <tr>
                             <td><em>Report Date:</em></td>
                             <td>{{ report.report_date|date:"M d, Y" }} ({{ report.get_date_flag_display }})</td>
+                        </tr>
+
+                        <tr>
+                            <td><em>Format:</em></td>
+                            <td>{{ report.reporting_format }}</td>
                         </tr>
 
                         {% if report.dcr %}
@@ -69,16 +75,11 @@
 
                         {% endif %}
 
-                        <tr>
-                            <td><em>Format:</em></td>
-                            <td>{{ report.reporting_format }}</td>
-                        </tr>
-
                         {% if report.associated_file %}
                         <tr>
                             <td><em>Associated File:</em></td>
-
-                            <td><a href="{% url 'serve_file' filename=report.associated_file %}">
+                            {% url 'serve_file' filename=report.associated_file as the_url %}
+                            <td><a href="{{ the_url }}">
                                 {{ report.associated_file }} </a></td>
                         </tr>
                         {% endif %}

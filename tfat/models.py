@@ -77,8 +77,6 @@ class JoePublic(models.Model):
             display = '{}'.format(self.last_name)
         return display
 
-
-
 class Report(models.Model):
     '''
 
