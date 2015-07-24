@@ -41,6 +41,7 @@ from tfat.tests.factories import *
 
 from datetime import datetime, timedelta
 
+
 try:
     from StringIO import StringIO
 except ImportError:
@@ -60,15 +61,11 @@ def db_setup():
     angler2 = JoePublicFactory.create(first_name='Montgomery',
                                            last_name='Burns')
 
-    mock_file = StringIO('fake file content.')
-    mock_file.name = "path/to/some/fake/fake_test_file.txt"
-
     #complete report filed by Homer
     report = ReportFactory(reported_by=angler1,
                            report_date = report_date,
                            reporting_format = 'dcr',
                            dcr = 'dcr123', effort='eff001',
-                           associated_file = File(mock_file),
                            comment='A fake comment.',
                            follow_up=True
     )
@@ -356,11 +353,26 @@ def test_edit_report_change_follow_up(client, db_setup):
     assert report.follow_up is True
 
 
-
-@pytest.mark.xfail
 @pytest.mark.django_db
 def test_edit_report_add_file(client, db_setup):
     """if we post data to add a file to a report, the file should be
     available and associated with our report.
     """
-    assert 0==1
+
+    mock_file = StringIO('fake file content.')
+    mock_file.name = "path/to/some/fake/fake_test_file.txt"
+    data = {'associated_file':mock_file}
+
+    report = Report.objects.get(reported_by__first_name='Montgomery')
+    assert report.associated_file.name == ''
+
+    url = reverse('edit_report', kwargs={'report_id':report.id})
+    response = client.post(url, data, follow=True)
+
+    content = str(response.content)
+    assert 'Associated File:' in content
+    assert 'reports/fake_test_file' in content
+    assert 'serve_file' in content
+
+    report = Report.objects.get(reported_by__first_name='Montgomery')
+    assert 'reports/fake_test_file' in report.associated_file.name

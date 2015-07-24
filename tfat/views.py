@@ -1,9 +1,14 @@
+from django.conf import settings
+from django.core.servers.basehttp import FileWrapper
+from django.http import Http404, HttpResponse
 from django.shortcuts import (render_to_response, get_object_or_404,
                               get_list_or_404)
 from django.shortcuts import render, redirect
-from django.http import Http404
-from django.views.generic import ListView
 from django.template import RequestContext
+from django.views.generic import ListView
+
+import os
+import mimetypes
 
 from geojson import MultiLineString
 
@@ -373,9 +378,10 @@ def create_report(request, angler_id):
     angler = get_object_or_404(JoePublic, id=angler_id)
 
     if request.method == 'POST' and angler:
-        form = ReportForm(request.POST)
+        form = ReportForm(request.POST, request.FILES)
         if form.is_valid():
             report = form.save(commit=False)
+            report.associated_file = request.FILES.get('associated_file')
             report.reported_by = angler
             report.save()
             #redirect to report details:
@@ -396,9 +402,12 @@ def edit_report(request, report_id):
     report = get_object_or_404(Report, id=report_id)
     angler = report.reported_by
     if request.method == 'POST':
-        form = ReportForm(request.POST, instance=report)
+        form = ReportForm(request.POST, request.FILES, instance=report)
+
+        #import pdb;pdb.set_trace()
         if form.is_valid():
             report = form.save(commit=False)
+            #report.associated_file = request.FILES.get('associated_file')
             report.reported_by = angler
             report.save()
             #redirect to report details:
@@ -431,7 +440,8 @@ def serve_file(request, filename):
         content_type = mimetypes.guess_type(filename)[0]
 
         filename = os.path.split(filename)[-1]
-        wrapper = FileWrapper(file(fname, 'rb'))
+        #wrapper = FileWrapper(file(fname, 'rb'))
+        wrapper = FileWrapper(open(fname, 'rb'))
         response = HttpResponse(wrapper, content_type=content_type)
         response['Content-Disposition'] = (
             'attachment; filename=%s' % os.path.basename(fname))

@@ -133,7 +133,7 @@ def test_reports_detail_contains_reported_by(client, db_setup):
     assert str(angler) in content
 
 
-@pytest.mark.xfail
+
 @pytest.mark.django_db
 def test_reports_detail_contains_edit_report(client, db_setup):
     """verify that a link to edit the report is included in the reponse
@@ -144,7 +144,7 @@ def test_reports_detail_contains_edit_report(client, db_setup):
     response = client.get(reverse('report_detail',
                                   kwargs={'report_id':report.id}))
     content = str(response.content)
-    url = reverse('update_report', kwargs={'report_id':report.id})
+    url = reverse('edit_report', kwargs={'report_id':report.id})
     assert url in content
 
 
@@ -279,7 +279,6 @@ def test_report_detail_with_dcr(client, db_setup):
     assert "eff001" in content
 
 
-#@pytest.mark.xfail
 @pytest.mark.django_db
 def test_report_detail_with_associated_file(client, db_setup):
     """if the report has an associated file, a link to download the
@@ -292,7 +291,8 @@ def test_report_detail_with_associated_file(client, db_setup):
     content = str(response.content)
 
     assert "Associated File:" in content
-    assert "./fake_test_file" in content
+    print(content)
+    assert "/reports/fake_test_file" in content
 
 
 @pytest.mark.django_db

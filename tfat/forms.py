@@ -226,20 +226,6 @@ class ReportForm(ModelForm):
         return cleaned_data
 
 
-
-#    reported_by  = forms.ForeignKey(JoePublic, related_name="Reported_By",
-#                                  blank=True, null=True)
-#    report_date = forms.DateTimeField(blank=True, null=True)
-#    date_flag = forms.IntegerField("Date Flag",
-#                               choices=DATE_FLAG_CHOICES, default=1)
-#    reporting_format = forms.CharField("Report Format", max_length=30,
-#                               choices=REPORTING_CHOICES, default="verbal")
-#    comment = forms.CharField(max_length=500, blank=True, null=True)
-#    #this should be a model like comments in ticket-tracker -what
-#    #exactly is the follow up and who is it assigned to, who did it.
-#    follow_up  = forms.BooleanField(default=False)
-
-
 class RecoveryForm(forms.Form):
     '''A form to capture the information associated with a recaptured tag
     reported by an angler'''

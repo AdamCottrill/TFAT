@@ -256,12 +256,30 @@ def test_create_report_not_dcr_with_dcr_number(client, db_setup):
     assert msg in content
 
 
-@pytest.mark.xfail
+
 @pytest.mark.django_db
 def test_create_report_with_file(client, db_setup):
     '''if we post data with an associated file object, the report should
     be created and have an associated file object.'''
-    assert 0==1
+
+    mock_file = StringIO('fake file content.')
+    mock_file.name = "path/to/some/fake/fake_test_file.txt"
+
+    angler = JoePublic.objects.get(first_name='Barney')
+    url = reverse('create_report', kwargs={'angler_id':angler.id})
+    data = {'reported_by':angler.id,
+            'associated_file':mock_file}
+    response = client.post(url, data, follow=True)
+
+    content = str(response.content)
+    assert 'Associated File:' in content
+    assert 'reports/fake_test_file' in content
+    assert 'serve_file' in content
+
+    report = Report.objects.get(reported_by__first_name='Barney')
+    assert 'reports/fake_test_file' in report.associated_file.name
+
+
 
 
 @pytest.mark.django_db
