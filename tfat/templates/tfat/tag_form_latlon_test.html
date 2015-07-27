@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+        <title>Example Lat-Long Form</title>
+
+        <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+
+        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <!-- Include all compiled plugins (below), or include individual files as needed -->
+        <script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+
+        <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+        <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+             <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+             <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+             <![endif]-->
+
+    </head>
+    <body>
+
+
+        <div class="container" >
+
+            <h2>Tag Recovery Form</h2>
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+                    <!-- <form> -->
+
+                        <div>
+                        <!-- Nav tabs -->
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation"><a href="#decimal_degrees" aria-controls="decimal_degrees" role="tab" data-toggle="tab">Decimal Degrees</a></li>
+                            <li role="presentation"><a href="#ddm" aria-controls="ddm" role="tab" data-toggle="tab">Decimal Minutes</a></li>
+                            <li role="presentation"><a href="#dms" aria-controls="dms" role="tab" data-toggle="tab">Degree Minutes Seconds</a></li>
+                            <li role="presentation"><a href="#grid" aria-controls="grid" role="tab" data-toggle="tab">5-min Grid</a></li>
+                            <li role="presentation" class="active"><a href="#leaflet_map" aria-controls="leaflet_map" role="tab" data-toggle="tab">Clickable Map</a></li>
+                        </ul>
+
+                        <!-- Tab panes -->
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane" id="decimal_degrees">
+
+                                <br />
+                                <h4>Coordinates in Decimal Degrees:</h4>
+                                <br />
+                                <p><strong>Latitude:</strong></p>
+                                <div class="form-group">
+                                    <label class="sr-only" for="dd_lat_deg">Latitude:</label>
+                                    <input type="text" class="form-control" id="dd_lat_deg" placeholder="Decimal Degrees">
+                                </div>
+
+                                <p><strong>Longitude:</strong></p>
+                                <div class="form-group">
+                                    <label class="sr-only" for="dd_lon_deg">Longitude:</label>
+                                    <input type="text" class="form-control" id="dd_lon_deg" placeholder="Decimal Degrees">
+                                </div>
+
+
+                            </div> <!-- tabpanel -->
+                            <div role="tabpanel" class="tab-pane" id="ddm">
+                                <br />
+                                <h4>Coordinates in Degrees-Decimal Minute format:</h4>
+                                <br />
+                                <p><strong>Latitude:</strong></p>
+                                <div class="row" >
+                                    <div class="col-md-6" >
+                                        <div class="form-group">
+                                            <label class="sr-only" for="ddm_lat_deg">Degrees:</label>
+                                            <input type="text" name="ddm_lat" class="form-control" id="ddm_lat_deg" placeholder="Degrees">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6" >
+                                        <div class="form-group">
+                                            <label  class="sr-only" for="ddm_lat_min">Decimal Minutes:</label>
+                                            <input type="text" name="ddm_lat" class="form-control" id="ddm_lat_min" placeholder="Decimal Minutes">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <p><strong>Longitude:</strong></p>
+                                <div class="row" >
+                                    <div class="col-md-6" >
+                                        <div class="form-group">
+                                            <label class="sr-only" for="ddm_lon_deg">Degrees:</label>
+                                            <input type="text" name="ddm_lon" class="form-control" id="ddm_lon_deg" placeholder="Degrees">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6" >
+                                        <div class="form-group">
+                                            <label  class="sr-only" for="ddm_lon_min">Decimal Minutes:</label>
+                                            <input type="text" name="ddm_lon" class="form-control" id="ddm_lon_min" placeholder="Decimal Minutes">
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>  <!-- tabpanel -->
+
+                            <div role="tabpanel" class="tab-pane" id="dms">
+                                <br />
+                                <h4>Coordinates in Degrees-Minutes-Seconds format:</h4>
+                                <br />
+                                <p><strong>Latitude:</strong></p>
+                                <div class="row" >
+                                    <div class="col-md-4" >
+                                        <div class="form-group">
+                                            <label class="sr-only" for="dms_lat_deg">Degrees:</label>
+                                            <input type="text" name="dms_lat" class="form-control" id="dms_lat_deg" placeholder="Degrees">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4" >
+                                        <div class="form-group">
+                                            <label  class="sr-only" for="dms_lat_min">Minutes:</label>
+                                            <input type="text"  name="dms_lat"  class="form-control" id="dms_lat_min" placeholder="Minutes">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4" >
+                                        <div class="form-group">
+                                            <label  class="sr-only" for="dms_lat_sec">Seconds:</label>
+                                            <input type="text"  name="dms_lat" class="form-control" id="dms_lat_sec" placeholder="Seconds">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <p><strong>Longitude:</strong></p>
+                                <div class="row" >
+                                    <div class="col-md-4" >
+                                        <div class="form-group">
+                                            <label class="sr-only" for="dms_lon_deg">Degrees:</label>
+                                            <input type="text"  name="dms_lon" class="form-control" id="dms_lon_deg" placeholder="Degrees">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4" >
+                                        <div class="form-group">
+                                            <label  class="sr-only" for="dms_lon_min">Minutes:</label>
+                                            <input type="text" name="dms_lon" class="form-control" id="dms_lon_min" placeholder="Minutes">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4" >
+                                        <div class="form-group">
+                                            <label  class="sr-only" for="dms_lon_sec">Seconds:</label>
+                                            <input type="text" name="dms_lon" class="form-control" id="dms_lon_sec" placeholder="Seconds">
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+                            </div>  <!-- tabpanel -->
+
+                            <div role="tabpanel" class="tab-pane" id="grid">
+
+                                <br />
+
+                                <p><strong>5-Minute Grid Number:</strong></p>
+                                <div class="row" >
+                                    <div class="col-md-3" >
+                                        <div class="form-group">
+                                            <label class="sr-only" for="grid_no">5-Minute Grid Number:</label>
+                                            <input type="text"  name="grid_no" class="form-control" id="grid_no" placeholder="1942">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3" >
+                                        <select class="form-control">
+                                            <option>Lake Huron</option>
+                                            <option>Lake Superior</option>
+                                            <option>Lake Erie</option>
+                                            <option>Lake Ontario</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <p>Lots more work to do here.  we need
+                                to write a api in our application that
+                                will get the centroid of the supplied
+                                grid number and populate the other
+                                controls or take the lat-lon from the
+                                other controls and get the assocaiated
+                                grid number.</p>
+
+
+                            </div>  <!-- tabpanel -->
+
+                            <div role="tabpanel" class="tab-pane active" id="leaflet_map">
+                                <br />
+                                A clickable map.
+                                <br />
+
+                                <div class="fieldWrapper">
+                                    <p>1) Place the marker where the recapture occured</p>
+                                    <div id="map" style="height:700px; width:80%; padding-top:100px;"></div>
+                                    <input id="coordinates" name="coordinates" value="" type="hidden" />
+                                </div>
+
+
+                            </div>  <!-- tabpanel -->
+
+                        </div>  <!-- tabcontent -->
+
+                        </div>
+
+                            <hr />
+                        <!-- <button type="submit" class="btn btn-default">Submit</button> -->
+                    <!-- </form> -->
+                </div> <!-- panel-body -->
+            </div> <!-- panel -->
+        </div> <!-- container -->
+
+
+        <script>
+
+         // Your code goes here.
+
+         $(document).ready(function(){
+
+             function refresh_map(){
+
+                 //refresh our map:
+                 var ddlat = $('input[id="dd_lat_deg"]').val();
+                 var ddlon = $('input[id="dd_lon_deg"]').val();
+
+                 if (typeof marker != 'undefined') {
+                     map.removeLayer(marker);  // delete previous marker
+                     marker = L.marker([ddlat, ddlon]).addTo(map);  // add new marker
+                     map.panTo(new L.LatLng(ddlat, ddlon));
+                 }
+                 else {
+                     marker = L.marker([ddlat, ddlon]).addTo(map);  // add new marker
+                 }
+             }
+
+
+             $('input[id="dd_lat_deg"]').change (function () {
+
+                 var ddlat = $('input[id="dd_lat_deg"]').val();
+                 var lat_idegrees = Math.floor(ddlat);
+                 var lat_dminutes = (ddlat - lat_idegrees) * 60;
+                 var lat_iminutes = Math.floor(lat_dminutes);
+                 var lat_seconds = (lat_dminutes - lat_iminutes) * 60;
+
+                 $('input[id="ddm_lat_deg"]').val(lat_idegrees);
+                 $('input[id="ddm_lat_min"]').val(lat_dminutes);
+
+                 $('input[id="dms_lat_deg"]').val(lat_idegrees);
+                 $('input[id="dms_lat_min"]').val(lat_iminutes);
+                 $('input[id="dms_lat_sec"]').val(lat_seconds);
+
+                 refresh_map();
+
+             });
+
+
+             $('input[id="dd_lon_deg"]').change (function () {
+
+                 var ddlon = $('input[id="dd_lon_deg"]').val();
+                 ddlon = Math.abs(ddlon);
+                 var lon_idegrees = Math.floor(ddlon);
+                 var lon_dminutes = (ddlon - lon_idegrees) * 60;
+                 var lon_iminutes = Math.floor(lon_dminutes);
+                 var lon_seconds = (lon_dminutes - lon_iminutes) * 60;
+
+                 $('input[id="dd_lon_deg"]').val(ddlon * -1);
+
+                 $('input[id="ddm_lon_deg"]').val(lon_idegrees * -1);
+                 $('input[id="ddm_lon_min"]').val(lon_dminutes);
+
+                 $('input[id="dms_lon_deg"]').val(lon_idegrees * -1);
+                 $('input[id="dms_lon_min"]').val(lon_iminutes);
+                 $('input[id="dms_lon_sec"]').val(lon_seconds);
+
+                 refresh_map();
+
+             });
+
+
+
+             $('input[name="ddm_lat"]').change (function () {
+                 //if any of the latitude elements on the ddm page change, update the other formats.
+                 var lat_idegrees = parseFloat($('input[id="lat_idegrees"]').val());
+                 var lat_dminutes = parseFloat($('input[id="lat_dminutes"]').val());
+
+                 // update the controls on the dd tab
+                 ddlat = lat_idegrees + lat_dminutes / 60;
+                 $('input[id="dd_lat_deg"]').val(ddlat);
+
+                 var lat_iminutes = Math.floor(lat_dminutes);
+                 var lat_seconds = (lat_dminutes - lat_iminutes) * 60;
+
+                 // update the controls on the dms tab
+                 $('input[id="dms_lat_deg"]').val(lat_idegrees);
+                 $('input[id="dms_lat_min"]').val(lat_iminutes);
+                 $('input[id="dms_lat_sec"]').val(lat_seconds);
+
+                 refresh_map();
+
+             });
+
+             $('input[name="ddm_lon"]').change (function () {
+                 //if any of the longitude elements on the ddm page change, update the other formats.
+                 var lon_idegrees = parseFloat($('input[id="lon_idegrees"]').val());
+                 lon_idegrees = Math.abs(lon_idegrees);
+                 var lon_dminutes = parseFloat($('input[id="lon_dminutes"]').val());
+
+                 // calculate decimal degrees and update the dd tab
+                 ddlon = (lon_idegrees + lon_dminutes / 60) * -1;
+                 $('input[id="dd_lon_deg"]').val(ddlon * -1);
+
+                 var lon_iminutes = Math.floor(lon_dminutes);
+                 var lon_seconds = (lon_dminutes - lon_iminutes) * 60;
+                 // update the controls on the dms tab
+                 $('input[id="dms_lon_deg"]').val(lon_idegrees * -1);
+                 $('input[id="dms_lon_min"]').val(lon_iminutes);
+                 $('input[id="dms_lon_sec"]').val(lon_seconds);
+
+                 refresh_map();
+
+             });
+
+
+             $('input[name="dms_lat"]').change (function () {
+                 //if any of the latitude elements on the dms page change, update the other formats.
+
+                 var lat_idegrees = parseFloat($('input[id="dms_lat_deg"]').val());
+                 var lat_iminutes = parseFloat($('input[id="dms_lat_min"]').val());
+                 var lat_seconds = parseFloat($('input[id="dms_lat_sec"]').val());
+
+                 // ddm tab
+                 var lat_dminutes = lat_iminutes + lat_seconds / 60;
+                 $('input[id="ddm_lat_deg"]').val(lat_idegrees);
+                 $('input[id="ddm_lat_min"]').val(lat_dminutes);
+
+                 // decimal degree tab
+                 var ddlat = lat_idegrees + lat_dminutes / 60;
+                 $('input[id="dd_lat_deg"]').val(ddlat);
+
+                 refresh_map();
+
+             });
+
+             $('input[name="dms_lon"]').change (function () {
+                 //if any of the longitude elements on the dms page change, update the other formats.
+
+                 var lon_idegrees = parseFloat($('input[id="dms_lon_deg"]').val());
+                 var lon_iminutes = parseFloat($('input[id="dms_lon_min"]').val());
+                 var lon_seconds = parseFloat($('input[id="dms_lon_sec"]').val());
+
+                 lon_idegrees = Math.abs(lon_idegrees);
+
+                 $('input[id="dms_lon_deg"]').val(lon_idegrees * -1);
+
+                 // ddm tab
+                 var lon_dminutes = lon_iminutes + lon_seconds / 60;
+                 $('input[id="ddm_lon_deg"]').val(lon_idegrees * -1);
+                 $('input[id="ddm_lon_min"]').val(lon_dminutes);
+
+                 // decimal degree tab
+                 var ddlon = lon_idegrees + lon_dminutes / 60;
+                 $('input[id="dd_lon_deg"]').val(ddlon * -1);
+
+                 refresh_map();
+
+             });
+
+
+             var map = L.map('map').setView([45.0,-82.0], 8);
+             var marker;
+
+             L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+                         {
+                             attribution: 'Tiles by <a href="http://mapc.org">MAPC</a>, Data by <a href="http://mass.gov/mgis">MassGIS</a>',
+                         }).addTo(map);
+
+
+
+             // from http://ipasic.com/article/let-user-add-point-map-geodjango-leaflet/
+             function onMapClick(e) {
+                 var dd_lat = e.latlng.lat;
+                 var dd_lon = e.latlng.lng;
+
+                 // Every time when user click on map we want to delete previous marker and create new marker on the new position where the user clicked
+                 if (typeof marker != 'undefined') {
+                     map.removeLayer(marker);  // delete previous marker
+                     marker = L.marker([dd_lat, dd_lon]).addTo(map);  // add new marker
+                 }
+                 else {
+                     marker = L.marker([dd_lat, dd_lon]).addTo(map);  // add new marker
+                 }
+
+
+                 //update the other input values with the coordinates from the map marker:
+
+                 var lat_idegrees = Math.floor(dd_lat);
+                 var lat_dminutes = (dd_lat - lat_idegrees) * 60;
+                 var lat_iminutes = Math.floor(lat_dminutes);
+                 var lat_seconds = (lat_dminutes - lat_iminutes) * 60;
+
+                 $('input[id="dd_lat_deg"]').val(dd_lat);
+
+                 $('input[id="ddm_lat_deg"]').val(lat_idegrees);
+                 $('input[id="ddm_lat_min"]').val(lat_dminutes);
+
+                 $('input[id="dms_lat_deg"]').val(lat_idegrees);
+                 $('input[id="dms_lat_min"]').val(lat_iminutes);
+                 $('input[id="dms_lat_sec"]').val(lat_seconds);
+
+                 ddlon = Math.abs(dd_lon);
+                 var lon_idegrees = Math.floor(ddlon);
+                 var lon_dminutes = (ddlon - lon_idegrees) * 60;
+                 var lon_iminutes = Math.floor(lon_dminutes);
+                 var lon_seconds = (lon_dminutes - lon_iminutes) * 60;
+
+                 $('input[id="dd_lon_deg"]').val(ddlon * -1);
+
+                 $('input[id="ddm_lon_deg"]').val(lon_idegrees * -1);
+                 $('input[id="ddm_lon_min"]').val(lon_dminutes);
+
+                 $('input[id="dms_lon_deg"]').val(lon_idegrees * -1);
+                 $('input[id="dms_lon_min"]').val(lon_iminutes);
+                 $('input[id="dms_lon_sec"]').val(lon_seconds);
+
+             }
+
+             // call the onMapClick function when user click on map
+             map.on('click', onMapClick);
+
+
+
+         })  // document ready function
+
+             $('#myTabs a').click(function (e) {
+                 e.preventDefault()
+                     $(this).tab('show')
+             })
+
+
+        </script>
+    </body>
+</html>
