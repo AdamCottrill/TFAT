@@ -22,7 +22,7 @@
 
                         <div id="clipc_input" class="form-group">
                             <label class="control-label" for="clipc">CLIPC:</label>
-                            <input type="text" class="form-control" id="clipc" placeholder="clipc">
+                            <input type="text" class="form-control" id="id_clipc" placeholder="clipc">
                         </div>
                         <div id="clipc_error" class="alert alert-danger" role="alert">
                             <div id="clipc_error_text">Invalid Clip Code.</div>
@@ -169,7 +169,7 @@
                  return true;
              }
 
-             $('input[id="clipc"]').change (function () {
+             $('input[id="id_clipc"]').change (function () {
                  //if clipc changes we need to check its value, update
                  //the check boxes accordingly, and issue an error if
                  //clipc contains a value that does not correspond to to
@@ -177,7 +177,7 @@
                  //correspond to actual clips, replace clipc with an
                  //equivalent value that is sorted correctly (13 not 31)
 
-                 var clipc = $('input[id="clipc"]').val().toUpperCase();
+                 var clipc = $('input[id="id_clipc"]').val().toUpperCase();
 
                  // first we need to make sure that clipc is valid:
                  // to be valid, it can't have any characters that repeat
@@ -236,7 +236,7 @@
                          }).get();
 
                          clips = checkedValues.join("");
-                         $('input[id="clipc"]').val(clips);
+                         $('input[id="id_clipc"]').val(clips);
 
                      }  //valid is true/false
                  }
@@ -266,7 +266,7 @@
                  if (clip0===true && just_clicked==='0'){
                  //unclipped is not checked and was just clicked
                      //set clip0 input to 0
-                     $('input[id="clipc"]').val("0");
+                     $('input[id="id_clipc"]').val("0");
                      $('input:checkbox[name="clipc_group[]"][value!="0"]').prop('checked',false)
                      $('input:checkbox[name="clipc_group[]"][value="0"]').prop('checked', true)
 
@@ -274,18 +274,18 @@
                  //unclipped is not checked and another box was just clicked
                      //set clip0 input to None
                      clips = checkedValues.join("");
-                     $('input[id="clipc"]').val(clips);
+                     $('input[id="id_clipc"]').val(clips);
 
                  } else if (clip0===false && just_clicked==='0'){
                  //unclipped is already checked and was just clicked
                      //$('input[id="clipc"]').val("EMPTY");
                      var placeholder = $('input[id="clipc"]').attr('placeholder');
-                     $('input[id="clipc"]').val(placeholder);
+                     $('input[id="id_clipc"]').val(placeholder);
 
                  } else if (clip0===true && just_clicked!=='0') {
                  //unclipped is already checked and another box was just clicked
                      $('input:checkbox[name="clipc_group[]"][value="0"]').prop('checked',false);
-                     $('input[id="clipc"]').val(just_clicked);
+                     $('input[id="id_clipc"]').val(just_clicked);
                  }
 
 

@@ -12,6 +12,8 @@ import mimetypes
 
 from geojson import MultiLineString
 
+
+from tfat.constants import CLIP_CODE_CHOICES
 from tfat.models import Species, JoePublic, Report, Recovery, Encounter, Project
 from tfat.filters import JoePublicFilter
 from tfat.forms import (JoePublicForm, CreateJoePublicForm, ReportForm,
@@ -423,6 +425,10 @@ def create_recovery(request, report_id):
     """This view is used to create a new tag recovery.
     """
 
+    #clip_codes = [{x[0]:x[1]} for x in CLIP_CODE_CHOICES]
+
+    clip_codes = sorted(list(CLIP_CODE_CHOICES), key=lambda x:x[0])
+
     report = get_object_or_404(Report, id=report_id)
     if request.method == 'POST':
         form = RecoveryForm(request.POST)
@@ -434,12 +440,16 @@ def create_recovery(request, report_id):
     else:
         form = RecoveryForm(initial={'reported':report})
 
-    return render(request, 'tfat/recovery_form.html', {'form': form})
+    return render(request, 'tfat/recovery_form.html', {'form': form,
+                                                       'clip_codes':clip_codes})
 
 
 def edit_recovery(request, recovery_id):
     """This view is used to edit/update existing tag recoveries.
     """
+
+
+    clip_codes = sorted(list(CLIP_CODE_CHOICES), key=lambda x:x[0])
 
     recovery = get_object_or_404(Recovery, id=recovery_id)
     if request.method == 'POST':
@@ -453,9 +463,8 @@ def edit_recovery(request, recovery_id):
     else:
         form = RecoveryForm(instance=recovery)
 
-    return render(request, 'tfat/recovery_form.html', {'form': form})
-
-
+    return render(request, 'tfat/recovery_form.html', {'form': form,
+                                                       'clip_codes':clip_codes})
 
 
 

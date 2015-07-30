@@ -75,7 +75,6 @@
                     </div>
                 </div>  <!-- Details Panel -->
 
-
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h3 class="panel-title">Tag Attributes</h3>
@@ -104,8 +103,6 @@
                     </div>
                 </div> <!-- Tag Attributes Panel -->
 
-
-
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h3 class="panel-title">Recovery Location</h3>
@@ -131,12 +128,10 @@
                             {% endif %}
                         </div>
 
-                    </div>
-                </div> <!-- Recovery Location -->
+                        <p>LAT-LON TEMPLATE HERE</p>
 
-
-
-
+                    </div><!-- Recovery Panel -->
+                </div> <!-- Recovery Location Panel-->
 
                 <div id="fish_row" class="row" >
 
@@ -173,9 +168,7 @@
                                             <input type="radio" name="tag_removed" id="tag_removed_false" value="false" checked> No
                                         </label>
                                     </div>
-
                                 </div>
-
 
                                 <div id="flen_row" class="row" >
                                     <div class="col-md-3 text-right" >
@@ -202,7 +195,6 @@
                                     </div>
                                 </div>
 
-
                                 <div id="tlen_row" class="row" >
                                     <div class="col-md-3 text-right" >
                                         {{ form.tlen.label_tag }}
@@ -227,7 +219,6 @@
                                         </label>
                                     </div>
                                 </div>
-
 
                                 <div id="rwt_row" class="row" >
                                     <div class="col-md-3 text-right" >
@@ -254,9 +245,6 @@
                                     </div>
                                 </div>
 
-
-
-
                                 <div id="sex_row" class="row" >
                                     <div class="col-md-3 text-right" >
                                         {{ form.sex.label_tag }}
@@ -274,13 +262,12 @@
                                     </div>
                                 </div>
 
-
                                 <div id="clipc_row" class="row" >
                                     <div class="col-md-3 text-right" >
                                         {{ form.clipc.label_tag }}
                                     </div>
                                     <div class="col-md-3" >
-                                        <div class="form-group {% if form.clipc.errors %}has-error{% endif %}">
+                                        <div id="clipc_input" class="form-group {% if form.clipc.errors %}has-error{% endif %}">
                                             {{ form.clipc }}
                                             {% if form.clipc.errors %}
                                             {% for error in form.clipc.errors %}
@@ -288,12 +275,30 @@
                                             {% endfor %}
                                             {% endif %}
                                         </div>
+                                        <div id="clipc_error" class="alert alert-danger" role="alert">
+                                            <div id="clipc_error_text">Invalid Clip Code.</div>
+                                        </div>
                                     </div>
                                     <div class="col-md-2" >
-                                        <a class="btn btn-primary" href="#" role="button">Show Clip Codes</a>
+                                        <a class="btn btn-primary" role="button" data-toggle="collapse" href="#collapseClipC" aria-expanded="false" aria-controls="collapseClipC">
+                                            Show Clip Codes
+                                        </a>
                                     </div>
                                 </div>
 
+                                <div class="collapse" id="collapseClipC">
+                                    <div class="well">
+
+                                        {% for key, value in clip_codes %}
+                                        <div class="checkbox">
+                                            <label>
+                                                <input type="checkbox" name="clipc_group[]" value="{{ key }}">{{ value }} ({{ key }})
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+
+                                    </div>  <!-- class well -->
+                                </div> <!-- class collapse -->
 
                             </div> <!-- Fish Panel -->
                         </div> <!-- fish column -->
@@ -330,6 +335,156 @@
         </div>
     </div>
 </div>
+
+
+
+        <script>
+
+         $(document).ready(function(){
+
+             $( "#clipc_error" ).hide();
+
+             function checkForUnique(str){
+                 //from:https://ujjaini.wordpress.com/2014/09/04/check-if-a-string-has-
+                 //    all-unique-characters-in-javascript/
+                 var hashtable = {};
+                 for(var i=0,len=str.length;i<len;i++){
+                     if (hashtable[str[i]] != null){
+                         hashtable[str[i]] = 1;
+                         return false;
+                     }else{
+                         hashtable[str[i]] = 0;
+                     }
+                 }
+                 return true;
+             }
+
+             $('input[id="id_clipc"]').change (function () {
+                 //if clipc changes we need to check its value, update
+                 //the check boxes accordingly, and issue an error if
+                 //clipc contains a value that does not correspond to to
+                 //a clip code.  If all of the values in clipc
+                 //correspond to actual clips, replace clipc with an
+                 //equivalent value that is sorted correctly (13 not 31)
+
+                 var clipc = $('input[id="id_clipc"]').val().toUpperCase();
+
+                 // first we need to make sure that clipc is valid:
+                 // to be valid, it can't have any characters that repeat
+                 // can't have any characters that don't have a corresponding checkbox
+
+                 var valid = checkForUnique(clipc);
+                 var chkbox;
+
+                 if (valid){
+                     for (i = 0; i < clipc.length; i++) {
+                         x = clipc[i];
+                         chkbox = $('input[name="clipc_group[]"][value="' + x + '"]');
+
+                         if (chkbox.length===0){
+                             valid = false;
+                             break;
+                         }
+                     }
+                 }
+
+                 if (valid===false){
+                     $( "#clipc_error_text").text("'" + clipc + "' is not a valid Clip Code");
+                     $( "#clipc_error" ).show();
+                     $( "#clipc_input" ).addClass("has-error");
+                     return;
+                 } else {
+                     $( "#clipc_error" ).hide();
+                     $( "#clipc_input" ).removeClass("has-error");
+
+                     if (clipc===''){
+                         //reset all of the checkboxes to false
+                         $('input:checkbox[name="clipc_group[]"]').prop('checked',false);
+
+                     } else if (clipc.indexOf('0') !== -1) {
+                         // if the clip code contains 0, reset everything but 0
+                         $('input[id="id_clipc"]').val("0");
+                         $('input:checkbox[name="clipc_group[]"][value!=0]').prop('checked',false);
+                         $('input:checkbox[name="clipc_group[]"][value=0]').prop('checked', true);
+
+                     } else {
+
+                         var x;
+
+                         //clear our old selections:
+                         $('input:checkbox[name="clipc_group[]"]').prop('checked', false);
+                         //check each of the new ones:
+                         for (i = 0; i < clipc.length; i++) {
+                             x = clipc[i].toString();
+                             $('input:checkbox[name="clipc_group[]"][value="' + x + '"]').prop('checked', true);
+                         }
+                         //get the new clip code and update the input box:
+
+                         var checkedValues = $('input:checkbox[name="clipc_group[]"]:checked').map(function() {
+                             // return the value of each checked checkbox
+                             return this.value;
+                         }).get();
+
+                         clips = checkedValues.join("");
+                         $('input[id="id_clipc"]').val(clips);
+
+                     }  //valid is true/false
+                 }
+
+             });
+
+
+             $('input:checkbox[name="clipc_group[]"]').on('click change', function(e) {
+
+                 // this function builds clip code from the check boxes and populate clipc
+                 // input element.  clips are added squentially unless 0 is checked, in which
+                 // the inputs are cleared/reset.
+
+                 var checkedValues = $('input:checkbox[name="clipc_group[]"]:checked').map(function() {
+                     // return the value of each checked checkbox
+                     return this.value;
+                 }).get();
+
+                 //remove any residual errors from manual input:
+                 $( "#clipc_error" ).hide();
+                 $( "#clipc_input" ).removeClass("has-error");
+
+
+                 var just_clicked = $(this).attr('value');
+                 var clip0 = $('input:checkbox[name="clipc_group[]"][value="0"]').is(':checked');
+
+                 if (clip0===true && just_clicked==='0'){
+                 //unclipped is not checked and was just clicked
+                     //set clip0 input to 0
+                     $('input[id="id_clipc"]').val("0");
+                     $('input:checkbox[name="clipc_group[]"][value!="0"]').prop('checked',false)
+                     $('input:checkbox[name="clipc_group[]"][value="0"]').prop('checked', true)
+
+                 } else if (clip0===false && just_clicked!=='0') {
+                 //unclipped is not checked and another box was just clicked
+                     //set clip0 input to None
+                     clips = checkedValues.join("");
+                     $('input[id="id_clipc"]').val(clips);
+
+                 } else if (clip0===false && just_clicked==='0'){
+                 //unclipped is already checked and was just clicked
+                     //$('input[id="id_clipc"]').val("EMPTY");
+                     var placeholder = $('input[id="id_clipc"]').attr('placeholder');
+                     $('input[id="id_clipc"]').val(placeholder);
+
+                 } else if (clip0===true && just_clicked!=='0') {
+                 //unclipped is already checked and another box was just clicked
+                     $('input:checkbox[name="clipc_group[]"][value="0"]').prop('checked',false);
+                     $('input[id="id_clipc"]').val(just_clicked);
+                 }
+
+
+             });
+
+         })
+
+        </script>
+
 
 
 <script>

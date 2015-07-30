@@ -32,6 +32,27 @@ SEX_CHOICES = {
 }
 
 
+CLIP_CODE_CHOICES = {
+    ('0', 'No clip'),
+    ('1', 'Right Pectoral'),
+    ('2', 'Left Pectoral'),
+    ('3', 'Right Pelvic'),
+    ('4', 'Left Pelvic'),
+    ('5', 'Adipose'),
+    ('6', 'Anal'),
+    ('7', 'Anterior Dorsal'),
+    ('8', 'Posterior Dorsal'),
+    ('9', 'Upper Caudal'),
+    ('A', 'Lower Caudal'),
+    ('B', 'Mid Caudal'),
+    ('C', 'Right Opercular'),
+    ('D', 'Left Opercular'),
+    ('E', 'Right Maxillary'),
+    ('F', 'Left Maxillary'),
+    ('G', 'Dorsal'),
+}
+
+
 TAG_TYPE_CHOICES = {
     ('0', 'No tag'),
     ('1', 'Streamer'),
@@ -87,6 +108,7 @@ TAG_COLOUR_CHOICES = {
     ('6', 'Other'),
     ('9', 'Unknown')
 }
+
 
 TAGSTAT_CHOICES = {
     ('C', 'Existed on Capture'),
