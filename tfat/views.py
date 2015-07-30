@@ -477,7 +477,7 @@ def edit_recovery(request, recovery_id):
         form = RecoveryForm(instance=recovery)
 
     return render(request, 'tfat/recovery_form.html', {'form': form,
-                                                       'clip_codes':clip_codes
+                                                       'clip_codes':clip_codes,
                                                        'tag_types':tag_types,
                                                        'tag_origin':tag_origin,
                                                        'tag_colours':tag_colours,

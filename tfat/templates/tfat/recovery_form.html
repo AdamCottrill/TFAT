@@ -2,6 +2,9 @@
 
 {% block extrahead %}
 
+<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+
 <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
 
@@ -93,9 +96,9 @@
                                     <div class="has-error help-block text-danger">{{ error }}</div>
                                     {% endfor %}
                                     {% endif %}
-                                <div id="tagdoc_length" class="alert alert-danger" role="alert">
-                                    TAGDOC must be exactly 5 characters long.
-                                </div>
+                                    <div id="tagdoc_length" class="alert alert-danger" role="alert">
+                                        TAGDOC must be exactly 5 characters long.
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-2" >
@@ -128,16 +131,11 @@
                                                 <div id="tagtype_error" class="alert alert-danger" role="alert">
                                                     <div id="tagtype_error_text">Invalid Tag Type.</div>
                                                 </div>
-
-
                                             </div>
                                         </div>
-
-
                                     </div> <!-- col-md-3 -->
 
                                     <div class="col-md-3" >
-
                                         <div id="tagposition_panel" class="panel panel-default">
                                             <div class="panel-heading">
                                                 <h4 class="panel-title">Tag Position</h4>
@@ -152,7 +150,6 @@
                                                 </div>
                                                 {% endfor %}
 
-
                                                 <div id="tagposition_error" class="alert alert-danger" role="alert">
                                                     <div id="tagposition_error_text">Invalid Tag Position.</div>
                                                 </div>
@@ -161,7 +158,6 @@
                                     </div>
 
                                     <div class="col-md-3" >
-
                                         <div id="tagorigin_panel" class="panel panel-default">
                                             <div class="panel-heading">
                                                 <h4 class="panel-title">Agency</h4>
@@ -198,24 +194,16 @@
                                                     </label>
                                                 </div>
                                                 {% endfor %}
-
                                                 <div id="tagcolour_error" class="alert alert-danger" role="alert">
                                                     <div id="tagcolour_error_text">Invalid Tag Colour.</div>
                                                 </div>
-
                                             </div>
-
                                         </div>
                                     </div>
-                                </div> <!-- well -->
-                            </div> <!-- collapse -->
-
-
-
-
-
-
-                        </div>
+                                </div> <!-- row -->
+                            </div> <!-- well -->
+                        </div> <!-- collapse -->
+                    </div>
                 </div> <!-- Tag Attributes Panel -->
 
                 <div class="panel panel-default">
@@ -242,6 +230,181 @@
                             {% endfor %}
                             {% endif %}
                         </div>
+
+
+                        <div>
+                            <!-- Nav tabs -->
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li role="presentation" class="active"><a href="#decimal_degrees" aria-controls="decimal_degrees" role="tab" data-toggle="tab">Decimal Degrees</a></li>
+                                <li role="presentation"><a href="#ddm" aria-controls="ddm" role="tab" data-toggle="tab">Decimal Minutes</a></li>
+                                <li role="presentation"><a href="#dms" aria-controls="dms" role="tab" data-toggle="tab">Degree Minutes Seconds</a></li>
+                                <li role="presentation"><a href="#grid" aria-controls="grid" role="tab" data-toggle="tab">5-min Grid</a></li>
+                                <li role="presentation" ><a href="#leaflet_map" aria-controls="leaflet_map" role="tab" data-toggle="tab">Clickable Map</a></li>
+                            </ul>
+
+                            <!-- Tab panes -->
+                            <div class="tab-content">
+                                <div role="tabpanel" class="tab-pane active" id="decimal_degrees">
+
+                                    <br />
+                                    <p><strong>Latitude:</strong></p>
+                                    <div class="form-group">
+                                        <label class="sr-only" for="id_dd_lat">Latitude:</label>
+                                        <input type="text" class="form-control" id="id_dd_lat" placeholder="Decimal Degrees">
+                                    </div>
+
+                                    <p><strong>Longitude:</strong></p>
+                                    <div class="form-group">
+                                        <label class="sr-only" for="id_dd_lon">Longitude:</label>
+                                        <input type="text" class="form-control" id="id_dd_lon" placeholder="Decimal Degrees">
+                                    </div>
+
+
+                                </div> <!-- tabpanel -->
+                                <div role="tabpanel" class="tab-pane" id="ddm">
+                                    <br />
+                                    <p><strong>Latitude:</strong></p>
+                                    <div class="row" >
+                                        <div class="col-md-6" >
+                                            <div class="form-group">
+                                                <label class="sr-only" for="ddm_lat_deg">Degrees:</label>
+                                                <input type="text" name="ddm_lat" class="form-control" id="ddm_lat_deg" placeholder="Degrees">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6" >
+                                            <div class="form-group">
+                                                <label  class="sr-only" for="ddm_lat_min">Decimal Minutes:</label>
+                                                <input type="text" name="ddm_lat" class="form-control" id="ddm_lat_min" placeholder="Decimal Minutes">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <p><strong>Longitude:</strong></p>
+                                    <div class="row" >
+                                        <div class="col-md-6" >
+                                            <div class="form-group">
+                                                <label class="sr-only" for="ddm_lon_deg">Degrees:</label>
+                                                <input type="text" name="ddm_lon" class="form-control" id="ddm_lon_deg" placeholder="Degrees">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6" >
+                                            <div class="form-group">
+                                                <label  class="sr-only" for="ddm_lon_min">Decimal Minutes:</label>
+                                                <input type="text" name="ddm_lon" class="form-control" id="ddm_lon_min" placeholder="Decimal Minutes">
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                </div>  <!-- tabpanel -->
+
+                                <div role="tabpanel" class="tab-pane" id="dms">
+                                    <br />
+
+                                    <p><strong>Latitude:</strong></p>
+                                    <div class="row" >
+                                        <div class="col-md-4" >
+                                            <div class="form-group">
+                                                <label class="sr-only" for="dms_lat_deg">Degrees:</label>
+                                                <input type="text" name="dms_lat" class="form-control" id="dms_lat_deg" placeholder="Degrees">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4" >
+                                            <div class="form-group">
+                                                <label  class="sr-only" for="dms_lat_min">Minutes:</label>
+                                                <input type="text"  name="dms_lat"  class="form-control" id="dms_lat_min" placeholder="Minutes">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4" >
+                                            <div class="form-group">
+                                                <label  class="sr-only" for="dms_lat_sec">Seconds:</label>
+                                                <input type="text"  name="dms_lat" class="form-control" id="dms_lat_sec" placeholder="Seconds">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <p><strong>Longitude:</strong></p>
+                                    <div class="row" >
+                                        <div class="col-md-4" >
+                                            <div class="form-group">
+                                                <label class="sr-only" for="dms_lon_deg">Degrees:</label>
+                                                <input type="text"  name="dms_lon" class="form-control" id="dms_lon_deg" placeholder="Degrees">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4" >
+                                            <div class="form-group">
+                                                <label  class="sr-only" for="dms_lon_min">Minutes:</label>
+                                                <input type="text" name="dms_lon" class="form-control" id="dms_lon_min" placeholder="Minutes">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4" >
+                                            <div class="form-group">
+                                                <label  class="sr-only" for="dms_lon_sec">Seconds:</label>
+                                                <input type="text" name="dms_lon" class="form-control" id="dms_lon_sec" placeholder="Seconds">
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+
+                                </div>  <!-- tabpanel -->
+
+                                <div role="tabpanel" class="tab-pane" id="grid">
+
+                                    <br />
+
+                                    <p><strong>5-Minute Grid Number:</strong></p>
+                                    <div class="row" >
+                                        <div class="col-md-3" >
+                                            <div class="form-group">
+                                                <label class="sr-only" for="grid_no">5-Minute Grid Number:</label>
+                                                <input type="text"  name="grid_no" class="form-control" id="grid_no" placeholder="1942">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3" >
+                                            <select class="form-control">
+                                                <option>Lake Huron</option>
+                                                <option>Lake Superior</option>
+                                                <option>Lake Erie</option>
+                                                <option>Lake Ontario</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <p>Lots more work to do here.  we need
+                                        to write a api in our application that
+                                        will get the centroid of the supplied
+                                        grid number and populate the other
+                                        controls or take the lat-lon from the
+                                        other controls and get the assocaiated
+                                        grid number.</p>
+
+
+                                </div>  <!-- tabpanel -->
+
+                                <div role="tabpanel" class="tab-pane" id="leaflet_map">
+                                    <br />
+                                    A clickable map.
+                                    <br />
+
+                                    <div class="fieldWrapper">
+                                        <p>1) Place the marker where the recapture occured</p>
+                                        <div id="map" style="width: 800px; height: 900px;"></div>
+
+                                        <input id="coordinates" name="coordinates" value="" type="hidden" />
+                                    </div>
+
+
+                                </div>  <!-- tabpanel -->
+
+                            </div>  <!-- tabcontent -->
+
+                        </div>
+
+
+
+
+
 
                         <p>LAT-LON TEMPLATE HERE</p>
 
@@ -453,294 +616,528 @@
 
 
 
-        <script>
+<script>
 
-         $(document).ready(function(){
 
-             $( "#clipc_error" ).hide();
-             //make sure all of the error messages are hidden when we load the form:
+
+ $(document).ready(function(){
+
+
+     //make sure all of the error messages are hidden when we load the form:
+     $( "#clipc_error" ).hide();
+     $( "#tagdoc_length" ).hide();
+     $( "#tagtype_error" ).hide();
+     $( "#tagposition_error" ).hide();
+     $( "#tagorigin_error" ).hide();
+     $( "#tagcolour_error" ).hide();
+
+     update_tagoptions();
+
+     var map;
+     var marker;
+     initmap();
+
+
+     alert('Add checks to verify that minute and seconds fields are between 0 and 60.')
+
+     function refresh_map(){
+
+         //refresh our map:
+         var ddlat = $('input[id="id_dd_lat"]').val();
+         var ddlon = $('input[id="id_dd_lon"]').val();
+
+         if (typeof marker != 'undefined') {
+             map.removeLayer(marker);  // delete previous marker
+             marker = L.marker([ddlat, ddlon]).addTo(map);  // add new marker
+             map.panTo(new L.LatLng(ddlat, ddlon));
+         }
+         else {
+             marker = L.marker([ddlat, ddlon]).addTo(map);  // add new marker
+         }
+     }
+
+
+     function initmap(){
+
+         map = new L.map('map').setView([45,-82], 8);
+
+         L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6IjZjNmRjNzk3ZmE2MTcwOTEwMGY0MzU3YjUzOWFmNWZhIn0.Y8bhBaUMqFiPrDRW9hieoQ', {
+             maxZoom: 18,
+             attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+                          '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+                          'Imagery  <a href="http://mapbox.com">Mapbox</a>',
+             id: 'mapbox.streets'
+         }).addTo(map);
+
+     };
+
+
+
+
+     // from http://ipasic.com/article/let-user-add-point-map-geodjango-leaflet/
+     function onMapClick(e) {
+         var dd_lat = e.latlng.lat;
+         var dd_lon = e.latlng.lng;
+
+         // Every time when user click on map we want to delete previous marker and create new marker on the new position where the user clicked
+         if (typeof marker != 'undefined') {
+             map.removeLayer(marker);  // delete previous marker
+             marker = L.marker([dd_lat, dd_lon]).addTo(map);  // add new marker
+         }
+         else {
+             marker = L.marker([dd_lat, dd_lon]).addTo(map);  // add new marker
+         }
+
+
+         //update the other input values with the coordinates from the map marker:
+
+         var lat_idegrees = Math.floor(dd_lat);
+         var lat_dminutes = (dd_lat - lat_idegrees) * 60;
+         var lat_iminutes = Math.floor(lat_dminutes);
+         var lat_seconds = (lat_dminutes - lat_iminutes) * 60;
+
+         $('input[id="id_dd_lat"]').val(dd_lat);
+
+         $('input[id="ddm_lat_deg"]').val(lat_idegrees);
+         $('input[id="ddm_lat_min"]').val(lat_dminutes);
+
+         $('input[id="dms_lat_deg"]').val(lat_idegrees);
+         $('input[id="dms_lat_min"]').val(lat_iminutes);
+         $('input[id="dms_lat_sec"]').val(lat_seconds);
+
+         ddlon = Math.abs(dd_lon);
+         var lon_idegrees = Math.floor(ddlon);
+         var lon_dminutes = (ddlon - lon_idegrees) * 60;
+         var lon_iminutes = Math.floor(lon_dminutes);
+         var lon_seconds = (lon_dminutes - lon_iminutes) * 60;
+
+         $('input[id="id_dd_lon"]').val(ddlon * -1);
+
+         $('input[id="ddm_lon_deg"]').val(lon_idegrees * -1);
+         $('input[id="ddm_lon_min"]').val(lon_dminutes);
+
+         $('input[id="dms_lon_deg"]').val(lon_idegrees * -1);
+         $('input[id="dms_lon_min"]').val(lon_iminutes);
+         $('input[id="dms_lon_sec"]').val(lon_seconds);
+
+     }
+
+
+     // call the onMapClick function when user click on map
+     map.on('click', onMapClick);
+
+
+     $('input[id="id_dd_lat"]').change (function () {
+
+         var ddlat = $('input[id="id_dd_lat"]').val();
+         var lat_idegrees = Math.floor(ddlat);
+         var lat_dminutes = (ddlat - lat_idegrees) * 60;
+         var lat_iminutes = Math.floor(lat_dminutes);
+         var lat_seconds = (lat_dminutes - lat_iminutes) * 60;
+
+         $('input[id="ddm_lat_deg"]').val(lat_idegrees);
+         $('input[id="ddm_lat_min"]').val(lat_dminutes);
+
+         $('input[id="dms_lat_deg"]').val(lat_idegrees);
+         $('input[id="dms_lat_min"]').val(lat_iminutes);
+         $('input[id="dms_lat_sec"]').val(lat_seconds);
+
+         refresh_map();
+
+     });
+
+
+     $('input[id="id_dd_lon"]').change (function () {
+
+         var ddlon = $('input[id="id_dd_lon"]').val();
+         ddlon = Math.abs(ddlon);
+         var lon_idegrees = Math.floor(ddlon);
+         var lon_dminutes = (ddlon - lon_idegrees) * 60;
+         var lon_iminutes = Math.floor(lon_dminutes);
+         var lon_seconds = (lon_dminutes - lon_iminutes) * 60;
+
+         $('input[id="id_dd_lon"]').val(ddlon * -1);
+
+         $('input[id="ddm_lon_deg"]').val(lon_idegrees * -1);
+         $('input[id="ddm_lon_min"]').val(lon_dminutes);
+
+         $('input[id="dms_lon_deg"]').val(lon_idegrees * -1);
+         $('input[id="dms_lon_min"]').val(lon_iminutes);
+         $('input[id="dms_lon_sec"]').val(lon_seconds);
+
+         refresh_map();
+
+     });
+
+
+
+     $('input[name="ddm_lat"]').change (function () {
+         //if any of the latitude elements on the ddm page change, update the other formats.
+         var lat_idegrees = parseFloat($('input[id="ddm_lat_deg"]').val());
+         var lat_dminutes = parseFloat($('input[id="ddm_lat_min"]').val());
+
+         // update the controls on the dd tab
+         ddlat = lat_idegrees + lat_dminutes / 60;
+         $('input[id="id_dd_lat"]').val(ddlat);
+
+         var lat_iminutes = Math.floor(lat_dminutes);
+         var lat_seconds = (lat_dminutes - lat_iminutes) * 60;
+
+         // update the controls on the dms tab
+         $('input[id="dms_lat_deg"]').val(lat_idegrees);
+         $('input[id="dms_lat_min"]').val(lat_iminutes);
+         $('input[id="dms_lat_sec"]').val(lat_seconds);
+
+         refresh_map();
+
+     });
+
+     $('input[name="ddm_lon"]').change (function () {
+         //if any of the longitude elements on the ddm page change, update the other formats.
+         var lon_idegrees = parseFloat($('input[id="ddm_lon_deg"]').val());
+         lon_idegrees = Math.abs(lon_idegrees);
+         var lon_dminutes = parseFloat($('input[id="ddm_lon_min"]').val());
+
+         console.log('lon_idegrees = ' + lon_idegrees)
+
+         $('input[id="ddm_lon_deg"]').val(lon_idegrees * -1);
+
+         // calculate decimal degrees and update the dd tab
+         var ddlon = (lon_idegrees + lon_dminutes / 60);
+         $('input[id="id_dd_lon"]').val(ddlon * -1);
+
+         var lon_iminutes = Math.floor(lon_dminutes);
+         var lon_seconds = (lon_dminutes - lon_iminutes) * 60;
+         // update the controls on the dms tab
+         $('input[id="dms_lon_deg"]').val(lon_idegrees * -1);
+         $('input[id="dms_lon_min"]').val(lon_iminutes);
+         $('input[id="dms_lon_sec"]').val(lon_seconds);
+
+         refresh_map();
+
+     });
+
+
+     $('input[name="dms_lat"]').change (function () {
+         //if any of the latitude elements on the dms page change, update the other formats.
+
+         var lat_idegrees = parseFloat($('input[id="dms_lat_deg"]').val());
+         var lat_iminutes = parseFloat($('input[id="dms_lat_min"]').val());
+         var lat_seconds = parseFloat($('input[id="dms_lat_sec"]').val());
+
+         // ddm tab
+         var lat_dminutes = lat_iminutes + lat_seconds / 60;
+         $('input[id="ddm_lat_deg"]').val(lat_idegrees);
+         $('input[id="ddm_lat_min"]').val(lat_dminutes);
+
+         // decimal degree tab
+         var ddlat = lat_idegrees + lat_dminutes / 60;
+         $('input[id="id_dd_lat"]').val(ddlat);
+
+         refresh_map();
+
+     });
+
+     $('input[name="dms_lon"]').change (function () {
+         //if any of the longitude elements on the dms page change, update the other formats.
+
+         var lon_idegrees = parseFloat($('input[id="dms_lon_deg"]').val());
+         var lon_iminutes = parseFloat($('input[id="dms_lon_min"]').val());
+         var lon_seconds = parseFloat($('input[id="dms_lon_sec"]').val());
+
+         lon_idegrees = Math.abs(lon_idegrees);
+
+         $('input[id="dms_lon_deg"]').val(lon_idegrees * -1);
+
+         // ddm tab
+         var lon_dminutes = lon_iminutes + lon_seconds / 60;
+         $('input[id="ddm_lon_deg"]').val(lon_idegrees * -1);
+         $('input[id="ddm_lon_min"]').val(lon_dminutes);
+
+         // decimal degree tab
+         var ddlon = lon_idegrees + lon_dminutes / 60;
+         $('input[id="id_dd_lon"]').val(ddlon * -1);
+
+         refresh_map();
+
+     });
+
+
+
+
+     function check_len_tagdoc(tagdoc_val){
+         if (tagdoc_val.length != 5) {
+             //update tagdoc elements with bootstrap errors
+             $( "#tagdoc_input" ).addClass( "has-error");
+             $( "#tagdoc_length" ).show();
+             return false;
+         } else {
+             //clear any existing bootstrap errors
+             $( "#tagdoc_input" ).removeClass("has-error");
              $( "#tagdoc_length" ).hide();
+             return true
+         }
+     }
+
+     function check_tagtype(tagtype){
+         if ($('input[name="tagtype_options"][value="' + tagtype + '"]').length){
              $( "#tagtype_error" ).hide();
+             $( "#tagtype_panel" ).removeClass("has-error");
+         } else {
+             $( "#tagtype_error_text").text("'" + tagtype + "' is not a valid Tag Type.")
+                 $( "#tagtype_error" ).show();
+             $( "#tagtype_panel" ).addClass("has-error");
+         }
+     }
+
+
+     function check_tagposition(tagposition){
+         if ($('input[name="tagposition_options"][value="' + tagposition + '"]').length){
              $( "#tagposition_error" ).hide();
-             $( "#tagorigin_error" ).hide();
+             $( "#tagposition_panel" ).removeClass("has-error");
+         } else {
+             $( "#tagposition_error_text").text("'" + tagposition + "' is not a valid Tag Position")
+                 $( "#tagposition_error" ).show();
+             $( "#tagposition_panel" ).addClass("has-error");
+
+         }
+     }
+
+     function check_tagcolour(tagcolour){
+         if ($('input[name="tagcolour_options"][value="' + tagcolour + '"]').length){
              $( "#tagcolour_error" ).hide();
+             $( "#tagcolour_panel" ).removeClass("has-error");
+         } else {
+             $( "#tagcolour_error_text").text("'" + tagcolour + "' is not a valid Tag Colour")
+                 $( "#tagcolour_error" ).show();
+             $( "#tagcolour_panel" ).addClass("has-error");
+         }
+     }
 
-             update_tagoptions();
 
-             function check_len_tagdoc(tagdoc_val){
-                 if (tagdoc_val.length != 5) {
-                     //update tagdoc elements with bootstrap errors
-                     $( "#tagdoc_input" ).addClass( "has-error");
-                     $( "#tagdoc_length" ).show();
-                     return false;
-                 } else {
-                     //clear any existing bootstrap errors
-                     $( "#tagdoc_input" ).removeClass("has-error");
-                     $( "#tagdoc_length" ).hide();
-                     return true
+     function check_tagorigin(tagorigin){
+         if ($('input[name="tagorigin_options"][value="' + tagorigin + '"]').length){
+             $( "#tagorigin_error" ).hide();
+             $( "#tagorigin_panel" ).removeClass("has-error");
+         } else {
+             $( "#tagorigin_error_text").text("'" + tagorigin + "' is not a valid Agency Code")
+                 $( "#tagorigin_error" ).show();
+             $( "#tagorigin_panel" ).addClass("has-error");
+         }
+     }
+
+
+     function update_tagoptions() {
+         var tagdoc_val = $('input[id="id_tagdoc"]').val().toUpperCase();
+
+         var valid = check_len_tagdoc(tagdoc_val);
+         if (valid===false){
+             return;
+         }
+
+         var tagtype = tagdoc_val[0];
+         var position = tagdoc_val[1];
+         var origin = tagdoc_val.substring(2,4);
+         var colour = tagdoc_val[4];
+
+         // now make sure that each of the tag attributes actually exist in the list.
+         // update the radio buttons accordingly and issue a meaninful error if not.
+         check_tagtype(tagtype);
+         $('input[name="tagtype_options"]').val([tagtype]);
+         check_tagposition(position);
+         $('input[name="tagposition_options"]').val([position]);
+         check_tagorigin(origin);
+         $('input[name="tagorigin_options"]').val([origin]);
+         check_tagcolour(colour);
+         $('input[name="tagcolour_options"]').val([colour]);
+
+         $('input[id="id_tagdoc"]').val(tagdoc_val);
+
+     };
+
+
+
+
+     function checkForUnique(str){
+         //from:https://ujjaini.wordpress.com/2014/09/04/check-if-a-string-has-
+         //    all-unique-characters-in-javascript/
+         var hashtable = {};
+         for(var i=0,len=str.length;i<len;i++){
+             if (hashtable[str[i]] != null){
+                 hashtable[str[i]] = 1;
+                 return false;
+             }else{
+                 hashtable[str[i]] = 0;
+             }
+         }
+         return true;
+     }
+
+
+
+     $('input[type="radio"]').on('click change', function(e) {
+         /// if one of the tagdoc_radio buttons change, refresh the tagdoc input
+         var colour = $('input:radio[name="tagcolour_options"]:checked').val() || '?';
+         var position = $('input:radio[name="tagposition_options"]:checked').val()  || '?';
+         var origin = $('input:radio[name="tagorigin_options"]:checked').val() || '?';
+         var tagtype = $('input:radio[name="tagtype_options"]:checked').val() || '?';
+         var tagdoc = tagtype + position + origin + colour
+
+         $('input[id="id_tagdoc"]').val(tagdoc);
+
+         //clears any old errors that may be hanging around
+         var valid = check_len_tagdoc(tagdoc);
+         if (valid) {
+             check_tagtype(tagtype);
+             check_tagposition(position);
+             check_tagorigin(origin);
+             check_tagcolour(colour);
+         }
+
+     });
+
+     // if the tagdoc changes, parse it's content, verify that it
+     // is 5 characters in length, and that each character corresponds
+     // to one of radio button options - if so, update the radio
+     // buttons, if not, give a meaningful error message.
+
+     $('input[id="id_tagdoc"]').change (update_tagoptions);
+
+     $('input[id="id_clipc"]').change (function () {
+         //if clipc changes we need to check its value, update
+         //the check boxes accordingly, and issue an error if
+         //clipc contains a value that does not correspond to to
+         //a clip code.  If all of the values in clipc
+         //correspond to actual clips, replace clipc with an
+         //equivalent value that is sorted correctly (13 not 31)
+
+         var clipc = $('input[id="id_clipc"]').val().toUpperCase();
+
+         // first we need to make sure that clipc is valid:
+         // to be valid, it can't have any characters that repeat
+         // can't have any characters that don't have a corresponding checkbox
+
+         var valid = checkForUnique(clipc);
+         var chkbox;
+
+         if (valid){
+             for (i = 0; i < clipc.length; i++) {
+                 x = clipc[i];
+                 chkbox = $('input[name="clipc_group[]"][value="' + x + '"]');
+
+                 if (chkbox.length===0){
+                     valid = false;
+                     break;
                  }
              }
+         }
 
-             function check_tagtype(tagtype){
-                 if ($('input[name="tagtype_options"][value="' + tagtype + '"]').length){
-                     $( "#tagtype_error" ).hide();
-                     $( "#tagtype_panel" ).removeClass("has-error");
-                 } else {
-                     $( "#tagtype_error_text").text("'" + tagtype + "' is not a valid Tag Type.")
-                         $( "#tagtype_error" ).show();
-                     $( "#tagtype_panel" ).addClass("has-error");
+         if (valid===false){
+             $( "#clipc_error_text").text("'" + clipc + "' is not a valid Clip Code");
+             $( "#clipc_error" ).show();
+             $( "#clipc_input" ).addClass("has-error");
+             return;
+         } else {
+             $( "#clipc_error" ).hide();
+             $( "#clipc_input" ).removeClass("has-error");
+
+             if (clipc===''){
+                 //reset all of the checkboxes to false
+                 $('input:checkbox[name="clipc_group[]"]').prop('checked',false);
+
+             } else if (clipc.indexOf('0') !== -1) {
+                 // if the clip code contains 0, reset everything but 0
+                 $('input[id="id_clipc"]').val("0");
+                 $('input:checkbox[name="clipc_group[]"][value!=0]').prop('checked',false);
+                 $('input:checkbox[name="clipc_group[]"][value=0]').prop('checked', true);
+
+             } else {
+
+                 var x;
+
+                 //clear our old selections:
+                 $('input:checkbox[name="clipc_group[]"]').prop('checked', false);
+                 //check each of the new ones:
+                 for (i = 0; i < clipc.length; i++) {
+                     x = clipc[i].toString();
+                     $('input:checkbox[name="clipc_group[]"][value="' + x + '"]').prop('checked', true);
                  }
-             }
-
-
-             function check_tagposition(tagposition){
-                 if ($('input[name="tagposition_options"][value="' + tagposition + '"]').length){
-                     $( "#tagposition_error" ).hide();
-                     $( "#tagposition_panel" ).removeClass("has-error");
-                 } else {
-                     $( "#tagposition_error_text").text("'" + tagposition + "' is not a valid Tag Position")
-                         $( "#tagposition_error" ).show();
-                     $( "#tagposition_panel" ).addClass("has-error");
-
-                 }
-             }
-
-
-             function check_tagcolour(tagcolour){
-                 if ($('input[name="tagcolour_options"][value="' + tagcolour + '"]').length){
-                     $( "#tagcolour_error" ).hide();
-                     $( "#tagcolour_panel" ).removeClass("has-error");
-                 } else {
-                     $( "#tagcolour_error_text").text("'" + tagcolour + "' is not a valid Tag Colour")
-                         $( "#tagcolour_error" ).show();
-                     $( "#tagcolour_panel" ).addClass("has-error");
-                 }
-             }
-
-
-             function check_tagorigin(tagorigin){
-                 if ($('input[name="tagorigin_options"][value="' + tagorigin + '"]').length){
-                     $( "#tagorigin_error" ).hide();
-                     $( "#tagorigin_panel" ).removeClass("has-error");
-                 } else {
-                     $( "#tagorigin_error_text").text("'" + tagorigin + "' is not a valid Agency Code")
-                         $( "#tagorigin_error" ).show();
-                     $( "#tagorigin_panel" ).addClass("has-error");
-                 }
-             }
-
-
-             $('input[type="radio"]').on('click change', function(e) {
-                 /// if one of the tagdoc_radio buttons change, refresh the tagdoc input
-                 var colour = $('input:radio[name="tagcolour_options"]:checked').val() || '?';
-                 var position = $('input:radio[name="tagposition_options"]:checked').val()  || '?';
-                 var origin = $('input:radio[name="tagorigin_options"]:checked').val() || '?';
-                 var tagtype = $('input:radio[name="tagtype_options"]:checked').val() || '?';
-                 var tagdoc = tagtype + position + origin + colour
-
-
-
-                 $('input[id="id_tagdoc"]').val(tagdoc);
-
-                 //clears any old errors that may be hanging around
-                 var valid = check_len_tagdoc(tagdoc);
-                 if (valid) {
-                     check_tagtype(tagtype);
-                     check_tagposition(position);
-                     check_tagorigin(origin);
-                     check_tagcolour(colour);
-                 }
-
-             });
-
-             // if the tagdoc changes, parse it's content, verify that it
-             // is 5 characters in length, and that each character corresponds
-             // to one of radio button options - if so, update the radio
-             // buttons, if not, give a meaningful error message.
-
-             $('input[id="id_tagdoc"]').change (update_tagoptions);
-
-
-             function update_tagoptions() {
-                 var tagdoc_val = $('input[id="id_tagdoc"]').val().toUpperCase();
-
-                 var valid = check_len_tagdoc(tagdoc_val);
-                 if (valid===false){
-                     return;
-                 }
-
-                 var tagtype = tagdoc_val[0];
-                 var position = tagdoc_val[1];
-                 var origin = tagdoc_val.substring(2,4);
-                 var colour = tagdoc_val[4];
-
-                 // now make sure that each of the tag attributes actually exist in the list.
-                 // update the radio buttons accordingly and issue a meaninful error if not.
-                 check_tagtype(tagtype);
-                 $('input[name="tagtype_options"]').val([tagtype]);
-                 check_tagposition(position);
-                 $('input[name="tagposition_options"]').val([position]);
-                 check_tagorigin(origin);
-                 $('input[name="tagorigin_options"]').val([origin]);
-                 check_tagcolour(colour);
-                 $('input[name="tagcolour_options"]').val([colour]);
-
-                 $('input[id="id_tagdoc"]').val(tagdoc_val);
-
-             };
-
-
-
-
-             function checkForUnique(str){
-                 //from:https://ujjaini.wordpress.com/2014/09/04/check-if-a-string-has-
-                 //    all-unique-characters-in-javascript/
-                 var hashtable = {};
-                 for(var i=0,len=str.length;i<len;i++){
-                     if (hashtable[str[i]] != null){
-                         hashtable[str[i]] = 1;
-                         return false;
-                     }else{
-                         hashtable[str[i]] = 0;
-                     }
-                 }
-                 return true;
-             }
-
-             $('input[id="id_clipc"]').change (function () {
-                 //if clipc changes we need to check its value, update
-                 //the check boxes accordingly, and issue an error if
-                 //clipc contains a value that does not correspond to to
-                 //a clip code.  If all of the values in clipc
-                 //correspond to actual clips, replace clipc with an
-                 //equivalent value that is sorted correctly (13 not 31)
-
-                 var clipc = $('input[id="id_clipc"]').val().toUpperCase();
-
-                 // first we need to make sure that clipc is valid:
-                 // to be valid, it can't have any characters that repeat
-                 // can't have any characters that don't have a corresponding checkbox
-
-                 var valid = checkForUnique(clipc);
-                 var chkbox;
-
-                 if (valid){
-                     for (i = 0; i < clipc.length; i++) {
-                         x = clipc[i];
-                         chkbox = $('input[name="clipc_group[]"][value="' + x + '"]');
-
-                         if (chkbox.length===0){
-                             valid = false;
-                             break;
-                         }
-                     }
-                 }
-
-                 if (valid===false){
-                     $( "#clipc_error_text").text("'" + clipc + "' is not a valid Clip Code");
-                     $( "#clipc_error" ).show();
-                     $( "#clipc_input" ).addClass("has-error");
-                     return;
-                 } else {
-                     $( "#clipc_error" ).hide();
-                     $( "#clipc_input" ).removeClass("has-error");
-
-                     if (clipc===''){
-                         //reset all of the checkboxes to false
-                         $('input:checkbox[name="clipc_group[]"]').prop('checked',false);
-
-                     } else if (clipc.indexOf('0') !== -1) {
-                         // if the clip code contains 0, reset everything but 0
-                         $('input[id="id_clipc"]').val("0");
-                         $('input:checkbox[name="clipc_group[]"][value!=0]').prop('checked',false);
-                         $('input:checkbox[name="clipc_group[]"][value=0]').prop('checked', true);
-
-                     } else {
-
-                         var x;
-
-                         //clear our old selections:
-                         $('input:checkbox[name="clipc_group[]"]').prop('checked', false);
-                         //check each of the new ones:
-                         for (i = 0; i < clipc.length; i++) {
-                             x = clipc[i].toString();
-                             $('input:checkbox[name="clipc_group[]"][value="' + x + '"]').prop('checked', true);
-                         }
-                         //get the new clip code and update the input box:
-
-                         var checkedValues = $('input:checkbox[name="clipc_group[]"]:checked').map(function() {
-                             // return the value of each checked checkbox
-                             return this.value;
-                         }).get();
-
-                         clips = checkedValues.join("");
-                         $('input[id="id_clipc"]').val(clips);
-
-                     }  //valid is true/false
-                 }
-
-             });
-
-
-             $('input:checkbox[name="clipc_group[]"]').on('click change', function(e) {
-
-                 // this function builds clip code from the check boxes and populate clipc
-                 // input element.  clips are added squentially unless 0 is checked, in which
-                 // the inputs are cleared/reset.
+                 //get the new clip code and update the input box:
 
                  var checkedValues = $('input:checkbox[name="clipc_group[]"]:checked').map(function() {
                      // return the value of each checked checkbox
                      return this.value;
                  }).get();
 
-                 //remove any residual errors from manual input:
-                 $( "#clipc_error" ).hide();
-                 $( "#clipc_input" ).removeClass("has-error");
+                 clips = checkedValues.join("");
+                 $('input[id="id_clipc"]').val(clips);
+
+             }  //valid is true/false
+         }
+
+     });
 
 
-                 var just_clicked = $(this).attr('value');
-                 var clip0 = $('input:checkbox[name="clipc_group[]"][value="0"]').is(':checked');
+     $('input:checkbox[name="clipc_group[]"]').on('click change', function(e) {
 
-                 if (clip0===true && just_clicked==='0'){
-                 //unclipped is not checked and was just clicked
-                     //set clip0 input to 0
-                     $('input[id="id_clipc"]').val("0");
-                     $('input:checkbox[name="clipc_group[]"][value!="0"]').prop('checked',false)
-                     $('input:checkbox[name="clipc_group[]"][value="0"]').prop('checked', true)
+         // this function builds clip code from the check boxes and populate clipc
+         // input element.  clips are added squentially unless 0 is checked, in which
+         // the inputs are cleared/reset.
 
-                 } else if (clip0===false && just_clicked!=='0') {
-                 //unclipped is not checked and another box was just clicked
-                     //set clip0 input to None
-                     clips = checkedValues.join("");
-                     $('input[id="id_clipc"]').val(clips);
+         var checkedValues = $('input:checkbox[name="clipc_group[]"]:checked').map(function() {
+             // return the value of each checked checkbox
+             return this.value;
+         }).get();
 
-                 } else if (clip0===false && just_clicked==='0'){
-                 //unclipped is already checked and was just clicked
-                     //$('input[id="id_clipc"]').val("EMPTY");
-                     var placeholder = $('input[id="id_clipc"]').attr('placeholder');
-                     $('input[id="id_clipc"]').val(placeholder);
-
-                 } else if (clip0===true && just_clicked!=='0') {
-                 //unclipped is already checked and another box was just clicked
-                     $('input:checkbox[name="clipc_group[]"][value="0"]').prop('checked',false);
-                     $('input[id="id_clipc"]').val(just_clicked);
-                 }
+         //remove any residual errors from manual input:
+         $( "#clipc_error" ).hide();
+         $( "#clipc_input" ).removeClass("has-error");
 
 
-             });
+         var just_clicked = $(this).attr('value');
+         var clip0 = $('input:checkbox[name="clipc_group[]"][value="0"]').is(':checked');
 
-         })
+         if (clip0===true && just_clicked==='0'){
+             //unclipped is not checked and was just clicked
+             //set clip0 input to 0
+             $('input[id="id_clipc"]').val("0");
+             $('input:checkbox[name="clipc_group[]"][value!="0"]').prop('checked',false)
+                 $('input:checkbox[name="clipc_group[]"][value="0"]').prop('checked', true)
 
-        </script>
+         } else if (clip0===false && just_clicked!=='0') {
+             //unclipped is not checked and another box was just clicked
+             //set clip0 input to None
+             clips = checkedValues.join("");
+             $('input[id="id_clipc"]').val(clips);
+
+         } else if (clip0===false && just_clicked==='0'){
+             //unclipped is already checked and was just clicked
+             //$('input[id="id_clipc"]').val("EMPTY");
+             var placeholder = $('input[id="id_clipc"]').attr('placeholder');
+             $('input[id="id_clipc"]').val(placeholder);
+
+         } else if (clip0===true && just_clicked!=='0') {
+             //unclipped is already checked and another box was just clicked
+             $('input:checkbox[name="clipc_group[]"][value="0"]').prop('checked',false);
+             $('input[id="id_clipc"]').val(just_clicked);
+         }
 
 
+     });
 
-<script>
-  $(function() {
-    $( ".datepicker" ).datepicker({ dateFormat: 'yy-mm-dd' });
-  });
+ })
+
+     $('#myTabs a').click(function (e) {
+         e.preventDefault()
+             $(this).tab('show')
+     })
+
+
+     $(function() {
+         $( ".datepicker" ).datepicker({ dateFormat: 'yy-mm-dd' });
+     });
+
 </script>
-
 
 
 {% endblock %}
