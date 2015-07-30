@@ -1,0 +1,537 @@
+<!doctype html>
+<html>
+    <head>
+        <title></title>
+        <meta charset="utf-8" />
+
+        <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
+        <script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+
+    </head>
+    <body>
+
+        <div class="container" >
+
+            <h2>Build TagDoc Test</h2>
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+                    <form method="POST" id="clipc_form" action="">
+
+                            <div id="tagdoc_input" class="form-group">
+                                <label class="control-label" for="tagdoc">TAGDOC:</label>
+
+                                <input type="text" class="form-control" id="tagdoc" placeholder="tagdoc">
+                                <div id="tagdoc_length" class="alert alert-danger" role="alert">
+                                    TAGDOC must be exactly 5 characters long.
+                                </div>
+                            </div>
+                            <a class="btn btn-primary" role="button" data-toggle="collapse" href="#collapseTagdoc" aria-expanded="false" aria-controls="collapseTagdoc"> Show TAGDOC Codes</a>
+
+                        <div class="collapse" id="collapseTagdoc">
+                            <br />
+                            <div class="well">
+                                <div class="row" >
+                                    <div class="col-md-3" >
+                                        <div id="tagtype_panel" class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">Tag Type</h4>
+                                            </div>
+                                            <div class="panel-body">
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagtype_options" id="tagtype_options0" value="0">
+                                                        No tag (0)
+                                                    </label>
+                                                </div>
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagtype_options" id="tagtype_options1" value="1">
+                                                        Streamer (1)
+                                                    </label>
+                                                </div>
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagtype_options" id="tagtype_options2" value="2" checked>
+                                                        Tubular Vinyl (2)
+                                                    </label>
+                                                </div>
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagtype_options" id="tagtype_options3" value="3">
+                                                        Circular Strap Jaw (3)
+                                                    </label>
+                                                </div>
+
+
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagtype_options" id="tagtype_options4" value="4">
+                                                        Butt End Jaw (4)
+                                                    </label>
+                                                </div>
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagtype_options" id="tagtype_options5" value="5">
+                                                        Anchor (5)
+                                                    </label>
+                                                </div>
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagtype_options" id="tagtype_options6" value="6">
+                                                        Coded Wire (6)
+                                                    </label>
+                                                </div>
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagtype_options" id="tagtype_options7" value="7">
+                                                        Strip Vinyl (7)
+                                                    </label>
+                                                </div>
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagtype_options" id="tagtype_options8" value="8">
+                                                        Secure Tie (8)
+                                                    </label>
+                                                </div>
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagtype_options" id="tagtype_options9" value="9">
+                                                        Type Unknown or not applicable (9)
+                                                    </label>
+                                                </div>
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagtype_options" id="tagtype_optionsA" value="A">
+                                                        Internal (Radio) (A)
+                                                    </label>
+                                                </div>
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagtype_options" id="tagtype_optionsX" value="X">
+                                                        Tag Scar/obvious loss (X)
+                                                    </label>
+                                                </div>
+                                                <div id="tagtype_error" class="alert alert-danger" role="alert">
+                                                    <div id="tagtype_error_text">Invalid Tag Type.</div>
+                                                </div>
+
+
+                                            </div>
+                                        </div>
+
+
+                                    </div> <!-- col-md-3 -->
+
+                                    <div class="col-md-3" >
+
+                                        <div id="tagposition_panel" class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">Tag Position</h4>
+                                            </div>
+                                            <div class="panel-body">
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagposition_options" id="tagposition_options1" value="1">
+                                                        Anterior Dorsal (1)
+                                                    </label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagposition_options" id="tagposition_options2" value="2">
+                                                        Between Dorsal (2)
+                                                    </label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagposition_options" id="tagposition_options3" value="3">
+                                                        Posterior Dorsal (3)
+                                                    </label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagposition_options" id="tagposition_options4" value="4">
+                                                        Abdominal Insertion (4)
+                                                    </label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagposition_options" id="tagposition_options5" value="5" checked>
+                                                        Flesh of Back (5)
+                                                    </label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagposition_options" id="tagposition_options6" value="6">
+                                                        Jaw (6)
+                                                    </label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagposition_options" id="tagposition_options7" value="7">
+                                                        Snout (7)
+                                                    </label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagposition_options" id="tagposition_options8" value="8">
+                                                        Anal (8)
+                                                    </label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagposition_options" id="tagposition_options9" value="9">
+                                                        Unknown (9)
+                                                    </label>
+                                                </div>
+                                                <div id="tagposition_error" class="alert alert-danger" role="alert">
+                                                    <div id="tagposition_error_text">Invalid Tag Position.</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3" >
+
+                                        <div id="tagorigin_panel" class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">Agency</h4>
+                                            </div>
+                                            <div class="panel-body">
+
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagorigin_options" id="tagorigin_options01" value="01" checked>
+                                                        Ontario Ministry of Natural Resources (01)
+                                                    </label>
+                                                </div>
+
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagorigin_options" id="tagorigin_options12" value="12">
+                                                        Private Club (12)
+                                                    </label>
+                                                </div>
+
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagorigin_options" id="tagorigin_options06" value="06">
+                                                        State of Ohio (06)
+                                                    </label>
+                                                </div>
+
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagorigin_options" id="tagorigin_options02" value="02">
+                                                        New York State (02)
+                                                    </label>
+                                                </div>
+
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagorigin_options" id="tagorigin_options19" value="19">
+                                                        Other (19)
+                                                    </label>
+                                                </div>
+
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagorigin_options" id="tagorigin_options10" value="10">
+                                                        Lakehead University (10)
+                                                    </label>
+                                                </div>
+
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagorigin_options" id="tagorigin_options09" value="09">
+                                                        State of Minnesota (09)
+                                                    </label>
+                                                </div>
+
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagorigin_options" id="tagorigin_options99" value="99">
+                                                        Unknown (99)
+                                                    </label>
+                                                </div>
+
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagorigin_options" id="tagorigin_options07" value="07">
+                                                        State of Pennsylvania (07)
+                                                    </label>
+                                                </div>
+
+
+
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagorigin_options" id="tagorigin_options04" value="04">
+                                                        University of Guelph (04)
+                                                    </label>
+                                                </div>
+
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagorigin_options" id="tagorigin_options05" value="05">
+                                                        University of Toronto (05)
+                                                    </label>
+                                                </div>
+
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagorigin_options" id="tagorigin_options03" value="03">
+                                                        State of Michigan (03)
+                                                    </label>
+                                                </div>
+
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagorigin_options" id="tagorigin_options13" value="13">
+                                                        Ontario Hydro (13)
+                                                    </label>
+                                                </div>
+
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagorigin_options" id="tagorigin_options08" value="08">
+                                                        Royal Ontario Museum (08)
+                                                    </label>
+                                                </div>
+
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagorigin_options" id="tagorigin_options11" value="11">
+                                                        Sir Sandford Fleming College (11)
+                                                    </label>
+                                                </div>
+
+                                                <div id="tagorigin_error" class="alert alert-danger" role="alert">
+                                                    <div id="tagorigin_error_text">Invalid Agency Code.</div>
+
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3" >
+                                        <div id="tagcolour_panel" class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">Colour</h4>
+                                            </div>
+                                            <div class="panel-body">
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio"  name="tagcolour_options" id="tagcolour_options2" value="2" checked>
+                                                        Yellow (2)
+                                                    </label>
+                                                </div>
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio"  name="tagcolour_options" id="tagcolour_options3" value="3">
+                                                        Red (3)
+                                                    </label>
+                                                </div>
+
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio"  name="tagcolour_options" id="tagcolour_options4" value="4">
+                                                        Green (4)
+                                                    </label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio"  name="tagcolour_options" id="tagcolour_options5" value="5">
+                                                        Orange (5)
+                                                    </label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio"  name="tagcolour_options" id="tagcolour_options6" value="6">
+                                                        Other (6)
+                                                    </label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio"  name="tagcolour_options" id="tagcolour_options9" value="9">
+                                                        Unknown (9)
+                                                    </label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio"  name="tagcolour_options" id="tagcolour_options1" value="1">
+                                                        Colourless (1)
+                                                    </label>
+                                                </div>
+                                                <div id="tagcolour_error" class="alert alert-danger" role="alert">
+                                                    <div id="tagcolour_error_text">Invalid Tag Colour.</div>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div> <!-- well -->
+                            </div> <!-- collapse -->
+
+                    </form>
+
+                        </div>
+                </div>
+            </div>
+
+            <script>
+
+             $(document).ready(function(){
+
+                 //make sure all of the error messages are hidden when we load the form:
+                 $( "#tagdoc_length" ).hide();
+                 $( "#tagtype_error" ).hide();
+                 $( "#tagposition_error" ).hide();
+                 $( "#tagorigin_error" ).hide();
+                 $( "#tagcolour_error" ).hide();
+
+
+                 function check_tagtype(tagtype){
+                     if ($('input[name="tagtype_options"][value="' + tagtype + '"]').length){
+                         $( "#tagtype_error" ).hide();
+                         $( "#tagtype_panel" ).removeClass("has-error");
+                     } else {
+                         $( "#tagtype_error_text").text("'" + tagtype + "' is not a valid Tag Type.")
+                             $( "#tagtype_error" ).show();
+                         $( "#tagtype_panel" ).addClass("has-error");
+                     }
+                 }
+
+
+                 function check_tagposition(tagposition){
+                     if ($('input[name="tagposition_options"][value="' + tagposition + '"]').length){
+                         $( "#tagposition_error" ).hide();
+                         $( "#tagposition_panel" ).removeClass("has-error");
+                     } else {
+                         $( "#tagposition_error_text").text("'" + tagposition + "' is not a valid Tag Position")
+                             $( "#tagposition_error" ).show();
+                         $( "#tagposition_panel" ).addClass("has-error");
+
+                     }
+                 }
+
+
+                 function check_tagcolour(tagcolour){
+                     if ($('input[name="tagcolour_options"][value="' + tagcolour + '"]').length){
+                         $( "#tagcolour_error" ).hide();
+                         $( "#tagcolour_panel" ).removeClass("has-error");
+                     } else {
+                         $( "#tagcolour_error_text").text("'" + tagcolour + "' is not a valid Tag Colour")
+                             $( "#tagcolour_error" ).show();
+                         $( "#tagcolour_panel" ).addClass("has-error");
+                     }
+                 }
+
+
+                 function check_tagorigin(tagorigin){
+                     if ($('input[name="tagorigin_options"][value="' + tagorigin + '"]').length){
+                         $( "#tagorigin_error" ).hide();
+                         $( "#tagorigin_panel" ).removeClass("has-error");
+                     } else {
+                         $( "#tagorigin_error_text").text("'" + tagorigin + "' is not a valid Agency Code")
+                             $( "#tagorigin_error" ).show();
+                         $( "#tagorigin_panel" ).addClass("has-error");
+                     }
+                 }
+
+
+                 $('input[type="radio"]').on('click change', function(e) {
+                     /// if one of the tagdoc_radio buttons change, refresh the tagdoc input
+                     var colour = $('input:radio[name="tagcolour_options"]:checked').val();
+                     var position = $('input:radio[name="tagposition_options"]:checked').val();
+                     var origin = $('input:radio[name="tagorigin_options"]:checked').val();
+                     var tagtype = $('input:radio[name="tagtype_options"]:checked').val();
+                     var tagdoc = tagtype + position + origin + colour
+                     $('input[id="tagdoc"]').val(tagdoc);
+
+                     //clears any old errors that may be hanging around
+                     check_tagtype(tagtype);
+                     check_tagposition(position);
+                     check_tagorigin(origin);
+                     check_tagcolour(colour);
+
+                 });
+
+                 // if the tagdoc changes, parse it's content, verify that it
+                 // is 5 characters in length, and that each character corresponds
+                 // to one of radio button options - if so, update the radio
+                 // buttons, if not, give a meaningful error message.
+
+                 $('input[id="tagdoc"]').change (function () {
+                     var tagdoc_val = $('input[id="tagdoc"]').val().toUpperCase();
+                     if (tagdoc_val.length != 5) {
+                         //update tagdoc elements with bootstrap errors
+                         $( "#tagdoc_input" ).addClass( "has-error");
+                         $( "#tagdoc_length" ).show();
+                         return;
+                     } else {
+                         //clear any existing bootstrap errors
+                         $( "#tagdoc_input" ).removeClass("has-error");
+                         $( "#tagdoc_length" ).hide();
+                     }
+                     var tagtype = tagdoc_val[0];
+                     var position = tagdoc_val[1];
+                     var origin = tagdoc_val.substring(2,4);
+                     var colour = tagdoc_val[4];
+
+                     // now make sure that each of the tag attributes actually exist in the list.
+                     // update the radio buttons accordingly and issue a meaninful error if not.
+                     check_tagtype(tagtype);
+                     $('input[name="tagtype_options"]').val([tagtype]);
+                     check_tagposition(position);
+                     $('input[name="tagposition_options"]').val([position]);
+                     check_tagorigin(origin);
+                     $('input[name="tagorigin_options"]').val([origin]);
+                     check_tagcolour(colour);
+                     $('input[name="tagcolour_options"]').val([colour]);
+
+                     $('input[id="tagdoc"]').val(tagdoc_val);
+
+                 });
+
+             })
+
+            </script>
+
+
+    </body>
+</html>
