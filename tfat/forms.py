@@ -79,7 +79,6 @@ class CreateJoePublicForm(JoePublicForm):
     same_name = forms.BooleanField(widget=HiddenInput(attrs={'value':False}),
                                    initial=False, required=False)
 
-
     def clean(self):
         cleaned_data = super(JoePublicForm, self).clean()
         same_name = cleaned_data.get('same_name', False)
@@ -226,11 +225,65 @@ class ReportForm(ModelForm):
         return cleaned_data
 
 
-class RecoveryForm(forms.Form):
+class RecoveryForm(ModelForm):
     '''A form to capture the information associated with a recaptured tag
     reported by an angler'''
 
-    pass
+
+
+    class Meta:
+        model = Recovery
+        fields = [ 'tagid', 'report', 'spc', 'recovery_date', 'date_flag',
+                   'general_name', 'specific_name', 'dd_lat', 'dd_lon',
+                   'latlon_flag',
+
+                   #'tag_origin', 'tag_position', 'tag_type','tag_colour',
+                    'tagdoc', 'tag_removed', 'fate',
+
+                    'flen', 'tlen', 'rwt', 'sex', 'clipc',
+                   'comment',]
+
+        widgets = {
+            'report':forms.HiddenInput(),
+            'tagid':forms.TextInput(attrs={'class':'form-control'}),
+            'spc':forms.Select(attrs={'class':'form-control'}),
+            'recovery_date':forms.DateInput(attrs={'class':
+                                                 'form-control datepicker',
+                                                 'placeholder':TODAY}),
+            'date_flag':forms.Select(attrs={'class':'form-control'}),
+
+            'tagdoc':forms.TextInput(attrs={'class':'form-control'}),
+            'specific_name':forms.TextInput(attrs={'class':'form-control'}),
+            'general_name':forms.TextInput(attrs={'class':'form-control'}),
+            'dd_lat':forms.TextInput(attrs={'class':'form-control'}),
+            'dd_lon':forms.TextInput(attrs={'class':'form-control'}),
+            'latlon_flag':forms.Select(attrs={'class':'form-control'}),
+
+            'tag_removed':forms.CheckboxInput(attrs={'class':'form-control'}),
+            'fate':forms.Select(attrs={'class':'form-control'}),
+
+            'flen':forms.TextInput(attrs={'class':'form-control'}),
+            'tlen':forms.TextInput(attrs={'class':'form-control'}),
+            'rwt':forms.TextInput(attrs={'class':'form-control'}),
+            'sex':forms.Select(attrs={'class':'form-control'}),
+            'clipc':forms.TextInput(attrs={'class':'form-control'}),
+
+
+            'comment': forms.Textarea(attrs={'class': 'form-control',
+                                             'rows': 10}),
+        }
+
+
+
+        #javascript logic in template:
+
+        #dd_lat and dd_lon - accept multiple formats including clickable widget
+
+        #clipc - list individual clips in checkbox and biuld clipc or
+        #populate checkboxes based on contnets of clipc
+
+        #tagdoc - list each component radio buttons and biuld tagdoc
+        #OR parse tagdoc and populate radio buttons
 
 
 #    report  = forms.ForeignKey(Report, related_name="Report")

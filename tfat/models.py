@@ -22,7 +22,7 @@ class Species(models.Model):
     scientific_name = models.CharField(max_length=50, null=True, blank=True)
 
     class Meta:
-        ordering = ['species_code']
+        ordering = ['common_name']
 
     def __str__(self):
         if self.scientific_name:
@@ -148,17 +148,19 @@ class Recovery(models.Model):
     recovery_date = models.DateField(blank=True, null=True)
     date_flag = models.IntegerField("Date Flag",
                                choices=DATE_FLAG_CHOICES, default=1)
-    general_name = models.CharField(max_length=50,blank=True, null=True)
-    specific_name = models.CharField(max_length=50,blank=True, null=True)
+    general_name = models.CharField("General Location", max_length=50,
+                                    blank=True, null=True)
+    specific_name = models.CharField("Specific Location", max_length=50,
+                                     blank=True, null=True)
     #eventually this will be an optional map widget
     dd_lat = models.FloatField(blank=True, null=True)
     dd_lon = models.FloatField(blank=True, null=True)
     latlon_flag = models.IntegerField("Spatial Flag",
                                choices=LATLON_FLAG_CHOICES, default=1)
 
-    flen = models.IntegerField(blank=True, null=True)
-    tlen = models.IntegerField(blank=True, null=True)
-    rwt = models.IntegerField(blank=True, null=True)
+    flen = models.IntegerField("Fork Length", blank=True, null=True)
+    tlen = models.IntegerField("Total Length", blank=True, null=True)
+    rwt = models.IntegerField("Round Weight", blank=True, null=True)
 
     sex  = models.CharField("Sex", max_length=30,
                             choices=SEX_CHOICES, default="9",
@@ -166,7 +168,7 @@ class Recovery(models.Model):
     #clip information may need to be in a child table and presented as
     #multi-checkbox widget (ie - check all that apply - then calculate
     #clipc from that.)
-    clipc = models.CharField(max_length=5,blank=True, null=True)
+    clipc = models.CharField("Clip Code", max_length=5,blank=True, null=True)
     tagid = models.CharField(max_length=10, db_index=True)
     tag_origin  = models.CharField("Tag Origin", max_length=3,db_index=True,
                                choices=TAG_ORIGIN_CHOICES, default="01")
@@ -181,7 +183,7 @@ class Recovery(models.Model):
 
     #tagdoc will be calculated from tag type, position, origin and
     #colour following fishnet-II definitions
-    tagdoc =  models.CharField(max_length=6,blank=True, null=True,
+    tagdoc =  models.CharField('TAGDOC', max_length=6,blank=True, null=True,
                                db_index=True)
 
     tag_removed = models.BooleanField(default=False)

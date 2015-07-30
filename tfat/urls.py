@@ -9,7 +9,8 @@ from tfat.views import (SpeciesListView, ReportListView,
                         angler_reports_view, create_angler, update_angler,
                         tags_recovered_project, tags_applied_project,
                         tagid_quicksearch_view, create_report, edit_report,
-                        report_detail_view, serve_file)
+                        report_detail_view, create_recovery, edit_recovery,
+                        serve_file)
 
 urlpatterns = patterns("",
 
@@ -148,12 +149,28 @@ urlpatterns = patterns("",
             ),
 
         url(
-            #TODO - once reported, all we need is report ID, not angler
-            #regex=r'^edit_report/(?P<angler_id>\d+)/(?P<report_id>\d+)/$',
             regex=r'^edit_report/(?P<report_id>\d+)/$',
             view=edit_report,
             name='edit_report'
             ),
+
+
+
+        #TAG RECOVERIES
+        url(
+            regex=r'^create_recovery/(?P<report_id>\d+)/$',
+            view=create_recovery,
+            name='create_recovery'
+            ),
+
+
+        url(
+            regex=r'^edit_recovery/(?P<recovery_id>\d+)/$',
+            view=edit_recovery,
+            name='edit_recovery'
+            ),
+
+
 
 
         #this function is used to download reports and files from project pages

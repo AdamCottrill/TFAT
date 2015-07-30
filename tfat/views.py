@@ -14,7 +14,8 @@ from geojson import MultiLineString
 
 from tfat.models import Species, JoePublic, Report, Recovery, Encounter, Project
 from tfat.filters import JoePublicFilter
-from tfat.forms import JoePublicForm, CreateJoePublicForm, ReportForm
+from tfat.forms import (JoePublicForm, CreateJoePublicForm, ReportForm,
+                        RecoveryForm)
 
 from tfat.utils import *
 
@@ -394,7 +395,6 @@ def create_report(request, angler_id):
                                                      'action': 'Create',})
 
 
-
 def edit_report(request, report_id):
     """This view is used to edit an existing tag report.
     """
@@ -403,8 +403,6 @@ def edit_report(request, report_id):
     angler = report.reported_by
     if request.method == 'POST':
         form = ReportForm(request.POST, request.FILES, instance=report)
-
-        #import pdb;pdb.set_trace()
         if form.is_valid():
             report = form.save(commit=False)
             #report.associated_file = request.FILES.get('associated_file')
@@ -418,6 +416,45 @@ def edit_report(request, report_id):
     return render(request, 'tfat/report_form.html', {'form': form,
                                                      'angler':angler,
                                                      'action': 'Edit'})
+
+
+
+def create_recovery(request, report_id):
+    """This view is used to create a new tag recovery.
+    """
+
+    report = get_object_or_404(Report, id=report_id)
+    if request.method == 'POST':
+        form = RecoveryForm(request.POST)
+        if form.is_valid():
+            recovery = form.save(commit=False)
+            recovery.report = report
+            recovery.save()
+            return redirect('report_detail', report_id=report.id)
+    else:
+        form = RecoveryForm(initial={'reported':report})
+
+    return render(request, 'tfat/recovery_form.html', {'form': form})
+
+
+def edit_recovery(request, recovery_id):
+    """This view is used to edit/update existing tag recoveries.
+    """
+
+    recovery = get_object_or_404(Recovery, id=recovery_id)
+    if request.method == 'POST':
+        form = RecoveryForm(request.POST, instance=recovery)
+        if form.is_valid():
+            #recovery = form.save(commit=False)
+            #recovery.report = report
+            #recovery.save()
+            form.save()
+            return redirect('report_detail', report_id=recovery.report.id)
+    else:
+        form = RecoveryForm(instance=recovery)
+
+    return render(request, 'tfat/recovery_form.html', {'form': form})
+
 
 
 

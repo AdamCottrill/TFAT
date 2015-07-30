@@ -1,0 +1,343 @@
+{% extends "tfat/tfat_base.html" %}
+
+{% block extrahead %}
+
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+
+
+{% endblock extrahead %}
+
+
+{% block content %}
+<div class="container">
+
+    <h2>Tag Recovery Event</h2>
+    <div class="panel panel-default">
+        <div class="panel-body">
+
+            <form method="post" action="{{ request.path }}">
+                {% csrf_token %}
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Tag Recovery Details</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <div id="tagid_row" class="row" >
+                            <div class="col-md-3" >
+                                <div class="form-group {% if form.tagid.errors %}has-error{% endif %}">
+                                    {{ form.tagid.label_tag }}
+                                    {{ form.tagid }}
+                                    {% if form.tagid.errors %}
+                                    {% for error in form.tagid.errors %}
+                                    <div class="has-error help-block text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-3" >
+                                <div class="form-group {% if form.spc.errors %}has-error{% endif %}">
+                                    {{ form.spc.label_tag }}
+                                    {{ form.spc }}
+                                    {% if form.spc.errors %}
+                                    {% for error in form.spc.errors %}
+                                    <div class="has-error help-block text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-3" >
+                                <div class="form-group {% if form.recovery_date.errors %}has-error{% endif %}">
+                                    {{ form.recovery_date.label_tag }}
+                                    {{ form.recovery_date }}
+                                    {% if form.recovery_date.errors %}
+                                    {% for error in form.recovery_date.errors %}
+                                    <div class="has-error help-block text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="col-md-3" >
+                                <div class="form-group {% if form.date_flag.errors %}has-error{% endif %}">
+                                    {{ form.date_flag.label_tag }}
+                                    {{ form.date_flag }}
+                                    {% if form.date_flag.errors %}
+                                    {% for error in form.date_flag.errors %}
+                                    <div class="has-error help-block text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div> <!-- tagid row -->
+                    </div>
+                </div>  <!-- Details Panel -->
+
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Tag Attributes</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <div id="tagdoc_row" class="row" >
+                            <div class="col-md-1 text-right" >
+                                {{ form.tagdoc.label_tag }}
+                            </div>
+                            <div class="col-md-2" >
+                                <div class="form-group {% if form.tagdoc.errors %}has-error{% endif %}">
+                                    {{ form.tagdoc }}
+                                    {% if form.tagdoc.errors %}
+                                    {% for error in form.tagdoc.errors %}
+                                    <div class="has-error help-block text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-2" >
+                                <a class="btn btn-primary" href="#" role="button">TAGDOC Helper</a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div> <!-- Tag Attributes Panel -->
+
+
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Recovery Location</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <div class="form-group {% if form.general_name.errors %}has-error{% endif %}">
+                            {{ form.general_name.label_tag }}
+                            {{ form.general_name }}
+                            {% if form.general_name.errors %}
+                            {% for error in form.general_name.errors %}
+                            <div class="has-error help-block text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="form-group {% if form.specific_name.errors %}has-error{% endif %}">
+                            {{ form.specific_name.label_tag }}
+                            {{ form.specific_name }}
+                            {% if form.specific_name.errors %}
+                            {% for error in form.specific_name.errors %}
+                            <div class="has-error help-block text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+
+                    </div>
+                </div> <!-- Recovery Location -->
+
+
+
+
+
+                <div id="fish_row" class="row" >
+
+                    <div id="fish_col" class="col-md-6" >
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">Fish Attributes</h3>
+                            </div>
+                            <div class="panel-body">
+
+                                <div id="fate_row" class="row" >
+                                    <div class="col-md-3 text-right" >
+                                        {{ form.fate.label_tag }}
+                                    </div>
+                                    <div class="col-md-3" >
+                                        <div class="form-group {% if form.fate.errors %}has-error{% endif %}">
+
+                                            {{ form.fate }}
+                                            {% if form.fate.errors %}
+                                            {% for error in form.fate.errors %}
+                                            <div class="has-error help-block text-danger">{{ error }}</div>
+                                            {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-md-6" >
+                                        <label for="tag_removed">Tag Removed:</label>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="tag_removed" id="tag_removed_true" value="inches"> Yes
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="tag_removed" id="tag_removed_false" value="false" checked> No
+                                        </label>
+                                    </div>
+
+                                </div>
+
+
+                                <div id="flen_row" class="row" >
+                                    <div class="col-md-3 text-right" >
+                                        {{ form.flen.label_tag }}
+                                    </div>
+                                    <div class="col-md-3" >
+                                        <div class="form-group {% if form.flen.errors %}has-error{% endif %}">
+
+                                            {{ form.flen }}
+                                            {% if form.flen.errors %}
+                                            {% for error in form.flen.errors %}
+                                            <div class="has-error help-block text-danger">{{ error }}</div>
+                                            {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6" >
+                                        <label class="radio-inline">
+                                            <input type="radio" name="flen_Units" id="flen_units_inches" value="inches"> Inches
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="flen_Units" id="flen_units_mm" value="mm" checked> mm
+                                        </label>
+                                    </div>
+                                </div>
+
+
+                                <div id="tlen_row" class="row" >
+                                    <div class="col-md-3 text-right" >
+                                        {{ form.tlen.label_tag }}
+                                    </div>
+                                    <div class="col-md-3" >
+                                        <div class="form-group {% if form.tlen.errors %}has-error{% endif %}">
+
+                                            {{ form.tlen }}
+                                            {% if form.tlen.errors %}
+                                            {% for error in form.tlen.errors %}
+                                            <div class="has-error help-block text-danger">{{ error }}</div>
+                                            {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6" >
+                                        <label class="radio-inline">
+                                            <input type="radio" name="tlen_Units" id="tlen_units_inches" value="inches"> Inches
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="tlen_Units" id="tlen_units_mm" value="mm" checked> mm
+                                        </label>
+                                    </div>
+                                </div>
+
+
+                                <div id="rwt_row" class="row" >
+                                    <div class="col-md-3 text-right" >
+                                        {{ form.rwt.label_tag }}
+                                    </div>
+                                    <div class="col-md-3" >
+                                        <div class="form-group {% if form.rwt.errors %}has-error{% endif %}">
+
+                                            {{ form.rwt }}
+                                            {% if form.rwt.errors %}
+                                            {% for error in form.rwt.errors %}
+                                            <div class="has-error help-block text-danger">{{ error }}</div>
+                                            {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6" >
+                                        <label class="radio-inline">
+                                            <input type="radio" name="rwt_Units" id="rwt_units_lbs" value="lbs"> lbs
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="rwt_Units" id="rwt_units_g" value="g" checked> g
+                                        </label>
+                                    </div>
+                                </div>
+
+
+
+
+                                <div id="sex_row" class="row" >
+                                    <div class="col-md-3 text-right" >
+                                        {{ form.sex.label_tag }}
+                                    </div>
+                                    <div class="col-md-3" >
+                                        <div class="form-group {% if form.sex.errors %}has-error{% endif %}">
+
+                                            {{ form.sex }}
+                                            {% if form.sex.errors %}
+                                            {% for error in form.sex.errors %}
+                                            <div class="has-error help-block text-danger">{{ error }}</div>
+                                            {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div id="clipc_row" class="row" >
+                                    <div class="col-md-3 text-right" >
+                                        {{ form.clipc.label_tag }}
+                                    </div>
+                                    <div class="col-md-3" >
+                                        <div class="form-group {% if form.clipc.errors %}has-error{% endif %}">
+                                            {{ form.clipc }}
+                                            {% if form.clipc.errors %}
+                                            {% for error in form.clipc.errors %}
+                                            <div class="has-error help-block text-danger">{{ error }}</div>
+                                            {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2" >
+                                        <a class="btn btn-primary" href="#" role="button">Show Clip Codes</a>
+                                    </div>
+                                </div>
+
+
+                            </div> <!-- Fish Panel -->
+                        </div> <!-- fish column -->
+                    </div>
+
+                    <div id="comments_column" class="col-md-6" >
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">Additional Comments</h3>
+                            </div>
+                            <div class="panel-body">
+                                <!-- <div id="fish_comments" class="col-md-6" > -->
+                                <div class="form-group {% if form.comment.errors %}has-error{% endif %}">
+                                    {{ form.comment }}
+                                    {% if form.comment.errors %}
+                                    {% for error in form.comment.errors %}
+                                    <div class="has-error help-block text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div> <!-- Comments Panel -->
+                    </div> <!-- Comments Column -->
+                </div>
+
+                <hr />
+
+
+                <input class="btn btn-primary pull-right" type="submit" value="Submit">
+
+            </form>
+
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+  $(function() {
+    $( ".datepicker" ).datepicker({ dateFormat: 'yy-mm-dd' });
+  });
+</script>
+
+
+
+{% endblock %}
