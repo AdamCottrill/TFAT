@@ -54,7 +54,7 @@ CLIP_CODE_CHOICES = {
 
 
 TAG_TYPE_CHOICES = {
-    ('0', 'No tag'),
+#    ('0', 'No tag'),
     ('1', 'Streamer'),
     ('2', 'Tubular Vinyl'),
     ('3', 'Circular Strap Jaw '),
@@ -77,7 +77,7 @@ TAG_POSITION_CHOICES = {
     ('6', 'Jaw'),
     ('7', 'Snout'),
     ('8', 'Anal'),
-    ('9', 'Unknown')
+    ('9', 'Unknown'),
 }
 
 
@@ -96,7 +96,7 @@ TAG_ORIGIN_CHOICES = {
     ('12', 'Private Club'),
     ('13', 'Ontario Hydro'),
     ('19', 'Other'),
-    ('99', 'Unknown')
+    ('99', 'Unknown'),
 }
 
 TAG_COLOUR_CHOICES = {
@@ -106,7 +106,7 @@ TAG_COLOUR_CHOICES = {
     ('4', 'Green'),
     ('5', 'Orange'),
     ('6', 'Other'),
-    ('9', 'Unknown')
+    ('9', 'Unknown'),
 }
 
 

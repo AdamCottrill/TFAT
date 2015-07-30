@@ -428,6 +428,11 @@ def create_recovery(request, report_id):
     #clip_codes = [{x[0]:x[1]} for x in CLIP_CODE_CHOICES]
 
     clip_codes = sorted(list(CLIP_CODE_CHOICES), key=lambda x:x[0])
+    tag_types = sorted(list(TAG_TYPE_CHOICES), key=lambda x:x[0])
+    tag_origin = sorted(list(TAG_ORIGIN_CHOICES), key=lambda x:x[0])
+    tag_colours = sorted(list(TAG_COLOUR_CHOICES), key=lambda x:x[0])
+    tag_position = sorted(list(TAG_POSITION_CHOICES), key=lambda x:x[0])
+
 
     report = get_object_or_404(Report, id=report_id)
     if request.method == 'POST':
@@ -441,7 +446,11 @@ def create_recovery(request, report_id):
         form = RecoveryForm(initial={'reported':report})
 
     return render(request, 'tfat/recovery_form.html', {'form': form,
-                                                       'clip_codes':clip_codes})
+                                                       'clip_codes':clip_codes,
+                                                       'tag_types':tag_types,
+                                                       'tag_origin':tag_origin,
+                                                       'tag_colours':tag_colours,
+                                                       'tag_position':tag_position,})
 
 
 def edit_recovery(request, recovery_id):
@@ -450,6 +459,10 @@ def edit_recovery(request, recovery_id):
 
 
     clip_codes = sorted(list(CLIP_CODE_CHOICES), key=lambda x:x[0])
+    tag_types = sorted(list(TAG_TYPE_CHOICES), key=lambda x:x[0])
+    tag_origin = sorted(list(TAG_ORIGIN_CHOICES), key=lambda x:x[0])
+    tag_colours = sorted(list(TAG_COLOUR_CHOICES), key=lambda x:x[0])
+    tag_position = sorted(list(TAG_POSITION_CHOICES), key=lambda x:x[0])
 
     recovery = get_object_or_404(Recovery, id=recovery_id)
     if request.method == 'POST':
@@ -464,7 +477,12 @@ def edit_recovery(request, recovery_id):
         form = RecoveryForm(instance=recovery)
 
     return render(request, 'tfat/recovery_form.html', {'form': form,
-                                                       'clip_codes':clip_codes})
+                                                       'clip_codes':clip_codes
+                                                       'tag_types':tag_types,
+                                                       'tag_origin':tag_origin,
+                                                       'tag_colours':tag_colours,
+                                                       'tag_position':tag_position,})
+
 
 
 

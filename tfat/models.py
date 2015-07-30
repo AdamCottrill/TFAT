@@ -184,7 +184,7 @@ class Recovery(models.Model):
     #tagdoc will be calculated from tag type, position, origin and
     #colour following fishnet-II definitions
     tagdoc =  models.CharField('TAGDOC', max_length=6,blank=True, null=True,
-                               db_index=True)
+                               db_index=True, default='25012')
 
     tag_removed = models.BooleanField(default=False)
     fate = models.CharField("Fate", max_length=30, blank=True, null=True,

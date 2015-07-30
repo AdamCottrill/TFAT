@@ -252,7 +252,8 @@ class RecoveryForm(ModelForm):
                                                  'placeholder':TODAY}),
             'date_flag':forms.Select(attrs={'class':'form-control'}),
 
-            'tagdoc':forms.TextInput(attrs={'class':'form-control'}),
+            'tagdoc':forms.TextInput(attrs={'class':'form-control',
+                                            'placeholder':'25012'}),
             'specific_name':forms.TextInput(attrs={'class':'form-control'}),
             'general_name':forms.TextInput(attrs={'class':'form-control'}),
             'dd_lat':forms.TextInput(attrs={'class':'form-control'}),

@@ -2,8 +2,8 @@
 
 {% block extrahead %}
 
-    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
-    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
 
 
 {% endblock extrahead %}
@@ -93,14 +93,129 @@
                                     <div class="has-error help-block text-danger">{{ error }}</div>
                                     {% endfor %}
                                     {% endif %}
+                                <div id="tagdoc_length" class="alert alert-danger" role="alert">
+                                    TAGDOC must be exactly 5 characters long.
+                                </div>
                                 </div>
                             </div>
                             <div class="col-md-2" >
-                                <a class="btn btn-primary" href="#" role="button">TAGDOC Helper</a>
+                                <a class="btn btn-primary" role="button" data-toggle="collapse" href="#collapseTagdoc" aria-expanded="false" aria-controls="collapseTagdoc"> TAGDOC Helper</a>
                             </div>
                         </div>
 
-                    </div>
+
+                        <div class="collapse" id="collapseTagdoc">
+                            <br />
+                            <div class="well">
+                                <div class="row" >
+                                    <div class="col-md-3" >
+                                        <div id="tagtype_panel" class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">Tag Type</h4>
+                                            </div>
+                                            <div class="panel-body">
+
+                                                {% for key, val in tag_types %}
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagtype_options" id="tagtype_options{{ key }}" value="{{ key }}">
+                                                        {{ val }} ({{ key }})
+                                                    </label>
+                                                </div>
+                                                {% endfor %}
+
+
+                                                <div id="tagtype_error" class="alert alert-danger" role="alert">
+                                                    <div id="tagtype_error_text">Invalid Tag Type.</div>
+                                                </div>
+
+
+                                            </div>
+                                        </div>
+
+
+                                    </div> <!-- col-md-3 -->
+
+                                    <div class="col-md-3" >
+
+                                        <div id="tagposition_panel" class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">Tag Position</h4>
+                                            </div>
+                                            <div class="panel-body">
+                                                {% for key, val in tag_position %}
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagposition_options" id="tagposition_options{{ key }}" value="{{ key }}">
+                                                        {{ val }} ({{ key }})
+                                                    </label>
+                                                </div>
+                                                {% endfor %}
+
+
+                                                <div id="tagposition_error" class="alert alert-danger" role="alert">
+                                                    <div id="tagposition_error_text">Invalid Tag Position.</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3" >
+
+                                        <div id="tagorigin_panel" class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">Agency</h4>
+                                            </div>
+                                            <div class="panel-body">
+
+                                                {% for key, val in tag_origin %}
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="tagorigin_options" id="tagorigin_options{{ key }}" value="{{ key }}" >
+                                                        {{ val }} ({{ key }})
+                                                    </label>
+                                                </div>
+                                                {% endfor %}
+                                                <div id="tagorigin_error" class="alert alert-danger" role="alert">
+                                                    <div id="tagorigin_error_text">Invalid Agency Code.</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3" >
+                                        <div id="tagcolour_panel" class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">Colour</h4>
+                                            </div>
+                                            <div class="panel-body">
+
+                                                {% for key, val in tag_colours %}
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio"  name="tagcolour_options" id="tagcolour_options{{ key }}" value="{{ key }}">
+                                                        {{ val }} ({{ key }})
+                                                    </label>
+                                                </div>
+                                                {% endfor %}
+
+                                                <div id="tagcolour_error" class="alert alert-danger" role="alert">
+                                                    <div id="tagcolour_error_text">Invalid Tag Colour.</div>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div> <!-- well -->
+                            </div> <!-- collapse -->
+
+
+
+
+
+
+                        </div>
                 </div> <!-- Tag Attributes Panel -->
 
                 <div class="panel panel-default">
@@ -343,6 +458,139 @@
          $(document).ready(function(){
 
              $( "#clipc_error" ).hide();
+             //make sure all of the error messages are hidden when we load the form:
+             $( "#tagdoc_length" ).hide();
+             $( "#tagtype_error" ).hide();
+             $( "#tagposition_error" ).hide();
+             $( "#tagorigin_error" ).hide();
+             $( "#tagcolour_error" ).hide();
+
+             update_tagoptions();
+
+             function check_len_tagdoc(tagdoc_val){
+                 if (tagdoc_val.length != 5) {
+                     //update tagdoc elements with bootstrap errors
+                     $( "#tagdoc_input" ).addClass( "has-error");
+                     $( "#tagdoc_length" ).show();
+                     return false;
+                 } else {
+                     //clear any existing bootstrap errors
+                     $( "#tagdoc_input" ).removeClass("has-error");
+                     $( "#tagdoc_length" ).hide();
+                     return true
+                 }
+             }
+
+             function check_tagtype(tagtype){
+                 if ($('input[name="tagtype_options"][value="' + tagtype + '"]').length){
+                     $( "#tagtype_error" ).hide();
+                     $( "#tagtype_panel" ).removeClass("has-error");
+                 } else {
+                     $( "#tagtype_error_text").text("'" + tagtype + "' is not a valid Tag Type.")
+                         $( "#tagtype_error" ).show();
+                     $( "#tagtype_panel" ).addClass("has-error");
+                 }
+             }
+
+
+             function check_tagposition(tagposition){
+                 if ($('input[name="tagposition_options"][value="' + tagposition + '"]').length){
+                     $( "#tagposition_error" ).hide();
+                     $( "#tagposition_panel" ).removeClass("has-error");
+                 } else {
+                     $( "#tagposition_error_text").text("'" + tagposition + "' is not a valid Tag Position")
+                         $( "#tagposition_error" ).show();
+                     $( "#tagposition_panel" ).addClass("has-error");
+
+                 }
+             }
+
+
+             function check_tagcolour(tagcolour){
+                 if ($('input[name="tagcolour_options"][value="' + tagcolour + '"]').length){
+                     $( "#tagcolour_error" ).hide();
+                     $( "#tagcolour_panel" ).removeClass("has-error");
+                 } else {
+                     $( "#tagcolour_error_text").text("'" + tagcolour + "' is not a valid Tag Colour")
+                         $( "#tagcolour_error" ).show();
+                     $( "#tagcolour_panel" ).addClass("has-error");
+                 }
+             }
+
+
+             function check_tagorigin(tagorigin){
+                 if ($('input[name="tagorigin_options"][value="' + tagorigin + '"]').length){
+                     $( "#tagorigin_error" ).hide();
+                     $( "#tagorigin_panel" ).removeClass("has-error");
+                 } else {
+                     $( "#tagorigin_error_text").text("'" + tagorigin + "' is not a valid Agency Code")
+                         $( "#tagorigin_error" ).show();
+                     $( "#tagorigin_panel" ).addClass("has-error");
+                 }
+             }
+
+
+             $('input[type="radio"]').on('click change', function(e) {
+                 /// if one of the tagdoc_radio buttons change, refresh the tagdoc input
+                 var colour = $('input:radio[name="tagcolour_options"]:checked').val() || '?';
+                 var position = $('input:radio[name="tagposition_options"]:checked').val()  || '?';
+                 var origin = $('input:radio[name="tagorigin_options"]:checked').val() || '?';
+                 var tagtype = $('input:radio[name="tagtype_options"]:checked').val() || '?';
+                 var tagdoc = tagtype + position + origin + colour
+
+
+
+                 $('input[id="id_tagdoc"]').val(tagdoc);
+
+                 //clears any old errors that may be hanging around
+                 var valid = check_len_tagdoc(tagdoc);
+                 if (valid) {
+                     check_tagtype(tagtype);
+                     check_tagposition(position);
+                     check_tagorigin(origin);
+                     check_tagcolour(colour);
+                 }
+
+             });
+
+             // if the tagdoc changes, parse it's content, verify that it
+             // is 5 characters in length, and that each character corresponds
+             // to one of radio button options - if so, update the radio
+             // buttons, if not, give a meaningful error message.
+
+             $('input[id="id_tagdoc"]').change (update_tagoptions);
+
+
+             function update_tagoptions() {
+                 var tagdoc_val = $('input[id="id_tagdoc"]').val().toUpperCase();
+
+                 var valid = check_len_tagdoc(tagdoc_val);
+                 if (valid===false){
+                     return;
+                 }
+
+                 var tagtype = tagdoc_val[0];
+                 var position = tagdoc_val[1];
+                 var origin = tagdoc_val.substring(2,4);
+                 var colour = tagdoc_val[4];
+
+                 // now make sure that each of the tag attributes actually exist in the list.
+                 // update the radio buttons accordingly and issue a meaninful error if not.
+                 check_tagtype(tagtype);
+                 $('input[name="tagtype_options"]').val([tagtype]);
+                 check_tagposition(position);
+                 $('input[name="tagposition_options"]').val([position]);
+                 check_tagorigin(origin);
+                 $('input[name="tagorigin_options"]').val([origin]);
+                 check_tagcolour(colour);
+                 $('input[name="tagcolour_options"]').val([colour]);
+
+                 $('input[id="id_tagdoc"]').val(tagdoc_val);
+
+             };
+
+
+
 
              function checkForUnique(str){
                  //from:https://ujjaini.wordpress.com/2014/09/04/check-if-a-string-has-
