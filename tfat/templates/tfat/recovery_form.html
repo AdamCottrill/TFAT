@@ -14,7 +14,6 @@
 
 {% block content %}
 <div class="container">
-
     <h2>Tag Recovery Event</h2>
     <div class="panel panel-default">
         <div class="panel-body">
@@ -212,202 +211,230 @@
                     </div>
                     <div class="panel-body">
 
-                        <div class="form-group {% if form.general_name.errors %}has-error{% endif %}">
-                            {{ form.general_name.label_tag }}
-                            {{ form.general_name }}
-                            {% if form.general_name.errors %}
-                            {% for error in form.general_name.errors %}
-                            <div class="has-error help-block text-danger">{{ error }}</div>
-                            {% endfor %}
-                            {% endif %}
+
+                        <div id="location_row" class="row" >
+                            <div class="col-md-6" >
+
+
+                                <div class="form-group {% if form.general_name.errors %}has-error{% endif %}">
+                                    {{ form.general_name.label_tag }}
+                                    {{ form.general_name }}
+                                    {% if form.general_name.errors %}
+                                    {% for error in form.general_name.errors %}
+                                    <div class="has-error help-block text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="form-group {% if form.specific_name.errors %}has-error{% endif %}">
+                                    {{ form.specific_name.label_tag }}
+                                    {{ form.specific_name }}
+                                    {% if form.specific_name.errors %}
+                                    {% for error in form.specific_name.errors %}
+                                    <div class="has-error help-block text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                    {% endif %}
+                                </div>
+
+                                <h4>Coordinates</h4>
+
+
+                                <div>
+                                    <!-- Nav tabs -->
+                                    <ul class="nav nav-tabs" role="tablist">
+                                        <li role="presentation" class="active"><a href="#decimal_degrees" aria-controls="decimal_degrees" role="tab" data-toggle="tab">Dec. Deg.</a></li>
+                                        <li role="presentation"><a href="#ddm" aria-controls="ddm" role="tab" data-toggle="tab">Dec. Minutes</a></li>
+                                        <li role="presentation"><a href="#dms" aria-controls="dms" role="tab" data-toggle="tab">Deg-Min-Secs</a></li>
+                                        <li role="presentation"><a href="#grid" aria-controls="grid" role="tab" data-toggle="tab">5-Min Grid</a></li>
+
+                                    </ul>
+
+                                    <!-- Tab panes -->
+                                    <div class="tab-content">
+                                        <div role="tabpanel" class="tab-pane active" id="decimal_degrees">
+
+                                            <br />
+                                            <p><strong>Latitude:</strong></p>
+                                            <div class="form-group">
+                                                <label class="sr-only" for="id_dd_lat">Latitude:</label>
+                                                <input type="text" class="form-control" id="id_dd_lat" placeholder="Decimal Degrees">
+                                            </div>
+
+                                            <p><strong>Longitude:</strong></p>
+                                            <div class="form-group">
+                                                <label class="sr-only" for="id_dd_lon">Longitude:</label>
+                                                <input type="text" class="form-control" id="id_dd_lon" placeholder="Decimal Degrees">
+                                            </div>
+
+
+                                        </div> <!-- tabpanel -->
+                                        <div role="tabpanel" class="tab-pane" id="ddm">
+                                            <br />
+                                            <p><strong>Latitude:</strong></p>
+                                            <div class="row" >
+                                                <div class="col-md-6" >
+                                                    <div class="form-group">
+                                                        <label class="sr-only" for="ddm_lat_deg">Degrees:</label>
+                                                        <input type="text" name="ddm_lat" class="form-control" id="ddm_lat_deg" placeholder="Degrees">
+                                        <div id="ddm_lat_deg_error" class="alert alert-danger" role="alert">
+                                            Degrees must be an integer!
+                                        </div>
+
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6" >
+
+                                                    <div class="form-group">
+                                                        <label  class="sr-only" for="ddm_lat_min">Decimal Minutes:</label>
+                                                        <input type="text" name="ddm_lat" class="form-control" id="ddm_lat_min" placeholder="Decimal Minutes">
+                                        <div id="ddm_lat_min_error" class="alert alert-danger" role="alert">
+                                            Minutes must be between 0 and 60!
+                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
+                                            <p><strong>Longitude:</strong></p>
+                                            <div class="row" >
+                                                <div class="col-md-6" >
+                                                    <div class="form-group">
+                                                        <label class="sr-only" for="ddm_lon_deg">Degrees:</label>
+                                                        <input type="text" name="ddm_lon" class="form-control" id="ddm_lon_deg" placeholder="Degrees">
+                                        <div id="ddm_lon_deg_error" class="alert alert-danger" role="alert">
+                                            Degrees must be an integer!
+                                        </div>
+
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6" >
+                                                    <div class="form-group">
+                                                        <label  class="sr-only" for="ddm_lon_min">Decimal Minutes:</label>
+                                                        <input type="text" name="ddm_lon" class="form-control" id="ddm_lon_min" placeholder="Decimal Minutes">
+                                        <div id="ddm_lon_min_error" class="alert alert-danger" role="alert">
+                                            Minutes must be between 0 and 60!
+                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                        </div>  <!-- tabpanel -->
+
+                                        <div role="tabpanel" class="tab-pane" id="dms">
+                                            <br />
+
+                                            <p><strong>Latitude:</strong></p>
+                                            <div class="row" >
+                                                <div class="col-md-4" >
+                                                    <div class="form-group">
+                                                        <label class="sr-only" for="dms_lat_deg">Degrees:</label>
+                                                        <input type="text" name="dms_lat" class="form-control" id="dms_lat_deg" placeholder="Degrees">
+                                        <div id="dms_lat_deg_error" class="alert alert-danger" role="alert">
+                                            Degrees must be an integer between -90 and 90!
+                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4" >
+                                                    <div class="form-group">
+                                                        <label  class="sr-only" for="dms_lat_min">Minutes:</label>
+                                                        <input type="text"  name="dms_lat"  class="form-control" id="dms_lat_min" placeholder="Minutes">
+                                        <div id="dms_lat_min_error" class="alert alert-danger" role="alert">
+                                            Minutes must be an integer between 0 and 59!
+                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4" >
+                                                    <div class="form-group">
+                                                        <label  class="sr-only" for="dms_lat_sec">Seconds:</label>
+                                                        <input type="text"  name="dms_lat" class="form-control" id="dms_lat_sec" placeholder="Seconds">
+                                        <div id="dms_lat_sec_error" class="alert alert-danger" role="alert">
+                                            seconds must be between 0 and 60!
+                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <p><strong>Longitude:</strong></p>
+                                            <div class="row" >
+                                                <div class="col-md-4" >
+                                                    <div class="form-group">
+                                                        <label class="sr-only" for="dms_lon_deg">Degrees:</label>
+                                                        <input type="text"  name="dms_lon" class="form-control" id="dms_lon_deg" placeholder="Degrees">
+                                        <div id="dms_lon_deg_error" class="alert alert-danger" role="alert">
+                                            Degrees must be an integer between -180 and 180!
+                                        </div>
+
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4" >
+                                                    <div class="form-group">
+                                                        <label  class="sr-only" for="dms_lon_min">Minutes:</label>
+                                                        <input type="text" name="dms_lon" class="form-control" id="dms_lon_min" placeholder="Minutes">
+                                        <div id="dms_lon_min_error" class="alert alert-danger" role="alert">
+                                            Minutes must be an integer between 0 and 59!
+                                        </div>
+
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4" >
+                                                    <div class="form-group">
+                                                        <label  class="sr-only" for="dms_lon_sec">Seconds:</label>
+                                                        <input type="text" name="dms_lon" class="form-control" id="dms_lon_sec" placeholder="Seconds">
+                                        <div id="dms_lon_sec_error" class="alert alert-danger" role="alert">
+                                            Seconds must be between 0 and 60!
+                                        </div>
+
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+
+                                        </div>  <!-- tabpanel -->
+
+                                        <div role="tabpanel" class="tab-pane" id="grid">
+
+                                            <br />
+
+                                            <p><strong>5-Minute Grid Number:</strong></p>
+                                            <div class="row" >
+                                                <div class="col-md-3" >
+                                                    <div class="form-group">
+                                                        <label class="sr-only" for="grid_no">5-Minute Grid Number:</label>
+                                                        <input type="text"  name="grid_no" class="form-control" id="grid_no" placeholder="1942">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-5" >
+                                                    <select class="form-control">
+                                                        <option>Lake Huron</option>
+                                                        <option>Lake Superior</option>
+                                                        <option>Lake Erie</option>
+                                                        <option>Lake Ontario</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <p>Lots more work to do here.  we need
+                                                to write a api in our application that
+                                                will get the centroid of the supplied
+                                                grid number and populate the other
+                                                controls or take the lat-lon from the
+                                                other controls and get the assocaiated
+                                                grid number.</p>
+                                        </div>  <!-- tabpanel -->
+                                    </div>  <!-- tabcontent -->
+                                </div>
+                            </div> <!-- location widgets -->
+                            <div class="col-md-6" >
+                                <p>1) Or place the marker where the recapture occured
+                                    <button type="button" class="btn btn-info btn-xs">
+                                        <span class="glyphicon glyphicon-new-window" aria-hidden="true"></span> Enlarge Map
+                                    </button>
+
+                                </p>
+                                <div id="map" style="width: 500px; height: 500px;"></div>
+                            </div> <!-- map column-->
                         </div>
-                        <div class="form-group {% if form.specific_name.errors %}has-error{% endif %}">
-                            {{ form.specific_name.label_tag }}
-                            {{ form.specific_name }}
-                            {% if form.specific_name.errors %}
-                            {% for error in form.specific_name.errors %}
-                            <div class="has-error help-block text-danger">{{ error }}</div>
-                            {% endfor %}
-                            {% endif %}
-                        </div>
-
-
-                        <div>
-                            <!-- Nav tabs -->
-                            <ul class="nav nav-tabs" role="tablist">
-                                <li role="presentation" class="active"><a href="#decimal_degrees" aria-controls="decimal_degrees" role="tab" data-toggle="tab">Decimal Degrees</a></li>
-                                <li role="presentation"><a href="#ddm" aria-controls="ddm" role="tab" data-toggle="tab">Decimal Minutes</a></li>
-                                <li role="presentation"><a href="#dms" aria-controls="dms" role="tab" data-toggle="tab">Degree Minutes Seconds</a></li>
-                                <li role="presentation"><a href="#grid" aria-controls="grid" role="tab" data-toggle="tab">5-min Grid</a></li>
-                                <li role="presentation" ><a href="#leaflet_map" aria-controls="leaflet_map" role="tab" data-toggle="tab">Clickable Map</a></li>
-                            </ul>
-
-                            <!-- Tab panes -->
-                            <div class="tab-content">
-                                <div role="tabpanel" class="tab-pane active" id="decimal_degrees">
-
-                                    <br />
-                                    <p><strong>Latitude:</strong></p>
-                                    <div class="form-group">
-                                        <label class="sr-only" for="id_dd_lat">Latitude:</label>
-                                        <input type="text" class="form-control" id="id_dd_lat" placeholder="Decimal Degrees">
-                                    </div>
-
-                                    <p><strong>Longitude:</strong></p>
-                                    <div class="form-group">
-                                        <label class="sr-only" for="id_dd_lon">Longitude:</label>
-                                        <input type="text" class="form-control" id="id_dd_lon" placeholder="Decimal Degrees">
-                                    </div>
-
-
-                                </div> <!-- tabpanel -->
-                                <div role="tabpanel" class="tab-pane" id="ddm">
-                                    <br />
-                                    <p><strong>Latitude:</strong></p>
-                                    <div class="row" >
-                                        <div class="col-md-6" >
-                                            <div class="form-group">
-                                                <label class="sr-only" for="ddm_lat_deg">Degrees:</label>
-                                                <input type="text" name="ddm_lat" class="form-control" id="ddm_lat_deg" placeholder="Degrees">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6" >
-                                            <div class="form-group">
-                                                <label  class="sr-only" for="ddm_lat_min">Decimal Minutes:</label>
-                                                <input type="text" name="ddm_lat" class="form-control" id="ddm_lat_min" placeholder="Decimal Minutes">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <p><strong>Longitude:</strong></p>
-                                    <div class="row" >
-                                        <div class="col-md-6" >
-                                            <div class="form-group">
-                                                <label class="sr-only" for="ddm_lon_deg">Degrees:</label>
-                                                <input type="text" name="ddm_lon" class="form-control" id="ddm_lon_deg" placeholder="Degrees">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6" >
-                                            <div class="form-group">
-                                                <label  class="sr-only" for="ddm_lon_min">Decimal Minutes:</label>
-                                                <input type="text" name="ddm_lon" class="form-control" id="ddm_lon_min" placeholder="Decimal Minutes">
-                                            </div>
-                                        </div>
-                                    </div>
-
-
-                                </div>  <!-- tabpanel -->
-
-                                <div role="tabpanel" class="tab-pane" id="dms">
-                                    <br />
-
-                                    <p><strong>Latitude:</strong></p>
-                                    <div class="row" >
-                                        <div class="col-md-4" >
-                                            <div class="form-group">
-                                                <label class="sr-only" for="dms_lat_deg">Degrees:</label>
-                                                <input type="text" name="dms_lat" class="form-control" id="dms_lat_deg" placeholder="Degrees">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4" >
-                                            <div class="form-group">
-                                                <label  class="sr-only" for="dms_lat_min">Minutes:</label>
-                                                <input type="text"  name="dms_lat"  class="form-control" id="dms_lat_min" placeholder="Minutes">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4" >
-                                            <div class="form-group">
-                                                <label  class="sr-only" for="dms_lat_sec">Seconds:</label>
-                                                <input type="text"  name="dms_lat" class="form-control" id="dms_lat_sec" placeholder="Seconds">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <p><strong>Longitude:</strong></p>
-                                    <div class="row" >
-                                        <div class="col-md-4" >
-                                            <div class="form-group">
-                                                <label class="sr-only" for="dms_lon_deg">Degrees:</label>
-                                                <input type="text"  name="dms_lon" class="form-control" id="dms_lon_deg" placeholder="Degrees">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4" >
-                                            <div class="form-group">
-                                                <label  class="sr-only" for="dms_lon_min">Minutes:</label>
-                                                <input type="text" name="dms_lon" class="form-control" id="dms_lon_min" placeholder="Minutes">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4" >
-                                            <div class="form-group">
-                                                <label  class="sr-only" for="dms_lon_sec">Seconds:</label>
-                                                <input type="text" name="dms_lon" class="form-control" id="dms_lon_sec" placeholder="Seconds">
-                                            </div>
-                                        </div>
-
-                                    </div>
-
-
-                                </div>  <!-- tabpanel -->
-
-                                <div role="tabpanel" class="tab-pane" id="grid">
-
-                                    <br />
-
-                                    <p><strong>5-Minute Grid Number:</strong></p>
-                                    <div class="row" >
-                                        <div class="col-md-3" >
-                                            <div class="form-group">
-                                                <label class="sr-only" for="grid_no">5-Minute Grid Number:</label>
-                                                <input type="text"  name="grid_no" class="form-control" id="grid_no" placeholder="1942">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3" >
-                                            <select class="form-control">
-                                                <option>Lake Huron</option>
-                                                <option>Lake Superior</option>
-                                                <option>Lake Erie</option>
-                                                <option>Lake Ontario</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <p>Lots more work to do here.  we need
-                                        to write a api in our application that
-                                        will get the centroid of the supplied
-                                        grid number and populate the other
-                                        controls or take the lat-lon from the
-                                        other controls and get the assocaiated
-                                        grid number.</p>
-
-
-                                </div>  <!-- tabpanel -->
-
-                                <div role="tabpanel" class="tab-pane" id="leaflet_map">
-                                    <br />
-                                    A clickable map.
-                                    <br />
-
-                                    <div class="fieldWrapper">
-                                        <p>1) Place the marker where the recapture occured</p>
-                                        <div id="map" style="width: 800px; height: 900px;"></div>
-
-                                        <input id="coordinates" name="coordinates" value="" type="hidden" />
-                                    </div>
-
-
-                                </div>  <!-- tabpanel -->
-
-                            </div>  <!-- tabcontent -->
-
-                        </div>
-
-
-
-
-
-
-                        <p>LAT-LON TEMPLATE HERE</p>
-
                     </div><!-- Recovery Panel -->
                 </div> <!-- Recovery Location Panel-->
 
@@ -614,16 +641,27 @@
     </div>
 </div>
 
-
-
-<script>
-
-
+<script type="text/javascript">
 
  $(document).ready(function(){
 
-
      //make sure all of the error messages are hidden when we load the form:
+
+
+     $( "#dms_lat_deg_error" ).hide();
+     $( "#dms_lat_min_error" ).hide();
+     $( "#dms_lat_sec_error" ).hide();
+
+     $( "#dms_lon_deg_error" ).hide();
+     $( "#dms_lon_min_error" ).hide();
+     $( "#dms_lon_sec_error" ).hide();
+
+     $( "#ddm_lat_deg_error" ).hide();
+     $( "#ddm_lat_min_error" ).hide();
+
+     $( "#ddm_lon_deg_error" ).hide();
+     $( "#ddm_lon_min_error" ).hide();
+
      $( "#clipc_error" ).hide();
      $( "#tagdoc_length" ).hide();
      $( "#tagtype_error" ).hide();
@@ -633,33 +671,35 @@
 
      update_tagoptions();
 
-     var map;
-     var marker;
+     var my_map;
+     var my_marker;
      initmap();
 
-
-     alert('Add checks to verify that minute and seconds fields are between 0 and 60.')
+     //alert('Add checks to verify that minute and seconds fields are between 0 and 60.')
 
      function refresh_map(){
 
          //refresh our map:
-         var ddlat = $('input[id="id_dd_lat"]').val();
-         var ddlon = $('input[id="id_dd_lon"]').val();
+         var ddlat = parseFloat($('input[id="id_dd_lat"]').val());
+         var ddlon = parseFloat($('input[id="id_dd_lon"]').val());
 
-         if (typeof marker != 'undefined') {
-             map.removeLayer(marker);  // delete previous marker
-             marker = L.marker([ddlat, ddlon]).addTo(map);  // add new marker
-             map.panTo(new L.LatLng(ddlat, ddlon));
-         }
-         else {
-             marker = L.marker([ddlat, ddlon]).addTo(map);  // add new marker
+         if(isNaN(ddlat)===false && isNaN(ddlon)===false){
+             console.log("valid point adding to map")
+             if (typeof my_marker != 'undefined') {
+                 my_map.removeLayer(my_marker);  // delete previous marker
+                 my_marker = L.marker([ddlat, ddlon]).addTo(my_map);  // add new marker
+                 my_map.panTo(new L.LatLng(ddlat, ddlon));
+             }
+             else {
+                 my_marker = L.marker([ddlat, ddlon]).addTo(my_map);  // add new marker
+             }
          }
      }
 
 
      function initmap(){
 
-         map = new L.map('map').setView([45,-82], 8);
+         my_map = new L.map('map').setView([45,-82], 7);
 
          L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6IjZjNmRjNzk3ZmE2MTcwOTEwMGY0MzU3YjUzOWFmNWZhIn0.Y8bhBaUMqFiPrDRW9hieoQ', {
              maxZoom: 18,
@@ -667,11 +707,9 @@
                           '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
                           'Imagery  <a href="http://mapbox.com">Mapbox</a>',
              id: 'mapbox.streets'
-         }).addTo(map);
+         }).addTo(my_map);
 
      };
-
-
 
 
      // from http://ipasic.com/article/let-user-add-point-map-geodjango-leaflet/
@@ -680,12 +718,12 @@
          var dd_lon = e.latlng.lng;
 
          // Every time when user click on map we want to delete previous marker and create new marker on the new position where the user clicked
-         if (typeof marker != 'undefined') {
-             map.removeLayer(marker);  // delete previous marker
-             marker = L.marker([dd_lat, dd_lon]).addTo(map);  // add new marker
+         if (typeof my_marker != 'undefined') {
+             my_map.removeLayer(my_marker);  // delete previous marker
+             my_marker = L.marker([dd_lat, dd_lon]).addTo(my_map);  // add new marker
          }
          else {
-             marker = L.marker([dd_lat, dd_lon]).addTo(map);  // add new marker
+             my_marker = L.marker([dd_lat, dd_lon]).addTo(my_map);  // add new marker
          }
 
 
@@ -722,10 +760,8 @@
 
      }
 
-
      // call the onMapClick function when user click on map
-     map.on('click', onMapClick);
-
+     my_map.on('click', onMapClick);
 
      $('input[id="id_dd_lat"]').change (function () {
 
@@ -771,25 +807,203 @@
 
 
 
+     function check_dms_lat( lat_degrees, lat_minutes, lat_seconds){
+         // check_ddm_lat
+
+         // if both ddm_lat_deg and ddm_lon_min are populated, we need to check their values
+         // if only one is populated, do nothing (for now)
+         // if their values are ok, update the other, related controls and the map
+         // if there problems with their values, issue a meaningful error message
+         // to be valid:
+         // both degrees and minutes must be populated
+         // minutes must be a float between 0 and 60
+         // degrees must be an integer between -90 and 90
+
+         // degrees must be an integer between 90 and 90
+         if(isNaN(lat_degrees) || parseInt(lat_degrees)!==lat_degrees ||
+                                                          lat_degrees <-90 ||
+                                                          lat_degrees > 90){
+             $( "#dms_lat_deg_error" ).show();
+             $( "#dms_lat_deg" ).addClass("has-error");
+             return false
+         } else {
+             $( "#dms_lat_deg_error" ).hide();
+             $( "#dms_lat_deg" ).removeClass("has-error");
+         }
+
+         // minutes must be an integer between 0 and 59.999
+         if(isNaN(lat_minutes) || parseInt(lat_minutes)!==lat_minutes ||
+                                                             lat_minutes < 0 || lat_minutes >=60){
+             $( "#dms_lat_min_error" ).show();
+             $( "#dms_lat_min" ).addClass("has-error");
+             return false
+         } else {
+             $( "#dms_lat_min_error" ).hide();
+             $( "#dms_lat_min" ).removeClass("has-error");
+         }
+
+
+         if(isNaN(lat_seconds) || lat_seconds < 0 || lat_seconds >=60){
+             $( "#dms_lat_sec_error" ).show();
+             $( "#dms_lat_sec" ).addClass("has-error");
+             return false
+         } else {
+             $( "#dms_lat_sec_error" ).hide();
+             $( "#dms_lat_sec" ).removeClass("has-error");
+         }
+
+         return true
+     }
+
+
+     function check_dms_lon( lon_degrees, lon_minutes, lon_seconds){
+         // check_ddm_lon
+
+         // if both ddm_lon_deg and ddm_lon_min are populoned, we need to check their values
+         // if only one is populoned, do nothing (for now)
+         // if their values are ok, update the other, reloned controls and the map
+         // if there problems with their values, issue a meaningful error message
+         // to be valid:
+         // both degrees and minutes must be populoned
+         // minutes must be a float between 0 and 60
+         // degrees must be an integer between -90 and 90
+
+         // degrees must be an integer between 90 and 90
+         if(isNaN(lon_degrees) || parseInt(lon_degrees)!==lon_degrees ||
+                                                          lon_degrees <-90 ||
+                                                          lon_degrees > 90){
+             $( "#dms_lon_deg_error" ).show();
+             $( "#dms_lon_deg" ).addClass("has-error");
+             return false
+         } else {
+             $( "#dms_lon_deg_error" ).hide();
+             $( "#dms_lon_deg" ).removeClass("has-error");
+         }
+
+         // minutes must be an integer between 0 and 59.999
+         if(isNaN(lon_minutes) || parseInt(lon_minutes)!==lon_minutes ||
+                                                             lon_minutes < 0 || lon_minutes >=60){
+             $( "#dms_lon_min_error" ).show();
+             $( "#dms_lon_min" ).addClass("has-error");
+             return false
+         } else {
+             $( "#dms_lon_min_error" ).hide();
+             $( "#dms_lon_min" ).removeClass("has-error");
+         }
+
+
+         if(isNaN(lon_seconds) || lon_seconds < 0 || lon_seconds >=60){
+             $( "#dms_lon_sec_error" ).show();
+             $( "#dms_lon_sec" ).addClass("has-error");
+             return false
+         } else {
+             $( "#dms_lon_sec_error" ).hide();
+             $( "#dms_lon_sec" ).removeClass("has-error");
+         }
+
+         return true
+     }
+
+
+     function check_ddm_lat( lat_idegrees, lat_dminutes){
+         // check_ddm_lat
+
+         // if both ddm_lat_deg and ddm_lon_min are populated, we need to check their values
+         // if only one is populated, do nothing (for now)
+         // if their values are ok, update the other, related controls and the map
+         // if there problems with their values, issue a meaningful error message
+         // to be valid:
+         // both degrees and minutes must be populated
+         // minutes must be a float between 0 and 60
+         // degrees must be an integer between -90 and 90
+
+
+         if(isNaN(lat_idegrees) || parseInt(lat_idegrees)!==lat_idegrees ||
+                                                            lat_idegree< -90 ||
+                                                            lat_idegree> 90){
+             $( "#ddm_lat_deg_error" ).show();
+             $( "#ddm_lat_deg" ).addClass("has-error");
+             return false
+         } else {
+             $( "#ddm_lat_deg_error" ).hide();
+             $( "#ddm_lat_deg" ).removeClass("has-error");
+         }
+
+         if(isNaN(lat_dminutes) || lat_dminutes < 0 || lat_dminutes >=60){
+             $( "#ddm_lat_min_error" ).show();
+             $( "#ddm_lat_min" ).addClass("has-error");
+             return false
+         } else {
+             $( "#ddm_lat_min_error" ).hide();
+             $( "#ddm_lat_min" ).removeClass("has-error");
+         }
+
+         return true
+     }
+
+     function check_ddm_lon( lon_idegrees, lon_dminutes){
+         // check_ddm_lon
+
+         // if both ddm_lon_deg and ddm_lon_min are populoned, we need to check their values
+         // if only one is populoned, do nothing (for now)
+         // if their values are ok, update the other, reloned controls and the map
+         // if there problems with their values, issue a meaningful error message
+         // to be valid:
+         // both degrees and minutes must be populoned
+         // minutes must be a float between 0 and 60
+         // degrees must be an integer between -180 and 180
+
+         if(isNaN(lon_idegrees) || parseInt(lon_idegrees)!==lon_idegrees ||
+                                                            lon_idegrees < -180 ||
+                                                            lon_idegrees >=180){
+             $( "#ddm_lon_deg_error" ).show();
+             $( "#ddm_lon_deg" ).addClass("has-error");
+             return false
+         } else {
+             $( "#ddm_lon_deg_error" ).hide();
+             $( "#ddm_lon_deg" ).removeClass("has-error");
+         }
+
+         if(isNaN(lon_dminutes) || lon_dminutes < 0 || lon_dminutes >=60){
+             $( "#ddm_lon_min_error" ).show();
+             $( "#ddm_lon_min" ).addClass("has-error");
+             return false
+         } else {
+             $( "#ddm_lon_min_error" ).hide();
+             $( "#ddm_lon_min" ).removeClass("has-error");
+         }
+
+         return true
+     }
+
+
+
+
      $('input[name="ddm_lat"]').change (function () {
+
+
          //if any of the latitude elements on the ddm page change, update the other formats.
          var lat_idegrees = parseFloat($('input[id="ddm_lat_deg"]').val());
          var lat_dminutes = parseFloat($('input[id="ddm_lat_min"]').val());
 
-         // update the controls on the dd tab
-         ddlat = lat_idegrees + lat_dminutes / 60;
-         $('input[id="id_dd_lat"]').val(ddlat);
+         var valid = check_ddm_lat(lat_idegrees, lat_dminutes);
 
-         var lat_iminutes = Math.floor(lat_dminutes);
-         var lat_seconds = (lat_dminutes - lat_iminutes) * 60;
+         if(valid){
 
-         // update the controls on the dms tab
-         $('input[id="dms_lat_deg"]').val(lat_idegrees);
-         $('input[id="dms_lat_min"]').val(lat_iminutes);
-         $('input[id="dms_lat_sec"]').val(lat_seconds);
+             // update the controls on the dd tab
+             ddlat = lat_idegrees + lat_dminutes / 60;
+             $('input[id="id_dd_lat"]').val(ddlat);
 
-         refresh_map();
+             var lat_iminutes = Math.floor(lat_dminutes);
+             var lat_seconds = (lat_dminutes - lat_iminutes) * 60;
 
+             // update the controls on the dms tab
+             $('input[id="dms_lat_deg"]').val(lat_idegrees);
+             $('input[id="dms_lat_min"]').val(lat_iminutes);
+             $('input[id="dms_lat_sec"]').val(lat_seconds);
+
+             refresh_map();
+         }
      });
 
      $('input[name="ddm_lon"]').change (function () {
@@ -798,22 +1012,25 @@
          lon_idegrees = Math.abs(lon_idegrees);
          var lon_dminutes = parseFloat($('input[id="ddm_lon_min"]').val());
 
-         console.log('lon_idegrees = ' + lon_idegrees)
+         var valid = check_ddm_lon(lon_idegrees, lon_dminutes);
 
-         $('input[id="ddm_lon_deg"]').val(lon_idegrees * -1);
+         if(valid){
 
-         // calculate decimal degrees and update the dd tab
-         var ddlon = (lon_idegrees + lon_dminutes / 60);
-         $('input[id="id_dd_lon"]').val(ddlon * -1);
+             $('input[id="ddm_lon_deg"]').val(lon_idegrees * -1);
 
-         var lon_iminutes = Math.floor(lon_dminutes);
-         var lon_seconds = (lon_dminutes - lon_iminutes) * 60;
-         // update the controls on the dms tab
-         $('input[id="dms_lon_deg"]').val(lon_idegrees * -1);
-         $('input[id="dms_lon_min"]').val(lon_iminutes);
-         $('input[id="dms_lon_sec"]').val(lon_seconds);
+             // calculate decimal degrees and update the dd tab
+             var ddlon = (lon_idegrees + lon_dminutes / 60);
+             $('input[id="id_dd_lon"]').val(ddlon * -1);
 
-         refresh_map();
+             var lon_iminutes = Math.floor(lon_dminutes);
+             var lon_seconds = (lon_dminutes - lon_iminutes) * 60;
+             // update the controls on the dms tab
+             $('input[id="dms_lon_deg"]').val(lon_idegrees * -1);
+             $('input[id="dms_lon_min"]').val(lon_iminutes);
+             $('input[id="dms_lon_sec"]').val(lon_seconds);
+
+             refresh_map();
+         }
 
      });
 
@@ -825,16 +1042,21 @@
          var lat_iminutes = parseFloat($('input[id="dms_lat_min"]').val());
          var lat_seconds = parseFloat($('input[id="dms_lat_sec"]').val());
 
-         // ddm tab
-         var lat_dminutes = lat_iminutes + lat_seconds / 60;
-         $('input[id="ddm_lat_deg"]').val(lat_idegrees);
-         $('input[id="ddm_lat_min"]').val(lat_dminutes);
+         var valid = check_dms_lat(lat_idegrees, lat_iminutes, lat_seconds);
 
-         // decimal degree tab
-         var ddlat = lat_idegrees + lat_dminutes / 60;
-         $('input[id="id_dd_lat"]').val(ddlat);
+         if (valid===true){
 
-         refresh_map();
+             // ddm tab
+             var lat_dminutes = lat_iminutes + lat_seconds / 60;
+             $('input[id="ddm_lat_deg"]').val(lat_idegrees);
+             $('input[id="ddm_lat_min"]').val(lat_dminutes);
+
+             // decimal degree tab
+             var ddlat = lat_idegrees + lat_dminutes / 60;
+             $('input[id="id_dd_lat"]').val(ddlat);
+
+             refresh_map();
+         }
 
      });
 
@@ -845,21 +1067,25 @@
          var lon_iminutes = parseFloat($('input[id="dms_lon_min"]').val());
          var lon_seconds = parseFloat($('input[id="dms_lon_sec"]').val());
 
-         lon_idegrees = Math.abs(lon_idegrees);
+         var valid = check_dms_lon(lon_idegrees, lon_iminutes, lon_seconds);
 
-         $('input[id="dms_lon_deg"]').val(lon_idegrees * -1);
+         if (valid===true){
 
-         // ddm tab
-         var lon_dminutes = lon_iminutes + lon_seconds / 60;
-         $('input[id="ddm_lon_deg"]').val(lon_idegrees * -1);
-         $('input[id="ddm_lon_min"]').val(lon_dminutes);
+             lon_idegrees = Math.abs(lon_idegrees);
 
-         // decimal degree tab
-         var ddlon = lon_idegrees + lon_dminutes / 60;
-         $('input[id="id_dd_lon"]').val(ddlon * -1);
+             $('input[id="dms_lon_deg"]').val(lon_idegrees * -1);
 
-         refresh_map();
+             // ddm tab
+             var lon_dminutes = lon_iminutes + lon_seconds / 60;
+             $('input[id="ddm_lon_deg"]').val(lon_idegrees * -1);
+             $('input[id="ddm_lon_min"]').val(lon_dminutes);
 
+             // decimal degree tab
+             var ddlon = lon_idegrees + lon_dminutes / 60;
+             $('input[id="id_dd_lon"]').val(ddlon * -1);
+
+             refresh_map();
+         }
      });
 
 
@@ -925,6 +1151,7 @@
              $( "#tagorigin_panel" ).addClass("has-error");
          }
      }
+
 
 
      function update_tagoptions() {
