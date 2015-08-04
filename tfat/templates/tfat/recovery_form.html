@@ -8,6 +8,13 @@
 <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
 
+<script src="/static/Leaflet.MakiMarkers.js"></script>
+
+<style type="text/css" media="screen">
+
+.modal .modal-dialog { width: 950px; }
+
+</style>
 
 {% endblock extrahead %}
 
@@ -427,12 +434,12 @@
                             </div> <!-- location widgets -->
                             <div class="col-md-6" >
                                 <p>1) Or place the marker where the recapture occured
-                                    <button type="button" class="btn btn-info btn-xs">
-                                        <span class="glyphicon glyphicon-new-window" aria-hidden="true"></span> Enlarge Map
-                                    </button>
+
+                                    <a href="#myModal" role="button" class="btn btn-info btn-xs" data-toggle="modal">
+                                        <span class="glyphicon glyphicon-new-window" aria-hidden="true"></span> Enlarge Map</a>
 
                                 </p>
-                                <div id="map" style="width: 500px; height: 500px;"></div>
+                                <div id="main_map" style="width: 500px; height: 500px;"></div>
                             </div> <!-- map column-->
                         </div>
                     </div><!-- Recovery Panel -->
@@ -641,12 +648,30 @@
     </div>
 </div>
 
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Recapture Location</h4>
+            </div>
+            <div class="modal-body">
+                <div id="popup_map" style="width: 900px; height: 700px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary popup-submit">Submit</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
 <script type="text/javascript">
 
  $(document).ready(function(){
 
      //make sure all of the error messages are hidden when we load the form:
-
 
      $( "#dms_lat_deg_error" ).hide();
      $( "#dms_lat_min_error" ).hide();
@@ -672,12 +697,22 @@
      update_tagoptions();
 
      var my_map;
+     var popup_map;
      var my_marker;
+     var popup_marker;
+
+     // we will use the same 'custom' marker everywhere (the blue
+     // default is hard to see over blue water).
+     var icon = L.MakiMarkers.icon({icon: "marker", color: "#b0b", size: "m"});
+
      initmap();
+
+
 
      //alert('Add checks to verify that minute and seconds fields are between 0 and 60.')
 
      function refresh_map(){
+         // anytime one of the text box controls change (with a valid value) we need to update the marker on our map
 
          //refresh our map:
          var ddlat = parseFloat($('input[id="id_dd_lat"]').val());
@@ -687,19 +722,19 @@
              console.log("valid point adding to map")
              if (typeof my_marker != 'undefined') {
                  my_map.removeLayer(my_marker);  // delete previous marker
-                 my_marker = L.marker([ddlat, ddlon]).addTo(my_map);  // add new marker
+                 my_marker = L.marker([ddlat, ddlon],{icon:icon}).addTo(my_map);  // add new marker
                  my_map.panTo(new L.LatLng(ddlat, ddlon));
              }
              else {
-                 my_marker = L.marker([ddlat, ddlon]).addTo(my_map);  // add new marker
+                 my_marker = L.marker([ddlat, ddlon],{icon:icon}).addTo(my_map);  // add new marker
              }
          }
      }
 
 
      function initmap(){
-
-         my_map = new L.map('map').setView([45,-82], 7);
+         // we will initialize the map over lake huron - this could be customized at some point in the future.
+         my_map = new L.map('main_map').setView([45,-82], 7);
 
          L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6IjZjNmRjNzk3ZmE2MTcwOTEwMGY0MzU3YjUzOWFmNWZhIn0.Y8bhBaUMqFiPrDRW9hieoQ', {
              maxZoom: 18,
@@ -712,20 +747,20 @@
      };
 
 
-     // from http://ipasic.com/article/let-user-add-point-map-geodjango-leaflet/
-     function onMapClick(e) {
-         var dd_lat = e.latlng.lat;
-         var dd_lon = e.latlng.lng;
+     function update_controls(dd_lat, dd_lon){
+         // when we get a new lat-long - either from a click on our main map, or a submission from our popup-map,
+         // we need to update the main map and then update each of the lat-long controls.
 
          // Every time when user click on map we want to delete previous marker and create new marker on the new position where the user clicked
          if (typeof my_marker != 'undefined') {
              my_map.removeLayer(my_marker);  // delete previous marker
-             my_marker = L.marker([dd_lat, dd_lon]).addTo(my_map);  // add new marker
+             my_marker = L.marker([dd_lat, dd_lon],{icon:icon}).addTo(my_map);  // add new marker
          }
          else {
-             my_marker = L.marker([dd_lat, dd_lon]).addTo(my_map);  // add new marker
+             my_marker = L.marker([dd_lat, dd_lon],{icon:icon}).addTo(my_map);  // add new marker
          }
 
+         my_map.panTo(new L.LatLng(dd_lat, dd_lon));
 
          //update the other input values with the coordinates from the map marker:
 
@@ -758,10 +793,87 @@
          $('input[id="dms_lon_min"]').val(lon_iminutes);
          $('input[id="dms_lon_sec"]').val(lon_seconds);
 
+
+     }
+
+
+     // from http://ipasic.com/article/let-user-add-point-map-geodjango-leaflet/
+     function onMapClick(e) {
+         // capture the click events on our map an update the other controls accordingly
+         var dd_lat = e.latlng.lat;
+         var dd_lon = e.latlng.lng;
+
+         update_controls(dd_lat, dd_lon);
      }
 
      // call the onMapClick function when user click on map
      my_map.on('click', onMapClick);
+
+
+     function init_popup_map(){
+
+         // initialize the popup map with the current settings of the main map:
+         popup_map = new L.map('popup_map').setView(my_map.getCenter(), my_map.getZoom());
+
+         L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6IjZjNmRjNzk3ZmE2MTcwOTEwMGY0MzU3YjUzOWFmNWZhIn0.Y8bhBaUMqFiPrDRW9hieoQ', {
+             maxZoom: 18,
+             attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+                          '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+                          'Imagery  <a href="http://mapbox.com">Mapbox</a>',
+             id: 'mapbox.streets'
+         }).addTo(popup_map);
+
+
+         // if dd_lat and dd_lon exist, use them to create a marker on the map
+         var dd_lat = parseFloat($('input[id="id_dd_lat"]').val());
+         var dd_lon = parseFloat($('input[id="id_dd_lon"]').val());
+
+         if (dd_lat && dd_lon){
+             popup_marker = L.marker([dd_lat, dd_lon],{icon:icon}).addTo(popup_map);  // add new marker
+             popup_map.panTo(new L.LatLng(dd_lat, dd_lon));
+         }
+
+     };
+
+     function onPopupMapClick(e) {
+         // capture the location of any clicks on our popup map and put the point there
+         var dd_lat = e.latlng.lat;
+         var dd_lon = e.latlng.lng;
+
+         if (typeof popup_marker != 'undefined') {
+             popup_map.removeLayer(popup_marker);  // delete previous marker
+             popup_marker = L.marker([dd_lat, dd_lon],{icon:icon}).addTo(popup_map);  // add new marker
+         }
+         else {
+             popup_marker = L.marker([dd_lat, dd_lon],{icon:icon}).addTo(popup_map);  // add new marker
+         }
+
+     };
+
+
+     // when we open the modal dialog, initialize a map and associated click events with our function.
+     $('#myModal').on('shown.bs.modal',function(){
+         init_popup_map();
+         popup_map.on('click', onPopupMapClick);
+     });
+
+     $(function () {
+         // if the submit button the popup form is clicked, get the
+         //coordinates from the marker (if it exists) and
+         // update all of the lat-lon controls
+         $('body').on('click', '.popup-submit', function (e) {
+
+             if (typeof popup_marker != 'undefined'){
+                 var pt = popup_marker.getLatLng();
+                 update_controls(pt.lat, pt.lng);
+             }
+
+             //finally hide the popup map:
+             $('#myModal').modal('hide');
+             popup_map = null;
+         });
+     });
+
 
      $('input[id="id_dd_lat"]').change (function () {
 
@@ -808,7 +920,6 @@
 
 
      function check_dms_lat( lat_degrees, lat_minutes, lat_seconds){
-         // check_ddm_lat
 
          // if both ddm_lat_deg and ddm_lon_min are populated, we need to check their values
          // if only one is populated, do nothing (for now)
@@ -857,7 +968,6 @@
 
 
      function check_dms_lon( lon_degrees, lon_minutes, lon_seconds){
-         // check_ddm_lon
 
          // if both ddm_lon_deg and ddm_lon_min are populoned, we need to check their values
          // if only one is populoned, do nothing (for now)
