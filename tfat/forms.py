@@ -263,9 +263,9 @@ class RecoveryForm(ModelForm):
             'tag_removed':forms.CheckboxInput(attrs={'class':'form-control'}),
             'fate':forms.Select(attrs={'class':'form-control'}),
 
-            'flen':forms.TextInput(attrs={'class':'form-control'}),
-            'tlen':forms.TextInput(attrs={'class':'form-control'}),
-            'rwt':forms.TextInput(attrs={'class':'form-control'}),
+            'flen':forms.TextInput(attrs={'class':'form-control metric'}),
+            'tlen':forms.TextInput(attrs={'class':'form-control metric'}),
+            'rwt':forms.TextInput(attrs={'class':'form-control metric'}),
             'sex':forms.Select(attrs={'class':'form-control'}),
             'clipc':forms.TextInput(attrs={'class':'form-control'}),
 

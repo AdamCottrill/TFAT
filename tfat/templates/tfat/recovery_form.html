@@ -490,6 +490,7 @@
                                         <div class="form-group {% if form.flen.errors %}has-error{% endif %}">
 
                                             {{ form.flen }}
+                                            <input type="text" class="form-control imperial" id="id_flen_inches" placeholder="inches">
                                             {% if form.flen.errors %}
                                             {% for error in form.flen.errors %}
                                             <div class="has-error help-block text-danger">{{ error }}</div>
@@ -499,10 +500,10 @@
                                     </div>
                                     <div class="col-md-6" >
                                         <label class="radio-inline">
-                                            <input type="radio" name="flen_Units" id="flen_units_inches" value="inches"> Inches
+                                            <input type="radio" name="flen_units" id="flen_units_inches" value="inches"> Inches
                                         </label>
                                         <label class="radio-inline">
-                                            <input type="radio" name="flen_Units" id="flen_units_mm" value="mm" checked> mm
+                                            <input type="radio" name="flen_units" id="flen_units_mm" value="mm" checked> mm
                                         </label>
                                     </div>
                                 </div>
@@ -515,6 +516,7 @@
                                         <div class="form-group {% if form.tlen.errors %}has-error{% endif %}">
 
                                             {{ form.tlen }}
+                                            <input type="text" class="form-control imperial" id="id_tlen_inches" placeholder="inches">
                                             {% if form.tlen.errors %}
                                             {% for error in form.tlen.errors %}
                                             <div class="has-error help-block text-danger">{{ error }}</div>
@@ -524,10 +526,10 @@
                                     </div>
                                     <div class="col-md-6" >
                                         <label class="radio-inline">
-                                            <input type="radio" name="tlen_Units" id="tlen_units_inches" value="inches"> Inches
+                                            <input type="radio" name="tlen_units" id="tlen_units_inches" value="inches"> Inches
                                         </label>
                                         <label class="radio-inline">
-                                            <input type="radio" name="tlen_Units" id="tlen_units_mm" value="mm" checked> mm
+                                            <input type="radio" name="tlen_units" id="tlen_units_mm" value="mm" checked> mm
                                         </label>
                                     </div>
                                 </div>
@@ -540,6 +542,7 @@
                                         <div class="form-group {% if form.rwt.errors %}has-error{% endif %}">
 
                                             {{ form.rwt }}
+                                            <input type="text" class="form-control imperial" id="id_rwt_lbs" placeholder="pounds">
                                             {% if form.rwt.errors %}
                                             {% for error in form.rwt.errors %}
                                             <div class="has-error help-block text-danger">{{ error }}</div>
@@ -549,10 +552,10 @@
                                     </div>
                                     <div class="col-md-6" >
                                         <label class="radio-inline">
-                                            <input type="radio" name="rwt_Units" id="rwt_units_lbs" value="lbs"> lbs
+                                            <input type="radio" name="rwt_units" id="rwt_units_lbs" value="lbs"> lbs
                                         </label>
                                         <label class="radio-inline">
-                                            <input type="radio" name="rwt_Units" id="rwt_units_g" value="g" checked> g
+                                            <input type="radio" name="rwt_units" id="rwt_units_g" value="g" checked> g
                                         </label>
                                     </div>
                                 </div>
@@ -696,6 +699,11 @@
 
      update_tagoptions();
 
+     //start with metric input visible, hide the imperial units
+     $('.metric').show();
+     $('.imperial').hide();
+
+
      var my_map;
      var popup_map;
      var my_marker;
@@ -707,30 +715,24 @@
 
      initmap();
 
-
-
-     //alert('Add checks to verify that minute and seconds fields are between 0 and 60.')
-
      function refresh_map(){
-         // anytime one of the text box controls change (with a valid value) we need to update the marker on our map
+         // anytime one of the text box controls change (with a valid
+         // value) we need to update the marker on our map
 
-         //refresh our map:
          var ddlat = parseFloat($('input[id="id_dd_lat"]').val());
          var ddlon = parseFloat($('input[id="id_dd_lon"]').val());
 
          if(isNaN(ddlat)===false && isNaN(ddlon)===false){
-             console.log("valid point adding to map")
+             var pt = L.latLng(ddlat, ddlon);
              if (typeof my_marker != 'undefined') {
-                 my_map.removeLayer(my_marker);  // delete previous marker
-                 my_marker = L.marker([ddlat, ddlon],{icon:icon}).addTo(my_map);  // add new marker
-                 my_map.panTo(new L.LatLng(ddlat, ddlon));
+                 my_marker.setLatLng(pt).update();
              }
              else {
-                 my_marker = L.marker([ddlat, ddlon],{icon:icon}).addTo(my_map);  // add new marker
+                 my_marker = L.marker(pt,{icon:icon}).addTo(my_map);  // add new marker
              }
+             my_map.panTo(my_marker.getLatLng());
          }
      }
-
 
      function initmap(){
          // we will initialize the map over lake huron - this could be customized at some point in the future.
@@ -751,19 +753,18 @@
          // when we get a new lat-long - either from a click on our main map, or a submission from our popup-map,
          // we need to update the main map and then update each of the lat-long controls.
 
-         // Every time when user click on map we want to delete previous marker and create new marker on the new position where the user clicked
-         if (typeof my_marker != 'undefined') {
-             my_map.removeLayer(my_marker);  // delete previous marker
-             my_marker = L.marker([dd_lat, dd_lon],{icon:icon}).addTo(my_map);  // add new marker
-         }
-         else {
-             my_marker = L.marker([dd_lat, dd_lon],{icon:icon}).addTo(my_map);  // add new marker
-         }
+         // Every time when user click on map we want to update
+         // the marker with the new position where the user clicked
+         var pt = L.latLng(dd_lat, dd_lon);
 
-         my_map.panTo(new L.LatLng(dd_lat, dd_lon));
+         if (typeof my_marker != 'undefined') {
+             my_marker.setLatLng(pt).update();
+         } else {
+             my_marker = L.marker(pt,{icon:icon}).addTo(my_map);  // add new marker
+         }
+         my_map.panTo(pt);
 
          //update the other input values with the coordinates from the map marker:
-
          var lat_idegrees = Math.floor(dd_lat);
          var lat_dminutes = (dd_lat - lat_idegrees) * 60;
          var lat_iminutes = Math.floor(lat_dminutes);
@@ -813,7 +814,11 @@
      function init_popup_map(){
 
          // initialize the popup map with the current settings of the main map:
-         popup_map = new L.map('popup_map').setView(my_map.getCenter(), my_map.getZoom());
+         //popup_map = new L.map('popup_map').setView(my_map.getCenter(), my_map.getZoom());
+         if (typeof popup_map == 'undefined'){
+             popup_map = new L.map('popup_map')
+         }
+         popup_map.setView(my_map.getCenter(), my_map.getZoom());
 
          L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6IjZjNmRjNzk3ZmE2MTcwOTEwMGY0MzU3YjUzOWFmNWZhIn0.Y8bhBaUMqFiPrDRW9hieoQ', {
              maxZoom: 18,
@@ -823,15 +828,18 @@
              id: 'mapbox.streets'
          }).addTo(popup_map);
 
-
-         // if dd_lat and dd_lon exist, use them to create a marker on the map
-         var dd_lat = parseFloat($('input[id="id_dd_lat"]').val());
-         var dd_lon = parseFloat($('input[id="id_dd_lon"]').val());
-
-         if (dd_lat && dd_lon){
-             popup_marker = L.marker([dd_lat, dd_lon],{icon:icon}).addTo(popup_map);  // add new marker
-             popup_map.panTo(new L.LatLng(dd_lat, dd_lon));
+         if (typeof my_marker != 'undefined') {
+             var pt = my_marker.getLatLng();
+             if (typeof popup_marker != 'undefined') {
+                 popup_marker.setLatLng(pt).update();
+             }
+             else {
+                 popup_marker = L.marker(pt,{icon:icon}).addTo(popup_map);
+             }
+             popup_marker.addTo(popup_map);
+             popup_map.panTo(my_marker.getLatLng());
          }
+
 
      };
 
@@ -840,14 +848,13 @@
          var dd_lat = e.latlng.lat;
          var dd_lon = e.latlng.lng;
 
+         var pt = L.latLng(dd_lat, dd_lon);
          if (typeof popup_marker != 'undefined') {
-             popup_map.removeLayer(popup_marker);  // delete previous marker
-             popup_marker = L.marker([dd_lat, dd_lon],{icon:icon}).addTo(popup_map);  // add new marker
+             popup_marker.setLatLng(pt).update();
          }
          else {
-             popup_marker = L.marker([dd_lat, dd_lon],{icon:icon}).addTo(popup_map);  // add new marker
+             popup_marker = L.marker(pt,{icon:icon}).addTo(popup_map);  // add new marker
          }
-
      };
 
 
@@ -870,7 +877,7 @@
 
              //finally hide the popup map:
              $('#myModal').modal('hide');
-             popup_map = null;
+
          });
      });
 
@@ -1029,8 +1036,8 @@
 
 
          if(isNaN(lat_idegrees) || parseInt(lat_idegrees)!==lat_idegrees ||
-                                                            lat_idegree< -90 ||
-                                                            lat_idegree> 90){
+                                                            lat_idegrees< -90 ||
+                                                            lat_idegrees> 90){
              $( "#ddm_lat_deg_error" ).show();
              $( "#ddm_lat_deg" ).addClass("has-error");
              return false
@@ -1462,12 +1469,72 @@
 
      });
 
- })
+ });
 
      $('#myTabs a').click(function (e) {
          e.preventDefault()
              $(this).tab('show')
-     })
+     });
+
+
+     // ROUND WEIGHT CONTROLS
+     $('input[name="rwt_units"]').click(function (e) {
+         $('input[id="id_rwt_lbs"]').toggle();
+         $('input[id="id_rwt"]').toggle();
+     });
+
+     $('input[id="id_rwt"]').change (function () {
+         var rwt = parseFloat($('input[id="id_rwt"]').val());
+         var rwt_lbs = rwt / 453.592 ;
+         $('input[id="id_rwt_lbs"]').val(rwt_lbs);
+     });
+
+     $('input[id="id_rwt_lbs"]').change (function () {
+         var rwt_lbs = parseFloat($('input[id="id_rwt_lbs"]').val());
+         var rwt = rwt_lbs * 453.592 ;
+         $('input[id="id_rwt"]').val(rwt);
+     });
+
+
+     // FORK LENGTH CONTROLS
+     $('input[name="flen_units"]').click(function (e) {
+         $('input[id="id_flen_inches"]').toggle();
+         $('input[id="id_flen"]').toggle();
+     });
+
+
+     $('input[id="id_flen"]').change (function () {
+         var flen = parseFloat($('input[id="id_flen"]').val());
+         var flen_inches = flen / 25.4 ;
+         $('input[id="id_flen_inches"]').val(flen_inches);
+     });
+
+     $('input[id="id_flen_inches"]').change (function () {
+         var flen_inches = parseFloat($('input[id="id_flen_inches"]').val());
+         var flen = flen_inches * 25.4 ;
+         $('input[id="id_flen"]').val(flen);
+     });
+
+     // TOTAL LENGTH CONTROLS
+
+     $('input[name="tlen_units"]').click(function (e) {
+         $('input[id="id_tlen_inches"]').toggle();
+         $('input[id="id_tlen"]').toggle();
+     });
+
+     $('input[id="id_tlen"]').change (function () {
+         var tlen = parseFloat($('input[id="id_tlen"]').val());
+         var tlen_inches = tlen / 25.4 ;
+         $('input[id="id_tlen_inches"]').val(tlen_inches);
+     });
+
+     $('input[id="id_tlen_inches"]').change (function () {
+         var tlen_inches = parseFloat($('input[id="id_tlen_inches"]').val());
+         var tlen = tlen_inches * 25.4 ;
+         $('input[id="id_tlen"]').val(tlen);
+     });
+
+
 
 
      $(function() {
