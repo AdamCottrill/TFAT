@@ -264,12 +264,19 @@
                                             <div class="form-group">
                                                 <label class="sr-only" for="id_dd_lat">Latitude:</label>
                                                 <input type="text" class="form-control" id="id_dd_lat" placeholder="Decimal Degrees">
+                                                <div id="dd_lat_deg_error" class="alert alert-danger" role="alert">
+                                                    Degrees must be a number between -90 and 90!
+                                                </div>
                                             </div>
 
                                             <p><strong>Longitude:</strong></p>
                                             <div class="form-group">
                                                 <label class="sr-only" for="id_dd_lon">Longitude:</label>
                                                 <input type="text" class="form-control" id="id_dd_lon" placeholder="Decimal Degrees">
+                                                <div id="dd_lon_deg_error" class="alert alert-danger" role="alert">
+                                                    Degrees must be a number between -180 and 180!
+                                                </div>
+
                                             </div>
 
 
@@ -676,20 +683,8 @@
 
      //make sure all of the error messages are hidden when we load the form:
 
-     $( "#dms_lat_deg_error" ).hide();
-     $( "#dms_lat_min_error" ).hide();
-     $( "#dms_lat_sec_error" ).hide();
 
-     $( "#dms_lon_deg_error" ).hide();
-     $( "#dms_lon_min_error" ).hide();
-     $( "#dms_lon_sec_error" ).hide();
-
-     $( "#ddm_lat_deg_error" ).hide();
-     $( "#ddm_lat_min_error" ).hide();
-
-     $( "#ddm_lon_deg_error" ).hide();
-     $( "#ddm_lon_min_error" ).hide();
-
+     clear_lat_long_errors();
      $( "#clipc_error" ).hide();
      $( "#tagdoc_length" ).hide();
      $( "#tagtype_error" ).hide();
@@ -715,6 +710,27 @@
 
      initmap();
 
+
+     function clear_lat_long_errors(){
+         $( "#dd_lat_deg_error" ).hide();
+         $( "#dd_lon_deg_error" ).hide();
+
+         $( "#dms_lat_deg_error" ).hide();
+         $( "#dms_lat_min_error" ).hide();
+         $( "#dms_lat_sec_error" ).hide();
+
+         $( "#dms_lon_deg_error" ).hide();
+         $( "#dms_lon_min_error" ).hide();
+         $( "#dms_lon_sec_error" ).hide();
+
+         $( "#ddm_lat_deg_error" ).hide();
+         $( "#ddm_lat_min_error" ).hide();
+
+         $( "#ddm_lon_deg_error" ).hide();
+         $( "#ddm_lon_min_error" ).hide();
+     }
+
+
      function refresh_map(){
          // anytime one of the text box controls change (with a valid
          // value) we need to update the marker on our map
@@ -724,6 +740,7 @@
 
          if(isNaN(ddlat)===false && isNaN(ddlon)===false){
              var pt = L.latLng(ddlat, ddlon);
+             clear_lat_long_errors();
              if (typeof my_marker != 'undefined') {
                  my_marker.setLatLng(pt).update();
              }
@@ -756,6 +773,8 @@
          // Every time when user click on map we want to update
          // the marker with the new position where the user clicked
          var pt = L.latLng(dd_lat, dd_lon);
+
+         clear_lat_long_errors();
 
          if (typeof my_marker != 'undefined') {
              my_marker.setLatLng(pt).update();
@@ -884,44 +903,53 @@
 
      $('input[id="id_dd_lat"]').change (function () {
 
-         var ddlat = $('input[id="id_dd_lat"]').val();
-         var lat_idegrees = Math.floor(ddlat);
-         var lat_dminutes = (ddlat - lat_idegrees) * 60;
-         var lat_iminutes = Math.floor(lat_dminutes);
-         var lat_seconds = (lat_dminutes - lat_iminutes) * 60;
+         var ddlat = parseFloat($('input[id="id_dd_lat"]').val());
 
-         $('input[id="ddm_lat_deg"]').val(lat_idegrees);
-         $('input[id="ddm_lat_min"]').val(lat_dminutes);
+         var valid = check_dd_lat(ddlat);
+         if (valid){
+             var lat_idegrees = Math.floor(ddlat);
+             var lat_dminutes = (ddlat - lat_idegrees) * 60;
+             var lat_iminutes = Math.floor(lat_dminutes);
+             var lat_seconds = (lat_dminutes - lat_iminutes) * 60;
 
-         $('input[id="dms_lat_deg"]').val(lat_idegrees);
-         $('input[id="dms_lat_min"]').val(lat_iminutes);
-         $('input[id="dms_lat_sec"]').val(lat_seconds);
+             $('input[id="ddm_lat_deg"]').val(lat_idegrees);
+             $('input[<i></i>d="ddm_lat_min"]').val(lat_dminutes);
 
-         refresh_map();
+             $('input[id="dms_lat_deg"]').val(lat_idegrees);
+             $('input[id="dms_lat_min"]').val(lat_iminutes);
+             $('input[id="dms_lat_sec"]').val(lat_seconds);
+
+             refresh_map();
+         }
+
 
      });
 
 
      $('input[id="id_dd_lon"]').change (function () {
 
-         var ddlon = $('input[id="id_dd_lon"]').val();
-         ddlon = Math.abs(ddlon);
-         var lon_idegrees = Math.floor(ddlon);
-         var lon_dminutes = (ddlon - lon_idegrees) * 60;
-         var lon_iminutes = Math.floor(lon_dminutes);
-         var lon_seconds = (lon_dminutes - lon_iminutes) * 60;
+         var ddlon = parseFloat($('input[id="id_dd_lon"]').val());
 
-         $('input[id="id_dd_lon"]').val(ddlon * -1);
+         var valid = check_dd_lon(ddlon);
 
-         $('input[id="ddm_lon_deg"]').val(lon_idegrees * -1);
-         $('input[id="ddm_lon_min"]').val(lon_dminutes);
+         if (valid){
+             ddlon = Math.abs(ddlon);
+             var lon_idegrees = Math.floor(ddlon);
+             var lon_dminutes = (ddlon - lon_idegrees) * 60;
+             var lon_iminutes = Math.floor(lon_dminutes);
+             var lon_seconds = (lon_dminutes - lon_iminutes) * 60;
 
-         $('input[id="dms_lon_deg"]').val(lon_idegrees * -1);
-         $('input[id="dms_lon_min"]').val(lon_iminutes);
-         $('input[id="dms_lon_sec"]').val(lon_seconds);
+             $('input[id="id_dd_lon"]').val(ddlon * -1);
 
-         refresh_map();
+             $('input[id="ddm_lon_deg"]').val(lon_idegrees * -1);
+             $('input[id="ddm_lon_min"]').val(lon_dminutes);
 
+             $('input[id="dms_lon_deg"]').val(lon_idegrees * -1);
+             $('input[id="dms_lon_min"]').val(lon_iminutes);
+             $('input[id="dms_lon_sec"]').val(lon_seconds);
+
+             refresh_map();
+         }
      });
 
 
@@ -972,6 +1000,48 @@
 
          return true
      }
+
+
+
+     function check_dd_lat(lat_degrees){
+         // check_dd_lat
+         // both degrees and minutes must be populated
+         // minutes must be a float between 0 and 60
+         // degrees must be an integer between -90 and 90
+
+
+         if(isNaN(lat_degrees) || lat_degrees< -90 || lat_degrees> 90){
+             $( "#dd_lat_deg_error" ).show();
+             $( 'input[id="id_dd_lat"]' ).addClass("has-error");
+             return false
+         } else {
+             $( "#dd_lat_deg_error" ).hide();
+             $( 'input[id="id_dd_lat"]' ).removeClass("has-error");
+         }
+
+         return true
+     }
+
+
+     function check_dd_lon(lon_degrees){
+         // check_dd_lon
+         // both degrees and minutes must be populoned
+         // minutes must be a float between 0 and 60
+         // degrees must be an integer between -90 and 90
+
+
+         if(isNaN(lon_degrees) || lon_degrees < -180 || lon_degrees> 180){
+             $( "#dd_lon_deg_error" ).show();
+             $( 'input[id="id_dd_lon"]' ).addClass("has-error");
+             return false
+         } else {
+             $( "#dd_lon_deg_error" ).hide();
+             $( 'input[id="id_dd_lon"]' ).removeClass("has-error");
+         }
+
+         return true
+     }
+
 
 
      function check_dms_lon( lon_degrees, lon_minutes, lon_seconds){
