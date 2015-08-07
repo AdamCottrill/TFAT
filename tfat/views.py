@@ -433,7 +433,6 @@ def create_recovery(request, report_id):
     tag_colours = sorted(list(TAG_COLOUR_CHOICES), key=lambda x:x[0])
     tag_position = sorted(list(TAG_POSITION_CHOICES), key=lambda x:x[0])
 
-
     report = get_object_or_404(Report, id=report_id)
     if request.method == 'POST':
         form = RecoveryForm(request.POST)
@@ -441,9 +440,10 @@ def create_recovery(request, report_id):
             recovery = form.save(commit=False)
             recovery.report = report
             recovery.save()
+            import pdb;pdb.set_trace()
             return redirect('report_detail', report_id=report.id)
     else:
-        form = RecoveryForm(initial={'reported':report})
+        form = RecoveryForm(initial={'report':report})
 
     return render(request, 'tfat/recovery_form.html', {'form': form,
                                                        'clip_codes':clip_codes,

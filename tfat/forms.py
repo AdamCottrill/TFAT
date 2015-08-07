@@ -27,6 +27,7 @@ from .constants import (REPORTING_CHOICES, SEX_CHOICES,
                         TAG_COLOUR_CHOICES,
                         TAGSTAT_CHOICES,
                         FATE_CHOICES,
+                        CLIP_CODE_CHOICES,
                         DATE_FLAG_CHOICES,
                         LATLON_FLAG_CHOICES,
                         PROVINCES_STATE_CHOICES)
@@ -230,7 +231,6 @@ class RecoveryForm(ModelForm):
     reported by an angler'''
 
 
-
     class Meta:
         model = Recovery
         fields = [ 'tagid', 'report', 'spc', 'recovery_date', 'date_flag',
@@ -250,7 +250,7 @@ class RecoveryForm(ModelForm):
             'recovery_date':forms.DateInput(attrs={'class':
                                                  'form-control datepicker',
                                                  'placeholder':TODAY}),
-            'date_flag':forms.Select(attrs={'class':'form-control'}),
+            'date_flag':forms.Select(attrs={'class':'form-control'},),
 
             'tagdoc':forms.TextInput(attrs={'class':'form-control',
                                             'placeholder':'25012'}),
@@ -258,8 +258,7 @@ class RecoveryForm(ModelForm):
             'general_name':forms.TextInput(attrs={'class':'form-control'}),
             'dd_lat':forms.TextInput(attrs={'class':'form-control'}),
             'dd_lon':forms.TextInput(attrs={'class':'form-control'}),
-            'latlon_flag':forms.Select(attrs={'class':'form-control'}),
-
+            'latlon_flag':forms.RadioSelect(attrs={'class':'radio-inline'}),
             'tag_removed':forms.CheckboxInput(attrs={'class':'form-control'}),
             'fate':forms.Select(attrs={'class':'form-control'}),
 
@@ -274,6 +273,149 @@ class RecoveryForm(ModelForm):
                                              'rows': 10}),
         }
 
+
+    def clean_tagdoc(self):
+        '''tagdoc is a required field.  It must be 5 characters long.  Its
+        constituent parts must correspond to values in the lookup tables for
+        tag type, tag position, tag origins. and tag colour'''
+
+        tagdoc = self.cleaned_data['tagdoc']
+
+        if len(tagdoc) != 5:
+            err_msg = 'TAGDOC must be 5 characters long.'
+            raise forms.ValidationError(err_msg)
+        tag_type = tagdoc[0]
+        tag_position = tagdoc[1]
+        tag_origins = tagdoc[2:4]
+        tag_colour = tagdoc[4]
+
+        if tag_type not in [x[0] for x in TAG_TYPE_CHOICES]:
+            err_msg = '{} is not a valid tag type code.'.format(tag_type)
+            raise forms.ValidationError(err_msg)
+
+        elif tag_position not in [x[0] for x in TAG_POSITION_CHOICES]:
+            err_msg = '{} is not a valid tag position code.'
+            err_msg = err_msg.format(tag_position)
+            raise forms.ValidationError(err_msg)
+
+        elif tag_origins not in [x[0] for x in TAG_ORIGIN_CHOICES]:
+            err_msg = '{} is not a valid agency code.'.format(tag_origins)
+            raise forms.ValidationError(err_msg)
+
+        elif tag_colour not in [x[0] for x in TAG_COLOUR_CHOICES]:
+            err_msg = '{} is not a valid colour code.'.format(tag_colour)
+            raise forms.ValidationError(err_msg)
+        else:
+            return tagdoc
+
+
+    def clean_clipc(self):
+        '''if clipc is populated, all of its elements must be valid clips
+        (i.e. - in the lookup table).  Elements must not repeat, and
+        if the clipc contains 0, it can be only 0.  Finally, clipc
+        code is returned in ascii sort order, regardless of how it is
+        passed in.
+        '''
+        clipc = self.cleaned_data['clipc']
+        clips = list(clipc)
+        unique_clips = set(clips)
+        valid_clips = [x[0] for x in CLIP_CODE_CHOICES]
+        invalid_clips = unique_clips - set(valid_clips)
+
+        if '0' in clipc and len(clipc) > 1:
+            err_msg = 'CLIPC cannot contain 0 and other clip codes.'
+            raise forms.ValidationError(err_msg)
+
+        #check for clip codes that are not in our list of valid clips:
+        elif invalid_clips:
+            invalid_clips = ','.join(list(invalid_clips))
+            err_msg = 'Invalid clip codes: {}'.format(invalid_clips)
+            raise forms.ValidationError(err_msg)
+
+        elif list(len(unique_clips)) != len(clips):
+            err_msg = 'Clip codes cannot repeat.'
+            raise forms.ValidationError(err_msg)
+        else:
+            clips.sort()
+            return ''.join(clips)
+
+
+
+    def clean_date_flag(self):
+        """Provide a default value if it is null.
+        Arguments:
+        - `self`:
+        """
+        date_flag = self.cleaned_data['date_flag']
+        if date_flag is None or date_flag == '':
+            date_flag = 0
+        return date_flag
+
+
+    def clean_recovery_date(self):
+        """dates in the future are not allowed!
+
+        Arguments:
+        - `self`:
+        """
+        recovery_date = self.cleaned_data['recovery_date']
+        today = datetime.today()
+
+        if recovery_date:
+            if recovery_date.date() > today.date():
+                err_msg = 'Dates in the future are not allowed.'
+                raise forms.ValidationError(err_msg)
+        return recovery_date
+
+
+    def clean_dd_lon(self):
+        '''if dd_lon is populated it must be between -90 and 90.  If dd_lat is
+        populated, dd_lon is also required.'''
+
+        dd_lon = self.cleaned_data['dd_lon']
+        dd_lon = self.cleaned_data['dd_lon']
+
+        if ddlon is not None and dd_lon is None:
+            err_msg = 'Both dd_lon and dd_lon must be populated'
+            raise forms.ValidationError(err_msg)
+        else:
+            if dd_lon < -180 or dd_lon >180:
+                err_msg = 'dd_lon must be numeric and lie between -180 and 180'
+                raise forms.ValidationError(err_msg)
+        return dd_lon
+
+
+    def clean_dd_lat(self):
+        '''if dd_lat is populated it must be between -90 and 90.  If ddlon is
+        populated, dd_lat is also required.'''
+
+        dd_lat = self.cleaned_data['dd_lat']
+        dd_lon = self.cleaned_data['dd_lon']
+
+        if ddlon is not None and dd_lat is None:
+            err_msg = 'Both dd_lat and dd_lon must be populated'
+            raise forms.ValidationError(err_msg)
+        else:
+            if dd_lat < -90 or dd_lat >90:
+                err_msg = 'dd_lat must be numeric and lie between -90 and 90'
+                raise forms.ValidationError(err_msg)
+        return dd_lat
+
+
+    def clean_latlon_flag(self):
+        """Provide a default value if it is null.
+        Arguments:
+        - `self`:
+
+        if ddlat, ddlon, and 5-min grid are null, set lat-lon flag to 'unknown'
+
+        if ddlat and ddlon are both empty but a 5-minute grid has been
+        populated, then update flag to 'derived'.
+
+        if dd_lat and dd_lon are populated, set latlon_flag to 'reported'
+
+        """
+        pass
 
 
         #javascript logic in template:

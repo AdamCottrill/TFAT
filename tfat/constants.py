@@ -63,9 +63,9 @@ TAG_TYPE_CHOICES = {
     ('6', 'Coded Wire'),
     ('7', 'Strip Vinyl  '),
     ('8', 'Secure Tie'),
-    ('9', 'Type Unknown or not applicable'),
+#    ('9', 'Type Unknown or not applicable'),
     ('A', 'Internal (Radio)'),
-    ('X', 'Tag Scar/obvious loss'),
+#    ('X', 'Tag Scar/obvious loss'),
 }
 
 TAG_POSITION_CHOICES = {
@@ -130,7 +130,7 @@ DATE_FLAG_CHOICES = {
 LATLON_FLAG_CHOICES = {
     (0, 'Unknown'),
     (1, 'Reported'),
-    (2, 'Derived'), #from grid
+    (2, 'Derived'), #from auxillary information
 }
 
 PROVINCES_STATE_CHOICES = [

@@ -37,17 +37,69 @@ from tfat.tests.factories import *
 
 @pytest.fixture(scope='class')
 def db_setup():
-    """Create some users with easy to remember names.
     """
-    pass
+    """
+
+    report_date = datetime(2010,10,10)
+    spc = SpeciesFactory()
+
+    angler = JoePublicFactory.create(first_name='Homer',
+                                      last_name='Simpson')
+
+    #associated tags to test conditional elements
+    report = ReportFactory(reported_by=angler, follow_up=False,
+                                report_date = report_date)
 
 
-def test_basic_data():
+
+@pytest.mark.django_db
+def test_can_create_recovery_url(client, db_setup):
+    """Verify that the form and its correct elements are rendered when we
+    call the create_recovery form"""
+
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+    response = client.get(url)
+    assert response.status_code == 200
+    content = str(response.content)
+
+    assert 'Tag Recovery Event' in content
+    assert 'Tag Recovery Details' in content
+    assert 'Tagid:' in content
+    assert 'Spc:' in content
+    assert 'TAGDOC' in content
+
+    assert 'Recovery Location' in content
+    assert 'Latitude:' in content
+    assert 'Longitude:' in content
+
+    assert 'Fish Attributes' in content
+
+
+@pytest.mark.django_db
+def test_basic_data(client, db_setup):
     """verify that we can post the form with the minimal data elements and
     a tag recovery object will be created in the database.
 
     """
-    pass
+
+    recoveries = Recovery.objects.all()
+    assert len(recoveries) == 0
+
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+
+    tag_data= {'tagdoc':'25012', 'tagid':'12345', 'spc':1, 'date_flag':0}
+    response = client.post(url, tag_data)
+
+    assert response.status_code == 200
+    content = str(response.content)
+
+    with open('C:/1work/scrapbook/wft2.html', 'wb') as f:
+        f.write(response.content)
+
+    recoveries = Recovery.objects.all()
+    assert len(recoveries) == 1
 
 
 
@@ -273,6 +325,30 @@ def test_ddlat_ddlon():
 
     """
     pass
+
+
+def test_unknown_ddlat_ddlon():
+    """ddlat and ddlon are optional fields.  but if they are null,
+    latlon_flag must be unknown.  If a recovery is submitted without
+    at latlon_flag==unknown, and error should be thrown.
+
+    """
+    pass
+
+
+def test_derived_ddlat_ddlon_with_comment():
+    """ddlat and ddlon are optional fields.  If a recovery is submitted
+    with a comment (hopefully explaining how lat long was derived), the
+    recovery should be created in the database.
+    """
+    pass
+
+def test_derived_ddlat_ddlon_with_comment():
+    """ddlat and ddlon are optional fields.  If a recovery is submitted
+    without a comment an error will be thrown.
+    """
+    pass
+
 
 
 def test_ddlat_without_ddlon():

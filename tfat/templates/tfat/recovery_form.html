@@ -1701,11 +1701,13 @@
          // if spatial flag is 0, clear out all of the spatial information and delete our markers
 
          if (spatial_flag === '2'){
-             $('#derived_comment').show()
+             $('#derived_comment').show();
 
-         } else if (spatial_flag === '0'){
+         } else {
+             $('#derived_comment').hide();
+         }
 
-             $('#derived_comment').hide()
+         if (spatial_flag === '0'){
 
              $('input[id="id_dd_lat"]').val('');
              $('input[id="ddm_lat_deg"]').val('');
