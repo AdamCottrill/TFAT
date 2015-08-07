@@ -469,7 +469,7 @@
                                 <button type="button" class="btn btn-default btn-xs pull-right" data-container="body" data-toggle="popover" data-placement="left" data-html="true" data-content=
 "<div><p><strong>Unknown:</strong> No spatial data available.</p>
      <p><strong>Reported:</strong> Coordinates or 5-minute grid provided.</p>
-     <p><strong>Derived:</strong> Best guess based on broad geographic description (e.g QMA).</p></div>
+     <p><strong>Derived:</strong> Best guess based on broad geographic description (e.g QMA) or auxillary information.</p></div>
 ">
                                     What is this?
                                 </button>
@@ -689,6 +689,11 @@
                                 <h3 class="panel-title">Additional Comments</h3>
                             </div>
                             <div class="panel-body">
+
+                                <div class="alert alert-warning" id="derived_comment" role="alert">
+                                    <p>Please describe how the recapture location was derived.</p>
+                                </div>
+
                                 <!-- <div id="fish_comments" class="col-md-6" > -->
                                 <div class="form-group {% if form.comment.errors %}has-error{% endif %}">
                                     {{ form.comment }}
@@ -740,7 +745,6 @@
 
      //make sure all of the error messages are hidden when we load the form:
 
-
      clear_lat_long_errors();
      $( "#clipc_error" ).hide();
      $( "#tagdoc_length" ).hide();
@@ -748,6 +752,7 @@
      $( "#tagposition_error" ).hide();
      $( "#tagorigin_error" ).hide();
      $( "#tagcolour_error" ).hide();
+     $( "#derived_comment" ).hide();
 
      update_tagoptions();
 
@@ -755,11 +760,15 @@
      $('.metric').show();
      $('.imperial').hide();
 
-
      var my_map;
      var popup_map;
-     var my_marker;
-     var popup_marker;
+     var my_markers = new Array();
+     var popup_markers = new Array();
+
+     // marker arrays - when we click on the map, create a new marker with the coordinates of the click
+     // delete any existing markers in the array
+     // add the new marker to the array.
+
 
      // we will use the same 'custom' marker everywhere (the blue
      // default is hard to see over blue water).
@@ -795,16 +804,25 @@
          var ddlat = parseFloat($('input[id="id_dd_lat"]').val());
          var ddlon = parseFloat($('input[id="id_dd_lon"]').val());
 
+
          if(isNaN(ddlat)===false && isNaN(ddlon)===false){
+
+             $('input:radio[name="latlon_flag"]').val(["1"]); // 1 == 'Reported'
+
              var pt = L.latLng(ddlat, ddlon);
              clear_lat_long_errors();
-             if (typeof my_marker != 'undefined') {
-                 my_marker.setLatLng(pt).update();
+
+             //if the length of our marker array is more than , we have a
+             if (my_markers.length && typeof my_markers[0] !== 'undefined'){
+                 my_map.removeLayer(my_markers[0]);
+                 delete my_markers[0];
              }
-             else {
-                 my_marker = L.marker(pt,{icon:icon}).addTo(my_map);  // add new marker
-             }
-             my_map.panTo(my_marker.getLatLng());
+
+             var marker = L.marker(pt,{icon:icon});
+             my_map.addLayer(marker);
+             my_markers[0] = marker;
+
+             my_map.panTo(marker.getLatLng());
          }
      }
 
@@ -833,20 +851,19 @@
 
          clear_lat_long_errors();
 
-         console.log('my_marker = ' + my_marker);
-         console.log('typeof my_marker = ' + typeof my_marker);
-         try {
-             console.log('my_marker.getLatLng() = ' + my_marker.getLatLng());
-         } catch (e) {
-             console.log('error in my_marker.getLatLng()')
+         $('input:radio[name="latlon_flag"]').val(["1"]); // 1 == 'Reported'
 
+         //if the length of our marker array is more than 0 or the first element is not
+         //undefined, we have a point to remove and delete
+         if (my_markers.length && typeof my_markers[0] !== 'undefined'){
+             my_map.removeLayer(my_markers[0]);
+             delete my_markers[0];
          }
 
-         if (typeof my_marker != 'undefined') {
-             my_marker.setLatLng(pt).update();
-         } else {
-             my_marker = L.marker(pt,{icon:icon}).addTo(my_map);  // add new marker
-         }
+         var marker = L.marker(pt,{icon:icon});
+         my_map.addLayer(marker);
+         my_markers[0] = marker;
+
          my_map.panTo(pt);
 
          //update the other input values with the coordinates from the map marker:
@@ -913,16 +930,20 @@
              id: 'mapbox.streets'
          }).addTo(popup_map);
 
-         if (typeof my_marker != 'undefined') {
-             var pt = my_marker.getLatLng();
-             if (typeof popup_marker != 'undefined') {
-                 popup_marker.setLatLng(pt).update();
+
+         if (my_markers.length && typeof my_markers[0] != 'undefined') {
+             var pt = my_markers[0].getLatLng();
+
+             //if the length of our marker array is more than , we have a
+             if (popup_markers.length && typeof popup_markers[0] !== 'undefined'){
+                 popup_map.removeLayer(popup_markers[0]);
+                 delete popup_markers[0];
              }
-             else {
-                 popup_marker = L.marker(pt,{icon:icon}).addTo(popup_map);
-             }
-             popup_marker.addTo(popup_map);
-             popup_map.panTo(popup_marker.getLatLng());
+
+             var marker = L.marker(pt,{icon:icon});
+             popup_map.addLayer(marker);
+             popup_markers[0] = marker;
+             popup_map.panTo(pt);
          }
 
 
@@ -934,12 +955,17 @@
          var dd_lon = e.latlng.lng;
 
          var pt = L.latLng(dd_lat, dd_lon);
-         if (typeof popup_marker != 'undefined') {
-             popup_marker.setLatLng(pt).update();
+
+         if (popup_markers.length && typeof popup_markers[0] !== 'undefined'){
+             popup_map.removeLayer(popup_markers[0]);
+             delete popup_markers[0];
          }
-         else {
-             popup_marker = L.marker(pt,{icon:icon}).addTo(popup_map);  // add new marker
-         }
+
+         var marker = L.marker(pt,{icon:icon});
+         popup_map.addLayer(marker);
+         popup_markers[0] = marker;
+
+
      };
 
 
@@ -955,8 +981,8 @@
          // update all of the lat-lon controls
          $('body').on('click', '.popup-submit', function (e) {
 
-             if (typeof popup_marker != 'undefined'){
-                 var pt = popup_marker.getLatLng();
+             if (popup_markers.length && typeof popup_markers[0] !== 'undefined'){
+                 var pt = popup_markers[0].getLatLng();
                  update_controls(pt.lat, pt.lng);
              }
 
@@ -1673,7 +1699,13 @@
      $('input:radio[name="latlon_flag"]').on('click change', function(e) {
          var spatial_flag = $('input:radio:checked[name="latlon_flag"]').val();
          // if spatial flag is 0, clear out all of the spatial information and delete our markers
-         if (spatial_flag === '0'){
+
+         if (spatial_flag === '2'){
+             $('#derived_comment').show()
+
+         } else if (spatial_flag === '0'){
+
+             $('#derived_comment').hide()
 
              $('input[id="id_dd_lat"]').val('');
              $('input[id="ddm_lat_deg"]').val('');
@@ -1693,20 +1725,16 @@
              $('input[id="dms_lon_sec"]').val('');
 
 
-             if (typeof my_marker != 'undefined') {
-                 console.log('removing my_marker.');
-                 //my_marker.setLatLng([NaN,NaN]).update();
-
-                 my_map.removeLayer(my_marker);
-                 delete my_marker;
+             if (my_markers.length && typeof my_markers[0] !== 'undefined'){
+                 my_map.removeLayer(my_markers[0]);
+                 delete my_markers[0];
              }
 
-             if (typeof popup_marker != 'undefined') {
-                 console.log('removing popup_marker.')
-                 popup_map.removeLayer(popup_marker);
-                 delete popup_marker;
-                 //popup_marker.setLatLng([NaN,NaN]).update();
+             if (popup_markers.length && typeof popup_markers[0] !== 'undefined'){
+                 popup_map.removeLayer(popup_markers[0]);
+                 delete popup_markers[0];
              }
+
 
              refresh_map();
 
