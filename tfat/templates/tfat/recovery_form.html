@@ -27,6 +27,25 @@
 
             <form method="post" action="{{ request.path }}">
                 {% csrf_token %}
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    Please fix the errors in the form below.
+                    {% for error in form.non_field_errors %}
+                    <p class="error">{{ error }}</p>
+                    {% endfor %}
+                    {% for error in form.errors %}
+                    <p class="error">{{ error }}</p>
+                    {% endfor %}
+
+
+                </div>
+                {% endif %}
+
+                {% if msg %}
+                <div class="alert alert-danger">
+                    {{ msg }}
+                </div>
+                {% endif %}
 
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -245,6 +264,9 @@
                                 <h4>Coordinates</h4>
 
 
+                                <div class="panel panel-default"> <!-- out tabpanel -->
+                                    <div class="panel-body">      <!-- out tab panel body-->
+
                                 <div>
                                     <!-- Nav tabs -->
                                     <ul class="nav nav-tabs" role="tablist">
@@ -437,7 +459,41 @@
                                                 grid number.</p>
                                         </div>  <!-- tabpanel -->
                                     </div>  <!-- tabcontent -->
+                                </div>  <!-- outer tab panel body -->
+                                </div> <!-- outer tab panel -->
+                            </div>
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    {{ form.latlon_flag.label_tag }}
+                                <button type="button" class="btn btn-default btn-xs pull-right" data-container="body" data-toggle="popover" data-placement="left" data-html="true" data-content=
+"<div><p><strong>Unknown:</strong> No spatial data available.</p>
+     <p><strong>Reported:</strong> Coordinates or 5-minute grid provided.</p>
+     <p><strong>Derived:</strong> Best guess based on broad geographic description (e.g QMA).</p></div>
+">
+                                    What is this?
+                                </button>
                                 </div>
+                                <div class="panel-body">
+                                    <div class="form-group {% if form.latlon_flag.errors %}has-error{% endif %}">
+
+                                        {% for radio in form.latlon_flag %}
+                                        <label class="radio-inline">
+                                            {{ radio }}
+                                        </label>
+
+
+                                        {% endfor %}
+                                        {% if form.latlon_flag.errors %}
+                                        {% for error in form.latlon_flag.errors %}
+                                        <div class="has-error help-block text-danger">{{ error }}</div>
+                                        {% endfor %}
+                                        {% endif %}
+                                    </div>
+
+                                </div>
+                            </div>
+
                             </div> <!-- location widgets -->
                             <div class="col-md-6" >
                                 <p>1) Or place the marker where the recapture occured
@@ -449,6 +505,7 @@
                                 <div id="main_map" style="width: 500px; height: 500px;"></div>
                             </div> <!-- map column-->
                         </div>
+
                     </div><!-- Recovery Panel -->
                 </div> <!-- Recovery Location Panel-->
 
@@ -776,6 +833,15 @@
 
          clear_lat_long_errors();
 
+         console.log('my_marker = ' + my_marker);
+         console.log('typeof my_marker = ' + typeof my_marker);
+         try {
+             console.log('my_marker.getLatLng() = ' + my_marker.getLatLng());
+         } catch (e) {
+             console.log('error in my_marker.getLatLng()')
+
+         }
+
          if (typeof my_marker != 'undefined') {
              my_marker.setLatLng(pt).update();
          } else {
@@ -856,7 +922,7 @@
                  popup_marker = L.marker(pt,{icon:icon}).addTo(popup_map);
              }
              popup_marker.addTo(popup_map);
-             popup_map.panTo(my_marker.getLatLng());
+             popup_map.panTo(popup_marker.getLatLng());
          }
 
 
@@ -913,7 +979,7 @@
              var lat_seconds = (lat_dminutes - lat_iminutes) * 60;
 
              $('input[id="ddm_lat_deg"]').val(lat_idegrees);
-             $('input[<i></i>d="ddm_lat_min"]').val(lat_dminutes);
+             $('input[id="ddm_lat_min"]').val(lat_dminutes);
 
              $('input[id="dms_lat_deg"]').val(lat_idegrees);
              $('input[id="dms_lat_min"]').val(lat_iminutes);
@@ -969,9 +1035,9 @@
          if(isNaN(lat_degrees) || parseInt(lat_degrees)!==lat_degrees ||
                                                           lat_degrees <-90 ||
                                                           lat_degrees > 90){
-             $( "#dms_lat_deg_error" ).show();
-             $( "#dms_lat_deg" ).addClass("has-error");
-             return false
+                                                              $( "#dms_lat_deg_error" ).show();
+                                                              $( "#dms_lat_deg" ).addClass("has-error");
+                                                              return false
          } else {
              $( "#dms_lat_deg_error" ).hide();
              $( "#dms_lat_deg" ).removeClass("has-error");
@@ -979,10 +1045,10 @@
 
          // minutes must be an integer between 0 and 59.999
          if(isNaN(lat_minutes) || parseInt(lat_minutes)!==lat_minutes ||
-                                                             lat_minutes < 0 || lat_minutes >=60){
-             $( "#dms_lat_min_error" ).show();
-             $( "#dms_lat_min" ).addClass("has-error");
-             return false
+                                                          lat_minutes < 0 || lat_minutes >=60){
+                                                              $( "#dms_lat_min_error" ).show();
+                                                              $( "#dms_lat_min" ).addClass("has-error");
+                                                              return false
          } else {
              $( "#dms_lat_min_error" ).hide();
              $( "#dms_lat_min" ).removeClass("has-error");
@@ -1059,9 +1125,9 @@
          if(isNaN(lon_degrees) || parseInt(lon_degrees)!==lon_degrees ||
                                                           lon_degrees <-90 ||
                                                           lon_degrees > 90){
-             $( "#dms_lon_deg_error" ).show();
-             $( "#dms_lon_deg" ).addClass("has-error");
-             return false
+                                                              $( "#dms_lon_deg_error" ).show();
+                                                              $( "#dms_lon_deg" ).addClass("has-error");
+                                                              return false
          } else {
              $( "#dms_lon_deg_error" ).hide();
              $( "#dms_lon_deg" ).removeClass("has-error");
@@ -1069,10 +1135,10 @@
 
          // minutes must be an integer between 0 and 59.999
          if(isNaN(lon_minutes) || parseInt(lon_minutes)!==lon_minutes ||
-                                                             lon_minutes < 0 || lon_minutes >=60){
-             $( "#dms_lon_min_error" ).show();
-             $( "#dms_lon_min" ).addClass("has-error");
-             return false
+                                                          lon_minutes < 0 || lon_minutes >=60){
+                                                              $( "#dms_lon_min_error" ).show();
+                                                              $( "#dms_lon_min" ).addClass("has-error");
+                                                              return false
          } else {
              $( "#dms_lon_min_error" ).hide();
              $( "#dms_lon_min" ).removeClass("has-error");
@@ -1108,9 +1174,9 @@
          if(isNaN(lat_idegrees) || parseInt(lat_idegrees)!==lat_idegrees ||
                                                             lat_idegrees< -90 ||
                                                             lat_idegrees> 90){
-             $( "#ddm_lat_deg_error" ).show();
-             $( "#ddm_lat_deg" ).addClass("has-error");
-             return false
+                                                                $( "#ddm_lat_deg_error" ).show();
+                                                                $( "#ddm_lat_deg" ).addClass("has-error");
+                                                                return false
          } else {
              $( "#ddm_lat_deg_error" ).hide();
              $( "#ddm_lat_deg" ).removeClass("has-error");
@@ -1143,9 +1209,9 @@
          if(isNaN(lon_idegrees) || parseInt(lon_idegrees)!==lon_idegrees ||
                                                             lon_idegrees < -180 ||
                                                             lon_idegrees >=180){
-             $( "#ddm_lon_deg_error" ).show();
-             $( "#ddm_lon_deg" ).addClass("has-error");
-             return false
+                                                                $( "#ddm_lon_deg_error" ).show();
+                                                                $( "#ddm_lon_deg" ).addClass("has-error");
+                                                                return false
          } else {
              $( "#ddm_lon_deg_error" ).hide();
              $( "#ddm_lon_deg" ).removeClass("has-error");
@@ -1539,7 +1605,6 @@
 
      });
 
- });
 
      $('#myTabs a').click(function (e) {
          e.preventDefault()
@@ -1605,11 +1670,59 @@
      });
 
 
+     $('input:radio[name="latlon_flag"]').on('click change', function(e) {
+         var spatial_flag = $('input:radio:checked[name="latlon_flag"]').val();
+         // if spatial flag is 0, clear out all of the spatial information and delete our markers
+         if (spatial_flag === '0'){
+
+             $('input[id="id_dd_lat"]').val('');
+             $('input[id="ddm_lat_deg"]').val('');
+             $('input[id="ddm_lat_min"]').val('');
+
+             $('input[id="dms_lat_deg"]').val('');
+             $('input[id="dms_lat_min"]').val('');
+             $('input[id="dms_lat_sec"]').val('');
 
 
-     $(function() {
-         $( ".datepicker" ).datepicker({ dateFormat: 'yy-mm-dd' });
+             $('input[id="id_dd_lon"]').val('');
+             $('input[id="ddm_lon_deg"]').val('');
+             $('input[id="ddm_lon_min"]').val('');
+
+             $('input[id="dms_lon_deg"]').val('');
+             $('input[id="dms_lon_min"]').val('');
+             $('input[id="dms_lon_sec"]').val('');
+
+
+             if (typeof my_marker != 'undefined') {
+                 console.log('removing my_marker.');
+                 //my_marker.setLatLng([NaN,NaN]).update();
+
+                 my_map.removeLayer(my_marker);
+                 delete my_marker;
+             }
+
+             if (typeof popup_marker != 'undefined') {
+                 console.log('removing popup_marker.')
+                 popup_map.removeLayer(popup_marker);
+                 delete popup_marker;
+                 //popup_marker.setLatLng([NaN,NaN]).update();
+             }
+
+             refresh_map();
+
+         }
+
      });
+
+ });
+
+ $(function () {
+     $('[data-toggle="popover"]').popover()
+ });
+
+ $(function() {
+     $( ".datepicker" ).datepicker({ dateFormat: 'yy-mm-dd' });
+ });
 
 </script>
 
