@@ -420,12 +420,9 @@ def edit_report(request, report_id):
                                                      'action': 'Edit'})
 
 
-
 def create_recovery(request, report_id):
     """This view is used to create a new tag recovery.
     """
-
-    #clip_codes = [{x[0]:x[1]} for x in CLIP_CODE_CHOICES]
 
     clip_codes = sorted(list(CLIP_CODE_CHOICES), key=lambda x:x[0])
     tag_types = sorted(list(TAG_TYPE_CHOICES), key=lambda x:x[0])
@@ -438,14 +435,9 @@ def create_recovery(request, report_id):
         form = RecoveryForm(report, request.POST)
         if form.is_valid():
             recovery = form.save()
-            #recovery = form.save(commit=False)
-            #recovery.report = report
-            #recovery.save()
-            #import pdb;pdb.set_trace()
             #TODO: return to recovery detail
             return redirect('report_detail', report_id=report.id)
     else:
-        #form = RecoveryForm(initial={'report':report})
         form = RecoveryForm(report=report)
 
     return render(request, 'tfat/recovery_form.html', {'form': form,
@@ -467,16 +459,17 @@ def edit_recovery(request, recovery_id):
     tag_position = sorted(list(TAG_POSITION_CHOICES), key=lambda x:x[0])
 
     recovery = get_object_or_404(Recovery, id=recovery_id)
+    report = recovery.report
+
     if request.method == 'POST':
-        form = RecoveryForm(request.POST, instance=recovery)
+        form = RecoveryForm(request.POST, report=report,
+                            instance=recovery)
         if form.is_valid():
-            #recovery = form.save(commit=False)
-            #recovery.report = report
-            #recovery.save()
             form.save()
+            #TODO: return to recovery detail
             return redirect('report_detail', report_id=recovery.report.id)
     else:
-        form = RecoveryForm(instance=recovery)
+        form = RecoveryForm(report, instance=recovery)
 
     return render(request, 'tfat/recovery_form.html', {'form': form,
                                                        'clip_codes':clip_codes,

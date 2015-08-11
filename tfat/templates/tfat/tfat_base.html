@@ -56,7 +56,8 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="{% url 'home' %}">Totally TFAT </a>
+        {% url 'home' as home_url %}
+        <a class="navbar-brand" href="{{ home_url }}">Totally TFAT </a>
       </div>
 
       <!-- Collect the nav links, forms, and other content for toggling -->
@@ -68,7 +69,8 @@
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Report A Tag<b class="caret"></b></a>
             <ul class="dropdown-menu">
               <li><a href="">New Report</a></li>
-              <li><a href="{% url 'recovery_report_list' %}">Existing Reports</a></li>
+              {% url 'recovery_report_list' as recovery_reports_url %}
+              <li><a href="{{ recovery_reports_url  }}">Existing Reports</a></li>
             </ul>
           </li>
 
@@ -82,14 +84,17 @@
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Recoveries<b class="caret"></b></a>
             <ul class="dropdown-menu">
-              <li><a href="{% url 'angler_list' %}">By Reporter</a></li>
+                {% url 'angler_list' as anglers_url%}
+              <li><a href="{{ anglers_url }}">By Reporter</a></li>
               <li class="divider"></li>
               <li><a href="#">Tagged in an Year</a></li>
               <li><a href="#">Recovered in a Year</a></li>
 
               <li class="divider"></li>
-              <li><a href="{% url 'projectlist_taggedin' %}">Tagged in a Project</a></li>
-              <li><a href="{% url 'projectlist_recoveredin' %}">Recovered in a Project</a></li>
+              {% url 'projectlist_taggedin' as projectlist_taggedin %}
+              <li><a href="{{ projectlist_taggedin }}">Tagged in a Project</a></li>
+              {% url 'projectlist_recoveredin' as projectlist_recoveredin %}
+              <li><a href="{{ projectlist_recoveredin }}">Recovered in a Project</a></li>
               <li class="divider"></li>
               <li><a href="#">Tagged in an Area</a></li>
               <li><a href="#">Recovered in a Area</a></li>
@@ -104,7 +109,8 @@
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin <b class="caret"></b></a>
             <ul class="dropdown-menu">
-              <li><a href="{% url 'admin:index' %}">Django Admin</a></li>
+                {% url 'admin:index' as admin_url %}
+              <li><a href="{{ admin_url }}">Django Admin</a></li>
             </ul>
           </li>
         {% endif %}
@@ -115,7 +121,8 @@
 
 
         <div class="col-sm-3">
-            <form class="navbar-form navbar-left" role="search" action={% url 'tagid_quicksearch' %}>
+            {% url 'tagid_quicksearch' as quicksearch_url %}
+            <form class="navbar-form navbar-left" role="search" action={{ quicksearch_url }}>
               <div class="input-group">
                 <input type="text" class="form-control" name="q"
                        placeholder="TagID Quick Search">
