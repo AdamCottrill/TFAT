@@ -481,6 +481,16 @@ class RecoveryForm(ModelForm):
         else:
             cleaned_data['latlon_flag'] = latlon_flag
 
+        #if lat-long is derived, make sure comment contains something
+        #(hopefully an explanation).
+        comment = cleaned_data.get('comment')
+        if cleaned_data.get('latlon_flag')==2 and comment is None:
+            err_msg = 'Describe how location was derived.'
+            raise forms.ValidationError(err_msg)
+
+
+
+
         #  RECOVERY DATE vs DATE_FLAG
         recovery_date = cleaned_data['recovery_date']
         date_flag = cleaned_data['date_flag']
