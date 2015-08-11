@@ -285,7 +285,7 @@
                                             <p><strong>Latitude:</strong></p>
                                             <div class="form-group">
                                                 <label class="sr-only" for="id_dd_lat">Latitude:</label>
-                                                <input type="text" class="form-control" id="id_dd_lat" placeholder="Decimal Degrees">
+                                                <input type="text" class="form-control" id="id_dd_lat" name="dd_lat" placeholder="Decimal Degrees">
                                                 <div id="dd_lat_deg_error" class="alert alert-danger" role="alert">
                                                     Degrees must be a number between -90 and 90!
                                                 </div>
@@ -294,7 +294,7 @@
                                             <p><strong>Longitude:</strong></p>
                                             <div class="form-group">
                                                 <label class="sr-only" for="id_dd_lon">Longitude:</label>
-                                                <input type="text" class="form-control" id="id_dd_lon" placeholder="Decimal Degrees">
+                                                <input type="text" class="form-control" id="id_dd_lon" name="dd_lon" placeholder="Decimal Degrees">
                                                 <div id="dd_lon_deg_error" class="alert alert-danger" role="alert">
                                                     Degrees must be a number between -180 and 180!
                                                 </div>
@@ -481,14 +481,15 @@
                                         <label class="radio-inline">
                                             {{ radio }}
                                         </label>
-
-
                                         {% endfor %}
                                         {% if form.latlon_flag.errors %}
                                         {% for error in form.latlon_flag.errors %}
                                         <div class="has-error help-block text-danger">{{ error }}</div>
                                         {% endfor %}
                                         {% endif %}
+
+
+
                                     </div>
 
                                 </div>

@@ -435,15 +435,18 @@ def create_recovery(request, report_id):
 
     report = get_object_or_404(Report, id=report_id)
     if request.method == 'POST':
-        form = RecoveryForm(request.POST)
+        form = RecoveryForm(report, request.POST)
         if form.is_valid():
-            recovery = form.save(commit=False)
-            recovery.report = report
-            recovery.save()
-            import pdb;pdb.set_trace()
+            recovery = form.save()
+            #recovery = form.save(commit=False)
+            #recovery.report = report
+            #recovery.save()
+            #import pdb;pdb.set_trace()
+            #TODO: return to recovery detail
             return redirect('report_detail', report_id=report.id)
     else:
-        form = RecoveryForm(initial={'report':report})
+        #form = RecoveryForm(initial={'report':report})
+        form = RecoveryForm(report=report)
 
     return render(request, 'tfat/recovery_form.html', {'form': form,
                                                        'clip_codes':clip_codes,
@@ -456,7 +459,6 @@ def create_recovery(request, report_id):
 def edit_recovery(request, recovery_id):
     """This view is used to edit/update existing tag recoveries.
     """
-
 
     clip_codes = sorted(list(CLIP_CODE_CHOICES), key=lambda x:x[0])
     tag_types = sorted(list(TAG_TYPE_CHOICES), key=lambda x:x[0])

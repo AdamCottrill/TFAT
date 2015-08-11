@@ -31,6 +31,8 @@ A. Cottrill
 
 import pytest
 
+from datetime import datetime, timedelta
+
 from tfat.models import Recovery
 from tfat.tests.factories import *
 
@@ -89,155 +91,355 @@ def test_basic_data(client, db_setup):
     report = Report.objects.get(reported_by__first_name='Homer')
     url = reverse('create_recovery', kwargs={'report_id':report.id})
 
-    tag_data= {'tagdoc':'25012', 'tagid':'12345', 'spc':1, 'date_flag':0}
-    response = client.post(url, tag_data)
+    tagid = '12345'
+    tagdoc = '25012'
+    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,}
+
+    response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
     content = str(response.content)
 
-    with open('C:/1work/scrapbook/wft2.html', 'wb') as f:
-        f.write(response.content)
-
     recoveries = Recovery.objects.all()
     assert len(recoveries) == 1
 
+    assert recoveries[0].tagid == tagid
+    assert recoveries[0].tagdoc == tagdoc
 
 
-def test_missing_tagid():
+
+@pytest.mark.django_db
+def test_missing_tagid(client, db_setup):
     """tagid is a required field.  If the form is submitted without it, a
     meaningful error message should be generated.
 
     """
-    pass
+
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+
+    tagdoc = '25012'
+    tag_data= {'tagdoc':tagdoc, 'spc':1, 'date_flag':0,}
+
+    response = client.post(url, tag_data, follow=True)
+
+    content = str(response.content)
+    msg = "This field is required."
+    assert msg in content
 
 
-def test_missing_species():
+@pytest.mark.django_db
+def test_missing_species(client, db_setup):
     """fish species is a required field.  If the form is submitted without it, a
     meaningful error message should be generated.
 
     """
-    pass
 
-def test_invalid_species():
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+
+    tagdoc = '25012'
+    tagid =  '1234'
+    tag_data= {'tagid':tagid, 'tagdoc':tagdoc, 'date_flag':0,}
+
+    response = client.post(url, tag_data, follow=True)
+
+    content = str(response.content)
+    msg = "This field is required."
+    assert msg in content
+
+
+@pytest.mark.django_db
+def test_invalid_species(client, db_setup):
     """species is a required field.  If the form is submitted with a
     species that does not exist, a meaningful error message should be
     generated.
 
     """
-    pass
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+
+    tagid = '12345'
+    tagdoc = '25012'
+    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':999, 'date_flag':0,}
+
+    response = client.post(url, tag_data, follow=True)
+
+    assert response.status_code == 200
+    content = str(response.content)
+
+    msg = ("Select a valid choice. "
+           "That choice is not one of the available choices.")
+    assert msg in content
 
 
-def test_missing_tagdoc():
+@pytest.mark.django_db
+def test_missing_tagdoc(client, db_setup):
     """tagdoc is a required field.  If the form is submitted without it, a
     meaningful error message should be generated.
 
     """
-    pass
+
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+
+    tagid = '1236'
+    tag_data= {'tagid':tagid, 'spc':1, 'date_flag':0,}
+
+    response = client.post(url, tag_data, follow=True)
+
+    content = str(response.content)
+    msg = "This field is required."
+    assert msg in content
 
 
-def test_tagdoc_short():
+@pytest.mark.django_db
+def test_tagdoc_short(client, db_setup):
     """if the tagdoc is provided, it must be exacly 5 characters long.
     """
-    pass
 
-def test_tagdoc_long():
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+
+    tagid = '12345'
+    tagdoc = '2501'
+    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,}
+
+    response = client.post(url, tag_data, follow=True)
+
+    assert response.status_code == 200
+    content = str(response.content)
+    msg = "TAGDOC must be 5 characters long."
+    assert msg in content
+
+
+
+@pytest.mark.django_db
+def test_tagdoc_long(client, db_setup):
     """if the tagdoc is provided, it must be exacly 5 characters long.
     """
-    pass
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+
+    tagid = '12345'
+    tagdoc = '250129'
+    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,}
+
+    response = client.post(url, tag_data, follow=True)
+
+    assert response.status_code == 200
+    content = str(response.content)
+    msg = "TAGDOC must be 5 characters long."
+    assert msg in content
 
 
-def test_tagdoc_bad_tag_type():
+
+@pytest.mark.django_db
+def test_tagdoc_bad_tag_type(client, db_setup):
     """if the tagdoc is provided, the 1st character must correspond to a
     valid, exising tag_type.  if not, an error will be thrown.
 
     """
-    pass
 
-def test_tagdoc_good_tag_type():
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+
+    tagid = '12345'
+    tagdoc = 'Y5012'
+    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,}
+
+    response = client.post(url, tag_data, follow=True)
+
+    assert response.status_code == 200
+    content = str(response.content)
+    msg = "Y is not a valid tag type code."
+    assert msg in content
+
+
+
+@pytest.mark.django_db
+def test_tagdoc_good_tag_type(client, db_setup):
     """if the tagdoc is provided, the 1st character must correspond to a
     valid, exising tag_type.  When the recovery is saved, the tag_type
     will be updated to reflect the value of the 1st character in
     tagdoc.
 
     """
-    pass
+
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+
+    tagid = '12345'
+    tagdoc = '35012'
+    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,}
+
+    response = client.post(url, tag_data, follow=True)
+
+    assert response.status_code == 200
+    content = str(response.content)
+
+    recoveries = Recovery.objects.all()
+    assert len(recoveries) == 1
+
+    assert recoveries[0].tagdoc == tagdoc
 
 
-def test_tagdoc_bad_tag_position():
+@pytest.mark.django_db
+def test_tagdoc_bad_tag_position(client, db_setup):
     """if the tagdoc is provided, the 2nd character must correspond to a
     valid, exising tag_position.  if not, an error will be thrown.
 
     """
-    pass
 
-def test_tagdoc_good_tag_position():
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+
+    tagid = '12345'
+    tagdoc = '2Y012'
+    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,}
+
+    response = client.post(url, tag_data, follow=True)
+
+    assert response.status_code == 200
+    content = str(response.content)
+    msg = "Y is not a valid tag position code."
+    assert msg in content
+
+
+@pytest.mark.django_db
+def test_tagdoc_good_tag_position(client, db_setup):
     """if the tagdoc is provided, the 2nd character must correspond to a
     valid, exising tag_position.  When the recovery is saved, the tag_position
     will be updated to reflect the value of the 2nd character in
     tagdoc.
 
     """
-    pass
+
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+
+    tagid = '12345'
+    tagdoc = '25012'
+    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,}
+
+    response = client.post(url, tag_data, follow=True)
+
+    assert response.status_code == 200
+    content = str(response.content)
+
+    recoveries = Recovery.objects.all()
+    assert len(recoveries) == 1
+
+    assert recoveries[0].tagdoc == tagdoc
 
 
-
-def test_tagdoc_bad_agency():
+@pytest.mark.django_db
+def test_tagdoc_bad_agency(client, db_setup):
     """if the tagdoc is provided, the 3rd and 4th characters must
     correspond to a valid, exising agency.  If not, an error will be
     thrown.
 
     """
-    pass
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
 
-def test_tagdoc_good_agency():
-    """if the tagdoc is provided, the 3rd and 4th characters must
-    correspond to a valid, exising agency.  When the recovery is
-    saved, the tag_agency will be updated to reflect the value of the
-    3rd and 4th character in tagdoc.
+    tagid = '12345'
+    tagdoc = '25XX2'
+    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,}
 
-    """
-    pass
+    response = client.post(url, tag_data, follow=True)
+
+    assert response.status_code == 200
+    content = str(response.content)
+
+    msg = "XX is not a valid agency code."
+    assert msg in content
 
 
-def test_tagdoc_bad_colour():
+@pytest.mark.django_db
+def test_tagdoc_bad_colour(client, db_setup):
     """if the tagdoc is provided, the 5th character must correspond to a
     valid, exising colour.  if not, an error will be thrown.
 
     """
-    pass
 
-def test_tagdoc_good_colour():
-    """if the tagdoc is provided, the 5th character must correspond to a
-    valid, exising colour.  When the recovery is saved, the tag_colour
-    will be updated to reflect the value of the 5th character in
-    tagdoc.
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
 
-    """
-    pass
+    tagid = '12345'
+    tagdoc = '2501X'
+    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,}
+
+    response = client.post(url, tag_data, follow=True)
+
+    assert response.status_code == 200
+    content = str(response.content)
+
+    msg = "X is not a valid colour code."
+    assert msg in content
 
 
-
-def test_good_clipc():
+@pytest.mark.django_db
+def test_good_clipc(client, db_setup):
     """clipc is a character field that contains the concatinated clips
     observed on a fish when captured.  All of the elements must exist
     in the clip code lookup table.
 
     """
-    pass
+
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+
+    tagid = '12345'
+    tagdoc = '25012'
+    clipc = '14'
+    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,
+               'clipc':clipc}
+
+    response = client.post(url, tag_data, follow=True)
+
+    assert response.status_code == 200
+    content = str(response.content)
+
+    recoveries = Recovery.objects.all()
+    assert len(recoveries) == 1
+
+    assert recoveries[0].clipc == clipc
 
 
-def test_good_clipc_0():
+@pytest.mark.django_db
+def test_good_clipc_0(client, db_setup):
     """clipc is a character field that contains the concatinated clips
     observed on a fish when captured.  Clip code '0' is used to
     indicate the absence of other clips and should be acceptable as a
     valid clip when the form is processed.
 
     """
-    pass
+
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+
+    tagid = '12345'
+    tagdoc = '25012'
+    clipc = '0'
+    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,
+               'clipc':clipc}
+
+    response = client.post(url, tag_data, follow=True)
+
+    assert response.status_code == 200
+    content = str(response.content)
+
+    recoveries = Recovery.objects.all()
+    assert len(recoveries) == 1
+
+    assert recoveries[0].clipc == clipc
 
 
 
-def test_bad_clipc_includes_0():
+
+@pytest.mark.django_db
+def test_bad_clipc_includes_0(client, db_setup):
     """clipc is a character field that contains the concatinated clips
     observed on a fish when captured.  Clip code '0' is used to
     indicate the absence of other clips.  As such, and clipc value
@@ -245,9 +447,27 @@ def test_bad_clipc_includes_0():
     error.
 
     """
-    pass
 
-def test_bad_clipc_includes_duplicates():
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+
+    tagid = '12345'
+    tagdoc = '25012'
+    clipc = '140'
+    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,
+               'clipc':clipc}
+
+    response = client.post(url, tag_data, follow=True)
+
+    assert response.status_code == 200
+    content = str(response.content)
+
+    msg = "CLIPC cannot contain 0 and other clip codes."
+    assert msg in content
+
+
+@pytest.mark.django_db
+def test_bad_clipc_includes_duplicates(client, db_setup):
     """clipc is a character field that contains the concatinated clips
     observed on a fish when captured.  All of the elements must exist
     in the clip code lookup table and appear only once.  If a clip
@@ -255,10 +475,27 @@ def test_bad_clipc_includes_duplicates():
     should be thrown. (eg. 11 is not valid.)
 
     """
-    pass
+
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+
+    tagid = '12345'
+    tagdoc = '25012'
+    clipc = '114'
+    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,
+               'clipc':clipc}
+
+    response = client.post(url, tag_data, follow=True)
+
+    assert response.status_code == 200
+    content = str(response.content)
+
+    msg = "Clip codes cannot repeat."
+    assert msg in content
 
 
-def test_bad_clipc_includes_wrong_order():
+@pytest.mark.django_db
+def test_bad_clipc_includes_wrong_order(client, db_setup):
     """clipc is a character field that contains the concatinated clips
     observed on a fish when captured. All of the elements are to be
     saved in ascii-sort order.  If a clip code is reported in the
@@ -266,59 +503,200 @@ def test_bad_clipc_includes_wrong_order():
     be saved as 235)
 
     """
-    pass
+
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+
+    tagid = '12345'
+    tagdoc = '25012'
+    clipc = '532'
+    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,
+               'clipc':clipc}
+
+    response = client.post(url, tag_data, follow=True)
+
+    assert response.status_code == 200
+
+    recoveries = Recovery.objects.all()
+    assert len(recoveries) == 1
+    assert recoveries[0].clipc == '235'
 
 
-def test_bad_clipc_nonexistant_clip():
+@pytest.mark.django_db
+def test_bad_clipc_nonexistant_clip(client, db_setup):
     """clipc is a character field that contains the concatinated clips
     observed on a fish when captured.  If one of the elements does exist
     in the clip code lookup table an error should be thrown.
 
     """
-    pass
+
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+
+    tagid = '12345'
+    tagdoc = '25012'
+    clipc = '15X'
+    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,
+               'clipc':clipc}
+
+    response = client.post(url, tag_data, follow=True)
+
+    assert response.status_code == 200
+    content = str(response.content)
+
+    msg = "Invalid clip codes: X"
+    assert msg in content
 
 
-@pytest.mark.xfail
-def test_missing_recovery_date():
+@pytest.mark.django_db
+def test_bad_clipc_multiple_nonexistant_clips(client, db_setup):
+    """clipc is a character field that contains the concatinated clips
+    observed on a fish when captured.  If more than one of the
+    elements does exist in the clip code lookup table an error should
+    be thrown and the error message should contain a comma separated
+    list of those elements.
+
+    """
+
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+
+    tagid = '12345'
+    tagdoc = '25012'
+    clipc = '15XZ'
+    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,
+               'clipc':clipc}
+
+    response = client.post(url, tag_data, follow=True)
+
+    assert response.status_code == 200
+    content = str(response.content)
+
+    msg = "Invalid clip codes: X,Z"
+    assert msg in content
+
+
+@pytest.mark.django_db
+def test_missing_recovery_date(client, db_setup):
     """It's not clear what should happen if data is not populated.
 
     """
-    assert 0==1
+
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+
+    tagid = '12345'
+    tagdoc = '25012'
+
+    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0}
+
+    response = client.post(url, tag_data, follow=True)
+
+    assert response.status_code == 200
+
+    recoveries = Recovery.objects.all()
+    assert len(recoveries) == 1
+
+    assert recoveries[0].recovery_date is None
+    assert recoveries[0].date_flag is 0
 
 
-def test_future_date():
+@pytest.mark.xfail
+@pytest.mark.django_db
+def test_future_date(client, db_setup):
     """a tag recovery event cannot be reported from the future.  A
     recovery event cannot be recorded if it has not happened yet.  If a
     date in the future is submitted, an appropriate error message should
     be returned.
 
     """
-    pass
+
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+
+    tagid = '12345'
+    tagdoc = '25012'
+    next_week = datetime.today() + timedelta(days=7)
+
+    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,
+               'recovery_date':next_week.date()}
+
+    response = client.post(url, tag_data)
+
+    assert response.status_code == 200
+    content = str(response.content)
+
+    msg = "Dates in the future are not allowed."
+    assert msg in content
 
 
-def test_recapture_date_ahead_of_report_date():
+@pytest.mark.xfail
+@pytest.mark.django_db
+def test_recapture_date_ahead_of_report_date(client, db_setup):
     """a tag recovery event cannot occur more recently than the reporting
     date. If this happens an error should be raised.
 
     """
-    pass
+
+    #NOT IMPLEMENTED YET
+    assert 0==1
 
 
-def test_tlen_greater_than_flen():
+
+@pytest.mark.django_db
+def test_tlen_greater_than_flen(client, db_setup):
     """both tlen and flen can be provided as long as flen is less than tlen.
     """
-    pass
+
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+
+    tagid = '12345'
+    tagdoc = '25012'
+    tlen = 450
+    flen = 440
+
+    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,
+               'tlen':tlen, 'flen':flen}
+
+    response = client.post(url, tag_data, follow=True)
+
+    assert response.status_code == 200
+    recoveries = Recovery.objects.all()
+    assert len(recoveries) == 1
+    assert recoveries[0].tlen == tlen
+    assert recoveries[0].flen == flen
 
 
-def test_tlen_less_than_flen():
-    """if both total length and fork length are provided and fork lenght
+
+@pytest.mark.django_db
+def test_tlen_less_than_flen(client, db_setup):
+    """if both total length and fork length are provided and fork length
     is greater than total length, raise an error.
 
     """
-    pass
+
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+
+    tagid = '12345'
+    tagdoc = '25012'
+    tlen = 440
+    flen = 450
+
+    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,
+               'tlen':tlen, 'flen':flen}
+
+    response = client.post(url, tag_data, follow=True)
+    assert response.status_code == 200
+    content = str(response.content)
+
+    msg = "Total length (tlen) cannot be less than fork length (flen)."
+    assert msg in content
 
 
-def test_ddlat_ddlon():
+@pytest.mark.django_db
+def test_ddlat_ddlon(client, db_setup):
     """ddlat and ddlon are optional fields.  If they are included in the
     posted data, they will be correctly associated with the recovery
     object in the database.
@@ -327,7 +705,8 @@ def test_ddlat_ddlon():
     pass
 
 
-def test_unknown_ddlat_ddlon():
+@pytest.mark.django_db
+def test_unknown_ddlat_ddlon(client, db_setup):
     """ddlat and ddlon are optional fields.  but if they are null,
     latlon_flag must be unknown.  If a recovery is submitted without
     at latlon_flag==unknown, and error should be thrown.
@@ -336,14 +715,16 @@ def test_unknown_ddlat_ddlon():
     pass
 
 
-def test_derived_ddlat_ddlon_with_comment():
+@pytest.mark.django_db
+def test_derived_ddlat_ddlon_with_comment(client, db_setup):
     """ddlat and ddlon are optional fields.  If a recovery is submitted
     with a comment (hopefully explaining how lat long was derived), the
     recovery should be created in the database.
     """
     pass
 
-def test_derived_ddlat_ddlon_with_comment():
+@pytest.mark.django_db
+def test_derived_ddlat_ddlon_with_comment(client, db_setup):
     """ddlat and ddlon are optional fields.  If a recovery is submitted
     without a comment an error will be thrown.
     """
@@ -351,7 +732,8 @@ def test_derived_ddlat_ddlon_with_comment():
 
 
 
-def test_ddlat_without_ddlon():
+@pytest.mark.django_db
+def test_ddlat_without_ddlon(client, db_setup):
     """ddlat and ddlon are optional fields, but if one is provided, the
     other must be provided too. If ddlon is omitted, but dd_lat is
     included, an appropriate error message should be generated.
@@ -359,7 +741,8 @@ def test_ddlat_without_ddlon():
     """
     pass
 
-def test_ddlon_without_ddlat():
+@pytest.mark.django_db
+def test_ddlon_without_ddlat(client, db_setup):
     """ddlat and ddlon are optional fields, but if one is provided, the
     other must be provided too. If ddkat is omitted, but dd_lon is
     included, an appropriate error message should be generated.
@@ -368,14 +751,16 @@ def test_ddlon_without_ddlat():
     pass
 
 
-def test_ddlat_max_90():
+@pytest.mark.django_db
+def test_ddlat_max_90(client, db_setup):
     """ddlat is the latitude and cannot exceed 90 degrees.  If a ddlat
     value is submitted with a latitude greater than 9s, an
     appropriate error message should be generated.
 
     """
 
-def test_ddlat_min_negative_90():
+@pytest.mark.django_db
+def test_ddlat_min_negative_90(client, db_setup):
     """ddlat is the latitude and cannot exceed -90 degrees.  If a ddlat
     value is submitted with a latitude less than -90, an
     appropriate error message should be generated.
@@ -383,14 +768,16 @@ def test_ddlat_min_negative_90():
     """
 
 
-def test_ddlon_max_180():
+@pytest.mark.django_db
+def test_ddlon_max_180(client, db_setup):
     """ddlon is the longitude and cannot exceed 180 degrees.  If a ddlon
     value is submitted with a longitude greater than 180, an
     appropriate error message should be generated.
 
     """
 
-def test_ddlon_min_negative_180():
+@pytest.mark.django_db
+def test_ddlon_min_negative_180(client, db_setup):
     """ddlon is the lonitude and cannot be less than -180 degrees.  If a ddlon
     value is submitted with a lonitude less than -180s, an
     appropriate error message should be generated.
@@ -399,7 +786,8 @@ def test_ddlon_min_negative_180():
 
 
 
-def test_general_location():
+@pytest.mark.django_db
+def test_general_location(client, db_setup):
     """general_location is an optional field.  If it is included in the
     posted data, it will be correctly associated with the recovery
     object in the database.
@@ -408,7 +796,8 @@ def test_general_location():
     pass
 
 
-def test_specific_location():
+@pytest.mark.django_db
+def test_specific_location(client, db_setup):
     """specific_location is an optional field.  If it is included in the
     posted data, it will be correctly associated with the recovery
     object in the database.
@@ -417,7 +806,8 @@ def test_specific_location():
     pass
 
 
-def test_fish_fate_released():
+@pytest.mark.django_db
+def test_fish_fate_released(client, db_setup):
     """fish fate is an optional field.  If it is included in the
     posted data, it will be correctly associated with the recovery
     object in the database.
@@ -426,7 +816,8 @@ def test_fish_fate_released():
     pass
 
 
-def test_fish_fate_killed():
+@pytest.mark.django_db
+def test_fish_fate_killed(client, db_setup):
     """fish fate is an optional field.  If it is included in the
     posted data, it will be correctly associated with the recovery
     object in the database.
@@ -435,7 +826,8 @@ def test_fish_fate_killed():
     pass
 
 
-def test_fish_fate_nonexistant():
+@pytest.mark.django_db
+def test_fish_fate_nonexistant(client, db_setup):
     """fish fate is an optional field but is constrained to one of
     pre-determined values.  If a non-existant option is included in
     the posted data, an appropriate error will be thrown.
@@ -445,7 +837,8 @@ def test_fish_fate_nonexistant():
 
 
 
-def test_fish_sex_male():
+@pytest.mark.django_db
+def test_fish_sex_male(client, db_setup):
     """fish sex is an optional field.  If it is included in the
     posted data, it will be correctly associated with the recovery
     object in the database.
@@ -454,7 +847,8 @@ def test_fish_sex_male():
     pass
 
 
-def test_fish_sex_female():
+@pytest.mark.django_db
+def test_fish_sex_female(client, db_setup):
     """fish sex is an optional field.  If it is included in the
     posted data, it will be correctly associated with the recovery
     object in the database.
@@ -463,7 +857,8 @@ def test_fish_sex_female():
     pass
 
 
-def test_fish_sex_nonexistant():
+@pytest.mark.django_db
+def test_fish_sex_nonexistant(client, db_setup):
     """fish sex is an optional field but is constrained to one of
     pre-determined values.  If a non-existant option is included in
     the posted data, an appropriate error will be thrown.
@@ -472,7 +867,8 @@ def test_fish_sex_nonexistant():
     pass
 
 
-def test_fish_tag_removed_false():
+@pytest.mark.django_db
+def test_fish_tag_removed_false(client, db_setup):
     """tag removed is an optional field.  If it is included in the
     posted data as false, it will be false in the associated recovery
     object in the database.
@@ -481,7 +877,8 @@ def test_fish_tag_removed_false():
     pass
 
 
-def test_fish_tag_removed_true():
+@pytest.mark.django_db
+def test_fish_tag_removed_true(client, db_setup):
     """tag removed is an optional field.  If it is included in the
     posted data as true, it will be true in the associated recovery
     object in the database.
@@ -490,7 +887,8 @@ def test_fish_tag_removed_true():
     pass
 
 
-def test_fish_round_weight():
+@pytest.mark.django_db
+def test_fish_round_weight(client, db_setup):
     """fish round weight is an optional field.  If it is included in the
     posted data, it will be correctly associated with the recovery
     object in the database.

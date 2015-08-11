@@ -183,7 +183,8 @@ class Recovery(models.Model):
 
     #tagdoc will be calculated from tag type, position, origin and
     #colour following fishnet-II definitions
-    tagdoc =  models.CharField('TAGDOC', max_length=6,blank=True, null=True,
+    tagdoc =  models.CharField('TAGDOC', max_length=6,
+                               #blank=True, null=True,
                                db_index=True, default='25012')
 
     tag_removed = models.BooleanField(default=False)
@@ -209,9 +210,11 @@ class Recovery(models.Model):
     observation_date = property(_get_observation_date)
 
     def __str__(self):
-        recovery_date = self.recovery_date.strftime('%b-%d-%Y')
-        return '{}<{}>({})'.format(self.tagid, self.tagdoc, recovery_date)
-
+        if self.recovery_date:
+            recovery_date = self.recovery_date.strftime('%b-%d-%Y')
+            return '{}<{}>({})'.format(self.tagid, self.tagdoc, recovery_date)
+        else:
+            return '{}<{}>'.format(self.tagid, self.tagdoc)
 
     def get_tagid_url(self):
         '''return the url for this tag id'''
@@ -260,7 +263,10 @@ class Recovery(models.Model):
 
                        '</table>')
 
-        recovery_date = self.recovery_date.strftime('%b-%d-%Y')
+        if self.recovery_date:
+            recovery_date = self.recovery_date.strftime('%b-%d-%Y')
+        else:
+            recovery_date = 'Unknown'
 
         comments = self.get_comments()
 

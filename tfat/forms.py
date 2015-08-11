@@ -230,21 +230,23 @@ class RecoveryForm(ModelForm):
     '''A form to capture the information associated with a recaptured tag
     reported by an angler'''
 
+    latlon_flag = forms.ChoiceField(label = "Spatial Flag", required = False,
+                                    choices = LATLON_FLAG_CHOICES,
+                                    widget=forms.RadioSelect(
+                                        attrs={'class':'radio-inline'}),
+                                    initial=1)
 
     class Meta:
         model = Recovery
-        fields = [ 'tagid', 'report', 'spc', 'recovery_date', 'date_flag',
+        fields = [ 'tagid', 'spc', 'recovery_date', 'date_flag',
                    'general_name', 'specific_name', 'dd_lat', 'dd_lon',
                    'latlon_flag',
-
-                   #'tag_origin', 'tag_position', 'tag_type','tag_colour',
                     'tagdoc', 'tag_removed', 'fate',
-
                     'flen', 'tlen', 'rwt', 'sex', 'clipc',
                    'comment',]
 
         widgets = {
-            'report':forms.HiddenInput(),
+            #'report':forms.HiddenInput(),
             'tagid':forms.TextInput(attrs={'class':'form-control'}),
             'spc':forms.Select(attrs={'class':'form-control'}),
             'recovery_date':forms.DateInput(attrs={'class':
@@ -258,20 +260,50 @@ class RecoveryForm(ModelForm):
             'general_name':forms.TextInput(attrs={'class':'form-control'}),
             'dd_lat':forms.TextInput(attrs={'class':'form-control'}),
             'dd_lon':forms.TextInput(attrs={'class':'form-control'}),
-            'latlon_flag':forms.RadioSelect(attrs={'class':'radio-inline'}),
             'tag_removed':forms.CheckboxInput(attrs={'class':'form-control'}),
             'fate':forms.Select(attrs={'class':'form-control'}),
-
             'flen':forms.TextInput(attrs={'class':'form-control metric'}),
             'tlen':forms.TextInput(attrs={'class':'form-control metric'}),
             'rwt':forms.TextInput(attrs={'class':'form-control metric'}),
             'sex':forms.Select(attrs={'class':'form-control'}),
             'clipc':forms.TextInput(attrs={'class':'form-control'}),
-
-
             'comment': forms.Textarea(attrs={'class': 'form-control',
                                              'rows': 10}),
         }
+
+
+    def __init__(self, report, *args, **kwargs):
+        super(RecoveryForm, self).__init__(*args, **kwargs)
+        self.report = report
+
+    def save(self):
+        """
+
+        Arguments:
+        - `self`:
+        """
+
+        return Recovery.objects.create(
+            report=self.report,
+            tagid=self.cleaned_data['tagid'],
+            spc=self.cleaned_data['spc'],
+            recovery_date=self.cleaned_data['recovery_date'],
+            date_flag=self.cleaned_data['date_flag'],
+            tagdoc=self.cleaned_data['tagdoc'],
+            specific_name=self.cleaned_data['specific_name'],
+            general_name=self.cleaned_data['general_name'],
+            dd_lat=self.cleaned_data['dd_lat'],
+            dd_lon=self.cleaned_data['dd_lon'],
+            latlon_flag=self.cleaned_data['latlon_flag'],
+            tag_removed=self.cleaned_data['tag_removed'],
+            fate=self.cleaned_data['fate'],
+            flen=self.cleaned_data['flen'],
+            tlen=self.cleaned_data['tlen'],
+            rwt=self.cleaned_data['rwt'],
+            sex=self.cleaned_data['sex'],
+            clipc=self.cleaned_data['clipc'],
+            comment=self.cleaned_data['comment'],
+        )
 
 
     def clean_tagdoc(self):
@@ -328,17 +360,18 @@ class RecoveryForm(ModelForm):
 
         #check for clip codes that are not in our list of valid clips:
         elif invalid_clips:
-            invalid_clips = ','.join(list(invalid_clips))
+            invalid_clips = list(invalid_clips)
+            invalid_clips.sort()
+            invalid_clips = ','.join(invalid_clips)
             err_msg = 'Invalid clip codes: {}'.format(invalid_clips)
             raise forms.ValidationError(err_msg)
 
-        elif list(len(unique_clips)) != len(clips):
+        elif len(list(unique_clips)) != len(clips):
             err_msg = 'Clip codes cannot repeat.'
             raise forms.ValidationError(err_msg)
         else:
             clips.sort()
             return ''.join(clips)
-
 
 
     def clean_date_flag(self):
@@ -362,7 +395,7 @@ class RecoveryForm(ModelForm):
         today = datetime.today()
 
         if recovery_date:
-            if recovery_date.date() > today.date():
+            if recovery_date > today.date():
                 err_msg = 'Dates in the future are not allowed.'
                 raise forms.ValidationError(err_msg)
         return recovery_date
@@ -372,13 +405,8 @@ class RecoveryForm(ModelForm):
         '''if dd_lon is populated it must be between -90 and 90.  If dd_lat is
         populated, dd_lon is also required.'''
 
-        dd_lon = self.cleaned_data['dd_lon']
-        dd_lon = self.cleaned_data['dd_lon']
-
-        if ddlon is not None and dd_lon is None:
-            err_msg = 'Both dd_lon and dd_lon must be populated'
-            raise forms.ValidationError(err_msg)
-        else:
+        dd_lon = self.cleaned_data.get('dd_lon')
+        if dd_lon:
             if dd_lon < -180 or dd_lon >180:
                 err_msg = 'dd_lon must be numeric and lie between -180 and 180'
                 raise forms.ValidationError(err_msg)
@@ -389,13 +417,9 @@ class RecoveryForm(ModelForm):
         '''if dd_lat is populated it must be between -90 and 90.  If ddlon is
         populated, dd_lat is also required.'''
 
-        dd_lat = self.cleaned_data['dd_lat']
-        dd_lon = self.cleaned_data['dd_lon']
+        dd_lat = self.cleaned_data.get('dd_lat')
 
-        if ddlon is not None and dd_lat is None:
-            err_msg = 'Both dd_lat and dd_lon must be populated'
-            raise forms.ValidationError(err_msg)
-        else:
+        if dd_lat:
             if dd_lat < -90 or dd_lat >90:
                 err_msg = 'dd_lat must be numeric and lie between -90 and 90'
                 raise forms.ValidationError(err_msg)
@@ -415,7 +439,8 @@ class RecoveryForm(ModelForm):
         if dd_lat and dd_lon are populated, set latlon_flag to 'reported'
 
         """
-        pass
+        return self.cleaned_data['latlon_flag']
+
 
 
         #javascript logic in template:
@@ -427,6 +452,56 @@ class RecoveryForm(ModelForm):
 
         #tagdoc - list each component radio buttons and biuld tagdoc
         #OR parse tagdoc and populate radio buttons
+
+
+
+
+    def clean(self):
+        """
+
+        Arguments:
+        - `self`:
+        """
+
+        cleaned_data = self.cleaned_data
+
+        ## DD_LAT DD_LON
+        dd_lat = cleaned_data.get('dd_lat')
+        dd_lon = cleaned_data.get('dd_lon')
+        latlon_flag = cleaned_data.get('latlon_flag')
+
+        if dd_lat is None and dd_lon is None:
+            cleaned_data['latlon_flag'] = 0
+        elif dd_lat is None and dd_lon is not None:
+            err_msg = 'If dd_lon is populated,  dd_lat must be populated too'
+            raise forms.ValidationError(err_msg)
+        elif dd_lat is not None and dd_lon is None:
+            err_msg = 'If dd_lat is populated,  dd_lon must be populated too'
+            raise forms.ValidationError(err_msg)
+        else:
+            cleaned_data['latlon_flag'] = latlon_flag
+
+        #  RECOVERY DATE vs DATE_FLAG
+        recovery_date = cleaned_data['recovery_date']
+        date_flag = cleaned_data['date_flag']
+        if recovery_date is None and date_flag != 0:
+            err_msg = 'Date flag must be "Unknown" if no date is provided.'
+            raise forms.ValidationError(err_msg)
+
+
+        ## TLEN vs FLEN
+        flen = cleaned_data.get('flen')
+        tlen = cleaned_data.get('tlen')
+        if flen and tlen:
+            if flen > tlen:
+                err_msg = ("Total length (tlen) cannot be less than "
+                           "fork length (flen).")
+                raise forms.ValidationError(err_msg)
+
+
+
+        return cleaned_data
+
 
 
 #    report  = forms.ForeignKey(Report, related_name="Report")
