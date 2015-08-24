@@ -1,4 +1,4 @@
-{% extends "tfat/tfat_base.html" %}
+{% extends "tfat\tfat_base.html" %}
 
 {% block extrahead %}
 
@@ -25,7 +25,7 @@
     <div class="panel panel-default">
         <div class="panel-body">
 
-            <form method="post" action="{{ request.path }}">
+            <form method="post" action=".">
                 {% csrf_token %}
                 {% if form.errors %}
                 <div class="alert alert-danger">
@@ -285,19 +285,30 @@
                                             <p><strong>Latitude:</strong></p>
                                             <div class="form-group">
                                                 <label class="sr-only" for="id_dd_lat">Latitude:</label>
-                                                <input type="text" class="form-control" id="id_dd_lat" name="dd_lat" placeholder="Decimal Degrees">
+                                                <input type="text" class="form-control" id="id_dd_lat" name="dd_lat" type="text" placeholder="Decimal Degrees" value="{{ form.dd_lat.value }}">
                                                 <div id="dd_lat_deg_error" class="alert alert-danger" role="alert">
                                                     Degrees must be a number between -90 and 90!
                                                 </div>
+                                                {% if form.dd_lat.errors %}
+                                                {% for error in form.dd_lat.errors %}
+                                                <div class="has-error help-block text-danger">{{ error }}</div>
+                                                {% endfor %}
+                                                {% endif %}
                                             </div>
 
                                             <p><strong>Longitude:</strong></p>
                                             <div class="form-group">
                                                 <label class="sr-only" for="id_dd_lon">Longitude:</label>
-                                                <input type="text" class="form-control" id="id_dd_lon" name="dd_lon" placeholder="Decimal Degrees">
+                                                <input type="text" class="form-control" id="id_dd_lon" name="dd_lon" type="text" placeholder="Decimal Degrees" value="{{ form.dd_lon.value }}">
                                                 <div id="dd_lon_deg_error" class="alert alert-danger" role="alert">
                                                     Degrees must be a number between -180 and 180!
                                                 </div>
+                                                {% if form.dd_lon.errors %}
+                                                {% for error in form.dd_lon.errors %}
+                                                <div class="has-error help-block text-danger">{{ error }}</div>
+                                                {% endfor %}
+                                                {% endif %}
+
 
                                             </div>
 
@@ -776,7 +787,7 @@
      var icon = L.MakiMarkers.icon({icon: "marker", color: "#b0b", size: "m"});
 
      initmap();
-
+     refresh_map();
 
      function clear_lat_long_errors(){
          $( "#dd_lat_deg_error" ).hide();

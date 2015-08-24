@@ -431,15 +431,12 @@ def create_recovery(request, report_id):
     tag_position = sorted(list(TAG_POSITION_CHOICES), key=lambda x:x[0])
 
     report = get_object_or_404(Report, id=report_id)
+    form = RecoveryForm(data=request.POST or None)
     if request.method == 'POST':
-        form = RecoveryForm(report, request.POST)
         if form.is_valid():
-            recovery = form.save()
+            recovery = form.save(report=report)
             #TODO: return to recovery detail
             return redirect('report_detail', report_id=report.id)
-    else:
-        form = RecoveryForm(report=report)
-
     return render(request, 'tfat/recovery_form.html', {'form': form,
                                                        'clip_codes':clip_codes,
                                                        'tag_types':tag_types,
@@ -461,15 +458,11 @@ def edit_recovery(request, recovery_id):
     recovery = get_object_or_404(Recovery, id=recovery_id)
     report = recovery.report
 
+    form = RecoveryForm(instance=recovery, data=request.POST or None)
     if request.method == 'POST':
-        form = RecoveryForm(request.POST, report=report,
-                            instance=recovery)
         if form.is_valid():
-            form.save()
-            #TODO: return to recovery detail
+            recovery = form.save(report)
             return redirect('report_detail', report_id=recovery.report.id)
-    else:
-        form = RecoveryForm(report, instance=recovery)
 
     return render(request, 'tfat/recovery_form.html', {'form': form,
                                                        'clip_codes':clip_codes,

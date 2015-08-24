@@ -246,7 +246,7 @@ class RecoveryForm(ModelForm):
                    'comment',]
 
         widgets = {
-            #'report':forms.HiddenInput(),
+
             'tagid':forms.TextInput(attrs={'class':'form-control'}),
             'spc':forms.Select(attrs={'class':'form-control'}),
             'recovery_date':forms.DateInput(attrs={'class':
@@ -272,39 +272,11 @@ class RecoveryForm(ModelForm):
         }
 
 
-    def __init__(self, report, *args, **kwargs):
-        super(RecoveryForm, self).__init__(*args, **kwargs)
-        self.report = report
-
-    def save(self):
-        """
-
-        Arguments:
-        - `self`:
-        """
-
-        return Recovery.objects.create(
-            report=self.report,
-            tagid=self.cleaned_data['tagid'],
-            spc=self.cleaned_data['spc'],
-            recovery_date=self.cleaned_data['recovery_date'],
-            date_flag=self.cleaned_data['date_flag'],
-            tagdoc=self.cleaned_data['tagdoc'],
-            specific_name=self.cleaned_data['specific_name'],
-            general_name=self.cleaned_data['general_name'],
-            dd_lat=self.cleaned_data['dd_lat'],
-            dd_lon=self.cleaned_data['dd_lon'],
-            latlon_flag=self.cleaned_data['latlon_flag'],
-            tag_removed=self.cleaned_data['tag_removed'],
-            fate=self.cleaned_data['fate'],
-            flen=self.cleaned_data['flen'],
-            tlen=self.cleaned_data['tlen'],
-            rwt=self.cleaned_data['rwt'],
-            sex=self.cleaned_data['sex'],
-            clipc=self.cleaned_data['clipc'],
-            comment=self.cleaned_data['comment'],
-        )
-
+    def save(self, report, *args, **kwargs):
+        recovery = super(RecoveryForm, self).save(commit=False)
+        recovery.report = report
+        recovery.save()
+        return recovery
 
     def clean_tagdoc(self):
         '''tagdoc is a required field.  It must be 5 characters long.  Its
@@ -484,19 +456,18 @@ class RecoveryForm(ModelForm):
         #if lat-long is derived, make sure comment contains something
         #(hopefully an explanation).
         comment = cleaned_data.get('comment')
-        if cleaned_data.get('latlon_flag')==2 and comment is None:
+
+        if latlon_flag=='2' and (comment is None or comment == ''):
             err_msg = 'Describe how location was derived.'
             raise forms.ValidationError(err_msg)
 
 
-
-
         #  RECOVERY DATE vs DATE_FLAG
-        recovery_date = cleaned_data['recovery_date']
-        date_flag = cleaned_data['date_flag']
-        if recovery_date is None and date_flag != 0:
-            err_msg = 'Date flag must be "Unknown" if no date is provided.'
-            raise forms.ValidationError(err_msg)
+#        recovery_date = cleaned_data['recovery_date']
+#        date_flag = cleaned_data['date_flag']
+#        if recovery_date is None and date_flag != 0:
+#            err_msg = 'Date flag must be "Unknown" if no date is provided.'
+#            raise forms.ValidationError(err_msg)
 
 
         ## TLEN vs FLEN

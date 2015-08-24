@@ -544,7 +544,7 @@ def test_bad_clipc_multiple_nonexistant_clips(client, db_setup, tag_data):
 
 @pytest.mark.django_db
 def test_missing_recovery_date(client, db_setup, tag_data):
-    """It's not clear what should happen if data is not populated.
+    """It's not clear what should happen if date is not populated.
 
     """
 
@@ -562,7 +562,7 @@ def test_missing_recovery_date(client, db_setup, tag_data):
     assert recoveries[0].date_flag is 0
 
 
-@pytest.mark.xfail
+
 @pytest.mark.django_db
 def test_future_date(client, db_setup, tag_data):
     """a tag recovery event cannot be reported from the future.  A
@@ -571,6 +571,7 @@ def test_future_date(client, db_setup, tag_data):
     be returned.
 
     """
+
 
     report = Report.objects.get(reported_by__first_name='Homer')
     url = reverse('create_recovery', kwargs={'report_id':report.id})
@@ -598,6 +599,28 @@ def test_recapture_date_ahead_of_report_date(client, db_setup, tag_data):
 
     #NOT IMPLEMENTED YET
     assert 0==1
+
+
+
+@pytest.mark.django_db
+def test_no_date_and_dateflag_is_reported(client, db_setup, tag_data):
+    """If no date is provided, then date_flag must be set to 'unknown'.
+    Issue an error if that is not the case.
+    """
+
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+
+    tag_data['recovery_date'] = None
+    tag_data['date_flag'] = '1'  #report
+
+    response = client.post(url, tag_data)
+
+    assert response.status_code == 200
+    content = str(response.content)
+
+    msg = 'Date flag must be "Unknown" if no date is provided.'
+    assert msg in content
 
 
 
@@ -648,7 +671,7 @@ def test_tlen_less_than_flen(client, db_setup, tag_data):
     msg = "Total length (tlen) cannot be less than fork length (flen)."
     assert msg in content
 
-@pytest.mark.xfail
+
 @pytest.mark.django_db
 def test_ddlat_ddlon(client, db_setup, tag_data):
     """ddlat and ddlon are optional fields.  If they are included in the
