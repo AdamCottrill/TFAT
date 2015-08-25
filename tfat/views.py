@@ -440,8 +440,7 @@ def create_recovery(request, report_id):
     if request.method == 'POST':
         if form.is_valid():
             recovery = form.save(report=report)
-            #TODO: return to recovery detail
-            return redirect('report_detail', report_id=report.id)
+            return redirect('recovery_detail', recovery_id=recovery.id)
     return render(request, 'tfat/recovery_form.html', {'form': form,
                                                        'clip_codes':clip_codes,
                                                        'tag_types':tag_types,
@@ -467,8 +466,7 @@ def edit_recovery(request, recovery_id):
     if request.method == 'POST':
         if form.is_valid():
             recovery = form.save(report)
-            return redirect('report_detail', report_id=recovery.report.id)
-
+            return redirect('recovery_detail', recovery_id=recovery.id)
     return render(request, 'tfat/recovery_form.html', {'form': form,
                                                        'clip_codes':clip_codes,
                                                        'tag_types':tag_types,
@@ -476,6 +474,20 @@ def edit_recovery(request, recovery_id):
                                                        'tag_colours':tag_colours,
                                                        'tag_position':tag_position,})
 
+
+
+def recovery_detail_view(request, recovery_id):
+    """This view returns the detailed information about a recovery event.
+
+    Arguments:
+    - `recovery_id`:
+
+    """
+    recovery = get_object_or_404(Recovery, id=recovery_id)
+
+    return render_to_response('tfat/recovery_detail.html',
+                              {'recovery':recovery,},
+                              context_instance=RequestContext(request))
 
 
 

@@ -214,3 +214,122 @@ def test_recovery_observation_date_none():
                                recovery_date=None)
 
     assert recovery.observation_date is None
+
+
+@pytest.mark.django_db
+def test_recovery_has_latlon_true():
+    """
+    """
+    species = SpeciesFactory()
+    report = ReportFactory()
+    recovery = RecoveryFactory(report=report,
+                               spc=species,
+                               dd_lat = 45.5, dd_lon=-81.3)
+    assert recovery.has_latlon() is True
+
+
+@pytest.mark.django_db
+def test_recovery_has_latlon_false():
+    """
+    """
+    species = SpeciesFactory()
+    report = ReportFactory()
+    recovery = RecoveryFactory(report=report,
+                               spc=species,
+                               dd_lat = None, dd_lon=None)
+    assert recovery.has_latlon() is False
+
+
+@pytest.mark.django_db
+def test_recovery_has_latlon_no_lat_is_false():
+    """
+    """
+    species = SpeciesFactory()
+    report = ReportFactory()
+    recovery = RecoveryFactory(report=report,
+                               spc=species,
+                               dd_lat = None, dd_lon=-81.3)
+    assert recovery.has_latlon() is False
+
+
+@pytest.mark.django_db
+def test_recovery_has_latlon_no_lon_is_false():
+    """
+    """
+    species = SpeciesFactory()
+    report = ReportFactory()
+    recovery = RecoveryFactory(report=report,
+                               spc=species,
+                               dd_lat = 45.5, dd_lon=None)
+    assert recovery.has_latlon() is False
+
+
+@pytest.mark.django_db
+def test_recovery_flen_inches():
+    """
+    """
+    species = SpeciesFactory()
+    report = ReportFactory()
+    recovery = RecoveryFactory(report=report,
+                               spc=species,
+                               flen=450)
+    assert recovery.flen_inches() == 17.7
+
+
+@pytest.mark.django_db
+def test_recovery_flen_inches_none():
+    """
+    """
+    species = SpeciesFactory()
+    report = ReportFactory()
+    recovery = RecoveryFactory(report=report,
+                               spc=species,
+                               flen=None)
+    assert recovery.flen_inches() is None
+
+@pytest.mark.django_db
+def test_recovery_tlen_inches():
+    """
+    """
+    species = SpeciesFactory()
+    report = ReportFactory()
+    recovery = RecoveryFactory(report=report,
+                               spc=species,
+                               tlen=450)
+    assert recovery.tlen_inches() == 17.7
+
+
+@pytest.mark.django_db
+def test_recovery_tlen_inches_none():
+    """
+    """
+    species = SpeciesFactory()
+    report = ReportFactory()
+    recovery = RecoveryFactory(report=report,
+                               spc=species,
+                               tlen=None)
+    assert recovery.tlen_inches() is None
+
+
+@pytest.mark.django_db
+def test_recovery_rwt_pounds():
+    """
+    """
+    species = SpeciesFactory()
+    report = ReportFactory()
+    recovery = RecoveryFactory(report=report,
+                               spc=species,
+                               rwt=2000)
+    assert recovery.pounds() == 4.4
+
+
+@pytest.mark.django_db
+def test_recovery_rwt_pounds_none():
+    """
+    """
+    species = SpeciesFactory()
+    report = ReportFactory()
+    recovery = RecoveryFactory(report=report,
+                               spc=species,
+                               rwt=None)
+    assert recovery.pounds() is None

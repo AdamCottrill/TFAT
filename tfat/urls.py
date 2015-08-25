@@ -8,8 +8,9 @@ from tfat.views import (SpeciesListView, ReportListView,
                         tagid_contains_view, tagid_detail_view,
                         angler_reports_view, create_angler, update_angler,
                         tags_recovered_project, tags_applied_project,
-                        tagid_quicksearch_view, create_report, edit_report,
-                        report_detail_view, create_recovery, edit_recovery,
+                        tagid_quicksearch_view,
+                        create_report, edit_report, report_detail_view,
+                        create_recovery, edit_recovery, recovery_detail_view,
                         serve_file)
 
 urlpatterns = patterns("",
@@ -155,7 +156,6 @@ urlpatterns = patterns("",
             ),
 
 
-
         #TAG RECOVERIES
         url(
             regex=r'^create_recovery/(?P<report_id>\d+)/$',
@@ -168,6 +168,13 @@ urlpatterns = patterns("",
             regex=r'^edit_recovery/(?P<recovery_id>\d+)/$',
             view=edit_recovery,
             name='edit_recovery'
+            ),
+
+
+        url(
+            regex=r'^recovery_detail/(?P<recovery_id>\d+)/$',
+            view=recovery_detail_view,
+            name='recovery_detail'
             ),
 
 

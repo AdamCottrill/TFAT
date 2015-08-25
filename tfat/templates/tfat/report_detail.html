@@ -158,8 +158,8 @@
                     <td>{{ item.flen }} </td>
                     <td>{{ item.recovery_date }} </td>
                     <td>{{ item.general_name }} </td>
-                    <td> <a class="btn btn-primary pull-right" href="{% url 'edit_recovery' recovery_id=item.id %}" role="button">
-                        <span class="glyphicon glyphicon-edit"></span>  Edit</a></td>
+                    <td> <a class="btn btn-primary pull-right" href="{% url 'recovery_detail' recovery_id=item.id %}" role="button">
+                        <span class="glyphicon glyphicon-edit"></span>  Details</a></td>
                 </tr>
                 {% endfor %}
             </table>

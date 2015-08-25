@@ -327,12 +327,20 @@ class Recovery(models.Model):
         return comments
 
 
-    def inches(self):
+    def tlen_inches(self):
         if self.tlen:
             length = round(self.tlen * 0.03937, 1)
         else:
             length = None
         return length
+
+    def flen_inches(self):
+        if self.flen:
+            length = round(self.flen * 0.03937, 1)
+        else:
+            length = None
+        return length
+
 
     def pounds(self):
         if self.rwt:
@@ -342,17 +350,17 @@ class Recovery(models.Model):
         return  wt
 
 
+    def has_latlon(self):
+        if self.dd_lat and self.dd_lon:
+            return True
+        else:
+            return False
+
+
     def save(self, *args, **kwargs):
         '''We will need a custom save method to generate tagdoc from tag type,
         colour, position and orgin'''
 
-#        if self.tagdoc is None:
-#            #see if we have all of the peices to build it:
-#            #self.build_tagdoc()
-#            pass
-#        else:
-#            #verify that it is the correct length and then parse it up
-#            #into its components:
         if len(self.tagdoc) != 5:
             self.tag_type = '9'
             self.tag_position = '9'

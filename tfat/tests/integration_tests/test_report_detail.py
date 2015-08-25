@@ -177,7 +177,7 @@ def test_reports_detail_contains_report_format(client, db_setup):
     assert 'dcr' in content
 
 
-@pytest.mark.xfail
+
 @pytest.mark.django_db
 def test_reports_detail_contains_add_tag_link(client, db_setup):
     """verify that the reponsce contains a link to add tags to this report
@@ -187,7 +187,7 @@ def test_reports_detail_contains_add_tag_link(client, db_setup):
     response = client.get(reverse('report_detail',
                                   kwargs={'report_id':report.id}))
     content = str(response.content)
-    url = reverse('add_tag_recovery', kwargs={'report_id':report.id})
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
     assert url in content
 
 
