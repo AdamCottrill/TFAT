@@ -612,14 +612,22 @@ def test_no_date_and_dateflag_is_reported(client, db_setup, tag_data):
     url = reverse('create_recovery', kwargs={'report_id':report.id})
 
     tag_data['recovery_date'] = None
-    tag_data['date_flag'] = '1'  #report
+    tag_data['date_flag'] = 1  #reported
 
-    response = client.post(url, tag_data)
+    print('tag_data={}'.format(tag_data))
+
+    response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
     content = str(response.content)
 
-    msg = 'Date flag must be "Unknown" if no date is provided.'
+    with open('C:/1work/scrapbook/wtf2.html', 'wb') as f:
+        f.write(response.content)
+
+    msg = 'Date flag must be &quot;Unknown&quot; if no date is provided.'
+    assert msg in content
+
+    msg = 'Enter a valid date.'
     assert msg in content
 
 

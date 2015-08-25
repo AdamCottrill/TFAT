@@ -52,7 +52,7 @@ def db_setup():
     report = ReportFactory(reported_by=angler, follow_up=False,
                                 report_date = report_date)
 
-    report = RecoveryFactory(report=report, spc=spc)
+    recovery = RecoveryFactory(report=report, spc=spc)
 
 
 @pytest.fixture()
@@ -71,7 +71,7 @@ def test_can_edit_recovery_url(client, db_setup):
 
     recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
 
-    url = reverse('edit_recovery', kwargs={'recovery_id':report.id})
+    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
 
     response = client.get(url)
     assert response.status_code == 200
@@ -98,12 +98,12 @@ def test_basic_data(client, db_setup):
     """
 
     recoveries = Recovery.objects.all()
-    assert len(recoveries) == 0
+    assert len(recoveries) == 1
 
     recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
     url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
 
-    tagid = '12345'
+    tagid = '33333'
     tagdoc = '25012'
     tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,}
 
@@ -588,7 +588,6 @@ def test_missing_recovery_date(client, db_setup, tag_data):
     assert recoveries[0].date_flag is 0
 
 
-@pytest.mark.xfail
 @pytest.mark.django_db
 def test_future_date(client, db_setup, tag_data):
     """a tag recovery event cannot be reported from the future.  A
@@ -674,7 +673,7 @@ def test_tlen_less_than_flen(client, db_setup, tag_data):
     msg = "Total length (tlen) cannot be less than fork length (flen)."
     assert msg in content
 
-@pytest.mark.xfail
+
 @pytest.mark.django_db
 def test_ddlat_ddlon(client, db_setup, tag_data):
     """ddlat and ddlon are optional fields.  If they are included in the

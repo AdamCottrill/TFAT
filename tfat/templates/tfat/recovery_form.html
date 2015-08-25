@@ -285,7 +285,7 @@
                                             <p><strong>Latitude:</strong></p>
                                             <div class="form-group">
                                                 <label class="sr-only" for="id_dd_lat">Latitude:</label>
-                                                <input type="text" class="form-control" id="id_dd_lat" name="dd_lat" type="text" placeholder="Decimal Degrees" value="{{ form.dd_lat.value }}">
+                                                <input type="text" class="form-control" id="id_dd_lat" name="dd_lat" type="text" placeholder="Decimal Degrees" value="{{ form.dd_lat.value|default_if_none:''}}">
                                                 <div id="dd_lat_deg_error" class="alert alert-danger" role="alert">
                                                     Degrees must be a number between -90 and 90!
                                                 </div>
@@ -299,7 +299,7 @@
                                             <p><strong>Longitude:</strong></p>
                                             <div class="form-group">
                                                 <label class="sr-only" for="id_dd_lon">Longitude:</label>
-                                                <input type="text" class="form-control" id="id_dd_lon" name="dd_lon" type="text" placeholder="Decimal Degrees" value="{{ form.dd_lon.value }}">
+                                                <input type="text" class="form-control" id="id_dd_lon" name="dd_lon" type="text" placeholder="Decimal Degrees" value="{{ form.dd_lon.value|default_if_none:'' }}">
                                                 <div id="dd_lon_deg_error" class="alert alert-danger" role="alert">
                                                     Degrees must be a number between -180 and 180!
                                                 </div>

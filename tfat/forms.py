@@ -1,15 +1,15 @@
-'''
-=============================================================
+'''=============================================================
 c:/1work/Python/djcode/tfat/tfat/forms.py
 Created: 15 Jul 2015 14:13:02
 
-
 DESCRIPTION:
 
-Forms for TFAT
+Forms for TFAT including forms to create/edit anglers, reports, and
+recovery events.
 
 A. Cottrill
 =============================================================
+
 '''
 
 from django import forms
@@ -398,36 +398,6 @@ class RecoveryForm(ModelForm):
         return dd_lat
 
 
-    def clean_latlon_flag(self):
-        """Provide a default value if it is null.
-        Arguments:
-        - `self`:
-
-        if ddlat, ddlon, and 5-min grid are null, set lat-lon flag to 'unknown'
-
-        if ddlat and ddlon are both empty but a 5-minute grid has been
-        populated, then update flag to 'derived'.
-
-        if dd_lat and dd_lon are populated, set latlon_flag to 'reported'
-
-        """
-        return self.cleaned_data['latlon_flag']
-
-
-
-        #javascript logic in template:
-
-        #dd_lat and dd_lon - accept multiple formats including clickable widget
-
-        #clipc - list individual clips in checkbox and biuld clipc or
-        #populate checkboxes based on contnets of clipc
-
-        #tagdoc - list each component radio buttons and biuld tagdoc
-        #OR parse tagdoc and populate radio buttons
-
-
-
-
     def clean(self):
         """
 
@@ -461,14 +431,13 @@ class RecoveryForm(ModelForm):
             err_msg = 'Describe how location was derived.'
             raise forms.ValidationError(err_msg)
 
-
         #  RECOVERY DATE vs DATE_FLAG
-#        recovery_date = cleaned_data['recovery_date']
-#        date_flag = cleaned_data['date_flag']
-#        if recovery_date is None and date_flag != 0:
-#            err_msg = 'Date flag must be "Unknown" if no date is provided.'
-#            raise forms.ValidationError(err_msg)
-
+        # if no date is provided, date_flag cannot be reported:
+        recovery_date = cleaned_data.get('recovery_date')
+        date_flag = cleaned_data['date_flag']
+        if (recovery_date is None or recovery_date=='') and date_flag != 0:
+            err_msg = 'Date flag must be "Unknown" if no date is provided.'
+            raise forms.ValidationError(err_msg)
 
         ## TLEN vs FLEN
         flen = cleaned_data.get('flen')
@@ -479,55 +448,4 @@ class RecoveryForm(ModelForm):
                            "fork length (flen).")
                 raise forms.ValidationError(err_msg)
 
-
-
         return cleaned_data
-
-
-
-#    report  = forms.ForeignKey(Report, related_name="Report")
-#    spc  = forms.ForeignKey(Species, related_name="Species")
-#
-#    recovery_date = forms.DateField(blank=True, null=True)
-#    date_flag = forms.IntegerField("Date Flag",
-#                               choices=DATE_FLAG_CHOICES, default=1)
-#    general_name = forms.CharField(max_length=50,blank=True, null=True)
-#    specific_name = forms.CharField(max_length=50,blank=True, null=True)
-#    #eventually this will be an optional map widget
-#    dd_lat = forms.FloatField(blank=True, null=True)
-#    dd_lon = forms.FloatField(blank=True, null=True)
-#    latlon_flag = forms.IntegerField("Spatial Flag",
-#                               choices=LATLON_FLAG_CHOICES, default=1)
-#
-#    flen = forms.IntegerField(blank=True, null=True)
-#    tlen = forms.IntegerField(blank=True, null=True)
-#    rwt = forms.IntegerField(blank=True, null=True)
-#
-#    sex  = forms.CharField("Sex", max_length=30,
-#                            choices=SEX_CHOICES, default="9",
-#                            null=True, blank=True)
-#    #clip information may need to be in a child table and presented as
-#    #multi-checkbox widget (ie - check all that apply - then calculate
-#    #clipc from that.)
-#    clipc = forms.CharField(max_length=5,blank=True, null=True)
-#    tagid = forms.CharField(max_length=10, db_index=True)
-#    tag_origin  = forms.CharField("Tag Origin", max_length=3,db_index=True,
-#                               choices=TAG_ORIGIN_CHOICES, default="01")
-#
-#    tag_position = forms.CharField("Tag Position", max_length=3, db_index=True,
-#                                    choices=TAG_POSITION_CHOICES, default="1")
-#    tag_type = forms.CharField("Tag Type", max_length=3, db_index=True,
-#                               choices=TAG_TYPE_CHOICES, default="1")
-#
-#    tag_colour = forms.CharField("Tag Colour", max_length=3, db_index=True,
-#                               choices=TAG_COLOUR_CHOICES, default="2")
-#
-#    #tagdoc will be caclulated from tag type, position, origin and
-#    #colour following fishnet-II definitions
-#    tagdoc =  forms.CharField(max_length=6,blank=True, null=True,
-#                               db_index=True)
-#
-#    tag_removed = forms.BooleanField(default=False)
-#    fate = forms.CharField("Fate", max_length=30, blank=True, null=True,
-#                               choices=FATE_CHOICES, default="R")
-#    comment = forms.CharField(max_length=500, blank=True, null=True)
