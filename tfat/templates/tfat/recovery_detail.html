@@ -1,0 +1,293 @@
+{% extends "tfat/tfat_base.html" %}
+
+{% load leaflet_tags %}
+{% load tfat_tags %}
+{% load humanize %}
+
+{% block extrahead %}
+
+  {% leaflet_js %}
+  {% leaflet_css %}
+
+  <script src="/static/Leaflet.MakiMarkers.js"></script>
+
+
+<style>
+
+    #mymap {  /* all maps */
+        width:  700px;
+        height: 600px;
+    }
+
+    td {
+        padding: 0px 10px 2px 0px;}
+
+</style>
+
+
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+
+    <div class="row">
+        <h2>Tag Recovery Event ({{ recovery.id }})</h2>
+        <a class="btn btn-primary pull-right" href="{% url 'edit_recovery' recovery_id=recovery.id  %}" role="button">
+            <span class="glyphicon glyphicon-edit"></span>  Edit Recovery Data</a>
+
+
+    </div>
+
+    <hr />
+
+    <div class="row">
+        <div class="col-md-4" >
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Recovery Details
+                    <a class="btn btn-default btn-xs pull-right"
+                       href="{% url 'report_detail' report_id=recovery.report.id %}"
+                       role="button">Report Details</a>
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <table>
+
+                        <tr>
+                            <td><em>Reported By:</em></td>
+                            {% url 'angler_reports' recovery.report.reported_by.id as the_url %}
+                            <td><a href="{{ the_url }}">{{ recovery.report.reported_by }}</a> </td>
+                        </tr>
+
+
+                        <tr>
+                            <td><em>Report Date:</em></td>
+                            <td>{{ recovery.report.report_date|date:"M d, Y" }}
+                        </tr>
+
+
+                        <tr>
+                            <td><em>Recapture Date:</em></td>
+                            <td>{{ recovery.recovery_date|date:"M d, Y" }} ({{ recovery.get_date_flag_display }})</td>
+                        </tr>
+                        <tr>
+                            <td><em>Species:</em></td>
+                            <td>{{ recovery.spc }}</td>
+                        </tr>
+                    </table>
+
+                </div>
+            </div>
+
+
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Tag Attributes</h3>
+                </div>
+                <div class="panel-body">
+                    <table>
+
+                        <tr>
+                            <td><em>Tag ID:</em></td>
+                            {% url 'tagid_detail_view' tagid=recovery.tagid as the_url %}
+                            <td><a href="{{ the_url }}">{{ recovery.tagid }}</a> </td>
+                        </tr>
+
+                        <tr>
+                            <td><em>TAGDOC:</em></td>
+                            <td>{{ recovery.tagdoc }}</td>
+                        </tr>
+                    </table>
+
+                    <br />
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <table>
+                                    <tr>
+                                        <td><em>Colour:</em></td>
+                                        <td>{{ recovery.get_tag_colour_display }}</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td><em>Type:</em></td>
+                                        <td>{{ recovery.get_tag_type_display }}</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td><em>Placement:</em></td>
+                                        <td>{{ recovery.get_tag_position_display }}</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td><em>Agency:</em></td>
+                                        <td>{{ recovery.get_tag_origin_display }}</td>
+                                    </tr>
+
+                                </table>
+                            </div>
+                        </div>
+
+
+
+                </div>
+            </div>
+
+
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Recapture Location </h3>
+                </div>
+                <div class="panel-body">
+                    <table>
+
+                        <tr>
+                            <td><em>General Location:</em></td>
+                            <td>{{ recovery.general_name }}</td>
+                        </tr>
+
+                        <tr>
+                            <td><em>Specific Location:</em></td>
+                            <td>{{ recovery.specific_name }}</td>
+                        </tr>
+
+
+                        <tr>
+                            <td><em>Coordinates:</em></td>
+                            <td>{{ recovery.get_latlon_flag_display }}</td>
+                        </tr>
+
+                        {% if recovery.has_latlon %}
+                        <tr>
+                            <td><em>Latitude:</em></td>
+                            <td>{{ recovery.dd_lat|ddm }}</td>
+                        </tr>
+
+                        <tr>
+                            <td><em>Longitude:</em></td>
+                            <td>{{ recovery.dd_lon|ddm }}</td>
+                        </tr>
+                        {% endif %}
+
+                    </table>
+
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="col-md-8" >
+
+            {% if recovery.has_latlon %}
+            <script type="text/javascript">
+             function map_init_basic (map, options) {
+                 map.setZoom(7)
+
+                     L.marker([{{ recovery.dd_lat }}, {{ recovery.dd_lon}}]).addTo(map).bindPopup('{{ recovery.popup_text|safe }}');
+
+             }
+            </script>
+            {% endif %}
+
+            {% leaflet_map "mymap" callback="window.map_init_basic" %}
+            <br>
+        </div>
+    </div>
+
+
+    <div class="row" >
+        <div  class="col-md-4" >
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Fish Attributes </h3>
+                </div>
+                <div class="panel-body">
+                    <table>
+
+                        <tr>
+                            <td><em>Fate:</em></td>
+                            <td>{{ recovery.get_fate_display }}</td>
+                        </tr>
+
+                        <tr>
+                            <td><em>Tag Removed:</em></td>
+                            <td>{{ recovery.tag_removed }}</td>
+                        </tr>
+
+                        {% if recovery.flen %}
+
+                        <tr>
+                            <td><em>Fork Length:</em></td>
+                            <td>{{ recovery.flen }} mm ( {{ recovery.flen_inches }} inches)</td>
+                        </tr>
+
+                        {% endif%}
+
+
+                        {% if recovery.tlen %}
+
+                        <tr>
+                            <td><em>Total Length:</em></td>
+                            <td>{{ recovery.tlen }} mm ( {{ recovery.tlen_inches }} inches)</td>
+                        </tr>
+
+                        {% endif %}
+
+                        {% if recovery.rwt %}
+
+                        <tr>
+                            <td><em>Weight:</em></td>
+                            <td>{{ recovery.rwt|intcomma }} g ( {{ recovery.pounds }} lbs)</td>
+                        </tr>
+
+                        {% endif %}
+
+
+
+
+
+                        <tr>
+                            <td><em>Clip:</em></td>
+                            <td>{{ recovery.clipc }}</td>
+                        </tr>
+
+
+                        <tr>
+                            <td><em>Sex:</em></td>
+                            <td>{{ recovery.get_sex_display }}</td>
+                        </tr>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+        <div  class="col-md-4" >
+
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Additional Comments</h3>
+                </div>
+                <div class="panel-body">
+                    {{ recovery.comment }}
+
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <hr />
+
+</div>
+
+{% endblock content%}

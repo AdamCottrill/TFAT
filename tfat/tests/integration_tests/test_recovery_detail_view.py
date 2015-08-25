@@ -361,5 +361,5 @@ def test_recovery_details_rwt(client, report, species):
     assert 'Total Length:' not in content
 
     assert 'Weight:' in content
-    assert  '2200 g' in content
+    assert  '2,200 g' in content
     assert  '( 4.9 lbs)' in content
