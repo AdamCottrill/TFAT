@@ -84,14 +84,14 @@
 
         <div class="col-md-8" >
 
-            {% if recoveries %}
+            {% if recoveries_with_latlon %}
             <script type="text/javascript">
              function map_init_basic (map, options) {
                  map.setZoom(7)
 
                      //var marker = L.MakiMarkers.icon({icon: "square", color: "#a0a", size: "s"});
 
-                 {% for object in recoveries %}
+                 {% for object in recoveries_with_latlon %}
                  L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}]).addTo(map).bindPopup('{{ object.popup_text|safe }}');
 
                  {% endfor %}

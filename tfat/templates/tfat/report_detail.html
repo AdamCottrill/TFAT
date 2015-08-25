@@ -107,13 +107,15 @@
 
         <div class="col-md-8" >
 
-            {% if report.get_tags %}
+            {% if report.get_recoveries %}
             <script type="text/javascript">
              function map_init_basic (map, options) {
                  map.setZoom(7)
 
-                 {% for object in report.get_tags %}
+                 {% for object in report.get_recoveries_with_latlon %}
+
                  L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}]).addTo(map).bindPopup('{{ object.popup_text|safe }}');
+
 
                  {% endfor %}
 
@@ -129,7 +131,7 @@
     <hr />
 
     <h2>Tag Recoveries</h2>
-{% if report.get_tags %}
+{% if report.get_recoveries %}
 
             <table class="table">
                 <thead>
@@ -146,7 +148,7 @@
                     </tr>
                 </thead>
 
-                {% for item in report.get_tags %}
+                {% for item in report.get_recoveries %}
                 <tr>
                     <td> <a href="{% url 'tagid_detail_view' tagid=item.tagid %}">{{item.tagid}}</a> </td>
                     <td>{{ item.tagdoc }} </td>

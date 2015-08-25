@@ -75,7 +75,7 @@
                     </tr>
                 </thead>
 
-                {% for item in object.get_tags %}
+                {% for item in object.get_recoveries %}
                 <tr>
                     <td> <a href="{% url 'tagid_detail_view' tagid=item.tagid %}">{{item.tagid}}</a> </td>
                     <td>{{ item.tagdoc }} </td>

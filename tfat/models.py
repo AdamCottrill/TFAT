@@ -119,13 +119,29 @@ class Report(models.Model):
         else:
             return '<Report id={}>'.format(self.id)
 
-    def get_tags(self):
-        """
+    def get_recoveries(self):
+        """Retrun any tags assocated with this report:
 
         Arguments:
         - `self`:
         """
-        return self.Report.select_related()
+        tags = self.Report.select_related()
+        return tags
+
+    def get_recoveries_with_latlon(self):
+        """Return only those tags with a lat-lon value.  Used for plotting on
+        maps.  Additional logic could be added to ensure lat-lon are
+        valid coordinates.
+
+        Arguments:
+        - `self`:
+
+        """
+
+        tags = self.Report.select_related()
+        tags = [x for x in tags if x.dd_lat and x.dd_lon]
+        return tags
+
 
 
 class Recovery(models.Model):

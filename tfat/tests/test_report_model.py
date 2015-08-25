@@ -83,8 +83,8 @@ def test_report_str_no_date_or_angler():
 
 
 @pytest.mark.django_db
-def test_get_tags():
-    """the get_tags() method of the report object should return a list of
+def test_get_recoveries():
+    """the get_recoveries() method of the report object should return a list of
     tag numbers associated with the report.
 
     """
@@ -94,19 +94,44 @@ def test_get_tags():
     tag2 = RecoveryFactory(report=report, spc=species)
     tag3 = RecoveryFactory(report=report, spc=species)
 
-    tags = report.get_tags()
+    tags = report.get_recoveries()
 
     assert tag1 in tags
     assert tag2 in tags
     assert tag3 in tags
 
+
+
 @pytest.mark.django_db
-def test_get_tags_no_tags():
-    """the get_tags() method of the report object should gracefully return
+def test_get_recoveries_with_latlon():
+    """the get_recoveries() method of the report object should return a list of
+    only those tag numbers associated with the lat-lon data.
+
+    """
+    report = ReportFactory()
+    species = SpeciesFactory()
+    tag1 = RecoveryFactory(report=report, spc=species,
+                           dd_lat=45.0, dd_lon=-81.0)
+    tag2 = RecoveryFactory(report=report, spc=species,
+                           dd_lat=45.0, dd_lon=None)
+    tag3 = RecoveryFactory(report=report, spc=species,
+                           dd_lat=None, dd_lon=-81.0)
+    tag4 = RecoveryFactory(report=report, spc=species,
+                           dd_lat=None, dd_lon=None)
+
+    tags = report.get_recoveries_with_latlon()
+
+    assert tag1 == tags[0]
+    assert len(tags) == 1
+
+
+@pytest.mark.django_db
+def test_get_recoveries_no_tags():
+    """the get_recoveries() method of the report object should gracefully return
     None if no tags where associated with this report.  (I'm not sure why
     there is a report if there are not tags')
 
     """
     report = ReportFactory()
-    tags = report.get_tags()
+    tags = report.get_recoveries()
     assert len(tags) == len([])

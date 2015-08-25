@@ -150,8 +150,13 @@ def angler_reports_view(request, angler_id):
     recoveries = Recovery.objects.filter(report__reported_by=angler).\
                  order_by('report__report_date')
 
+    #the subset of recovery events with both lat and lon (used for plotting)
+    recoveries_with_latlon = [x for x in recoveries if x.dd_lat and x.dd_lon]
+
     return render_to_response('tfat/angler_reports.html',
-                              {'angler':angler, 'recoveries':recoveries},
+                              {'angler':angler,
+                               'recoveries_with_latlon':recoveries_with_latlon,
+                               'recoveries':recoveries},
                               context_instance=RequestContext(request))
 
 def tagid_detail_view(request, tagid):
