@@ -138,11 +138,13 @@ class ProjectTagsRecoveredListView(ListView):
 
 
 def angler_reports_view(request, angler_id):
-    """
+    """Display all of the reports associated with an angler.  Returns
+    recoveries to template, which are then grouped by report in template.
 
     Arguments:
     - `request`:
     - `angler_id`:
+
     """
 
     angler = get_object_or_404(JoePublic, id=angler_id)
@@ -236,7 +238,6 @@ def tagid_contains_view(request, partial):
                                                 'tagstat')[:MAX_RECORD_CNT]
 
     detail_data = get_tagid_detail_data(partial, encounter_list, partial=True)
-    #mls = get_multilinestring([encounter_list])
 
     return render_to_response('tfat/tagid_contains.html',
                               {'partial':partial,

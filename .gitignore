@@ -4,5 +4,6 @@ db/*
 *.mdb
 *.ldb
 *.pyc
+htmlcov/*
 static/*
 media/*
