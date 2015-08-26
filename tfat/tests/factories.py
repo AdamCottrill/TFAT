@@ -49,8 +49,8 @@ class RecoveryFactory(factory.DjangoModelFactory):
     spc = factory.SubFactory(SpeciesFactory)
 
     recovery_date = datetime(2013,10,10)
-    general_name = "Off my dock"
-    specific_name = "The very end."
+    general_location = "Off my dock"
+    specific_location = "The very end."
     dd_lat = 45.00
     dd_lon = -81.00
     tlen = 500

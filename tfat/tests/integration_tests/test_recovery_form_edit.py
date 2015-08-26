@@ -941,14 +941,14 @@ def test_general_location(client, db_setup, tag_data):
     url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
 
     general_location= "Somewhere out there."
-    tag_data['general_name'] = general_location
+    tag_data['general_location'] = general_location
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
     recoveries = Recovery.objects.all()
     assert len(recoveries) == 1
-    assert  recoveries[0].general_name == general_location
+    assert  recoveries[0].general_location == general_location
 
 
 
@@ -964,14 +964,14 @@ def test_specific_location(client, db_setup, tag_data):
     url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
 
     specific_location = "Right here. Exactly here."
-    tag_data['specific_name'] = specific_location
+    tag_data['specific_location'] = specific_location
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
     recoveries = Recovery.objects.all()
     assert len(recoveries) == 1
-    assert  recoveries[0].specific_name == specific_location
+    assert  recoveries[0].specific_location == specific_location
 
 
 

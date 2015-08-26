@@ -163,10 +163,10 @@ class Recovery(models.Model):
 
     recovery_date = models.DateField(blank=True, null=True)
     date_flag = models.IntegerField("Date Flag",
-                               choices=DATE_FLAG_CHOICES, default=1)
-    general_name = models.CharField("General Location", max_length=50,
+                                    choices=DATE_FLAG_CHOICES, default=1)
+    general_location = models.CharField("General Location", max_length=50,
                                     blank=True, null=True)
-    specific_name = models.CharField("Specific Location", max_length=50,
+    specific_location = models.CharField("Specific Location", max_length=50,
                                      blank=True, null=True)
     #eventually this will be an optional map widget
     dd_lat = models.FloatField(blank=True, null=True)
@@ -318,10 +318,10 @@ class Recovery(models.Model):
         """
 
         comments = ""
-        if self.general_name:
-            comments += html.escape(self.general_name)
-        if self.specific_name:
-            comments += html.escape('({})'.format(self.specific_name))
+        if self.general_location:
+            comments += html.escape(self.general_location)
+        if self.specific_location:
+            comments += html.escape('({})'.format(self.specific_location))
         if self.comment:
             comments += '<br>' + html.escape('{}'.format(self.comment))
         return comments

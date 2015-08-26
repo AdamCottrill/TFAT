@@ -52,8 +52,8 @@ def test_recovery_pop_text():
                                 tagid=elements['tagid'],
                                 tagdoc=elements['tagdoc'],
                                 recovery_date=elements['obs_date'],
-                                general_name =elements['general_loc'],
-                                specific_name =elements['specific_loc'],
+                                general_location =elements['general_loc'],
+                                specific_location =elements['specific_loc'],
                                 comment =elements['comment'],
 )
 
@@ -84,8 +84,8 @@ def test_recovery_get_comments():
     species = SpeciesFactory()
     encounter = RecoveryFactory(report=report,
                                 spc=species,
-                                general_name=elements['general_loc'],
-                                specific_name = elements['specific_loc'],
+                                general_location=elements['general_loc'],
+                                specific_location = elements['specific_loc'],
                                 comment=elements['comment'])
 
     comments = encounter.get_comments()
@@ -109,8 +109,8 @@ def test_recovery_get_comments_without_comment():
     species = SpeciesFactory()
     encounter = RecoveryFactory(report=report,
                                 spc=species,
-                                general_name=elements['general_loc'],
-                                specific_name = elements['specific_loc'],
+                                general_location=elements['general_loc'],
+                                specific_location = elements['specific_loc'],
                                 comment=None)
 
     comments = encounter.get_comments()
@@ -134,8 +134,8 @@ def test_recovery_get_comments_without_specific():
     species = SpeciesFactory()
     encounter = RecoveryFactory(report=report,
                                 spc=species,
-                                general_name=elements['general_loc'],
-                                specific_name = None,
+                                general_location=elements['general_loc'],
+                                specific_location = None,
                                 comment=None)
 
     comments = encounter.get_comments()
@@ -160,8 +160,8 @@ def test_recovery_get_comments_when_all_are_none():
     species = SpeciesFactory()
     encounter = RecoveryFactory(report=report,
                                 spc=species,
-                                general_name=None,
-                                specific_name = None,
+                                general_location=None,
+                                specific_location = None,
                                 comment=None)
 
     comments = encounter.get_comments()

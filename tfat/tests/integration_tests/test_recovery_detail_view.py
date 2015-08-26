@@ -199,8 +199,8 @@ def test_recovery_details_with_locations(client, report, species):
 
     recovery = RecoveryFactory(report=report,
                                spc=species,
-                               general_name=general_location,
-                               specific_name=specific_location )
+                               general_location=general_location,
+                               specific_location=specific_location )
 
     response = client.get(reverse('recovery_detail',
                                   kwargs={'recovery_id':recovery.id}))

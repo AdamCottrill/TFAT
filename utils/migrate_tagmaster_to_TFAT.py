@@ -164,7 +164,7 @@ for record in recoveries:
         spc = spc,
         recovery_date = timezone.localize(recovery_date),
         date_flag = date_flag,
-        general_name = record[5],
+        general_location = record[5],
         dd_lat = record[6],
         dd_lon = record[7],
         latlon_flag = int(record[8]),

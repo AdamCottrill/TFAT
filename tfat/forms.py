@@ -239,7 +239,7 @@ class RecoveryForm(ModelForm):
     class Meta:
         model = Recovery
         fields = [ 'tagid', 'spc', 'recovery_date', 'date_flag',
-                   'general_name', 'specific_name', 'dd_lat', 'dd_lon',
+                   'general_location', 'specific_location', 'dd_lat', 'dd_lon',
                    'latlon_flag',
                     'tagdoc', 'tag_removed', 'fate',
                     'flen', 'tlen', 'rwt', 'sex', 'clipc',
@@ -256,8 +256,8 @@ class RecoveryForm(ModelForm):
 
             'tagdoc':forms.TextInput(attrs={'class':'form-control',
                                             'placeholder':'25012'}),
-            'specific_name':forms.TextInput(attrs={'class':'form-control'}),
-            'general_name':forms.TextInput(attrs={'class':'form-control'}),
+            'specific_location':forms.TextInput(attrs={'class':'form-control'}),
+            'general_location':forms.TextInput(attrs={'class':'form-control'}),
             'dd_lat':forms.TextInput(attrs={'class':'form-control'}),
             'dd_lon':forms.TextInput(attrs={'class':'form-control'}),
             'tag_removed':forms.CheckboxInput(attrs={'class':'form-control'}),
