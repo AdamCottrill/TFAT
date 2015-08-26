@@ -589,6 +589,37 @@ def test_future_date(client, db_setup, tag_data):
     assert msg in content
 
 
+
+@pytest.mark.django_db
+def test_recovery_date_greater_than_report_date(client, db_setup, tag_data):
+    """a tag recovery event cannot occur after the reporting date.  A
+    recovery event cannot be recorded if it had not happened when the
+    report was created.  If the recovery date is a head of the report
+    date, an appropriate error message should be returned.
+
+    This test currently fails because I am unable to access the report
+    object from within the form when validateing a new recovery
+    object.  See clean_recovery_date() method of RecoveryForm.
+
+    """
+
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+
+    week_late = report.report_date + timedelta(days=7)
+
+    tag_data['recovery_date'] = week_late.date()
+
+    response = client.post(url, tag_data)
+
+    assert response.status_code == 200
+    content = str(response.content)
+
+    msg = "Recovery date occurs after report date."
+    assert msg in content
+
+
+
 @pytest.mark.xfail
 @pytest.mark.django_db
 def test_recapture_date_ahead_of_report_date(client, db_setup, tag_data):
@@ -613,8 +644,6 @@ def test_no_date_and_dateflag_is_reported(client, db_setup, tag_data):
 
     tag_data['recovery_date'] = None
     tag_data['date_flag'] = 1  #reported
-
-    print('tag_data={}'.format(tag_data))
 
     response = client.post(url, tag_data, follow=True)
 

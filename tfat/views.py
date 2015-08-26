@@ -436,7 +436,7 @@ def create_recovery(request, report_id):
     tag_position = sorted(list(TAG_POSITION_CHOICES), key=lambda x:x[0])
 
     report = get_object_or_404(Report, id=report_id)
-    form = RecoveryForm(data=request.POST or None)
+    form = RecoveryForm(report_id=report.id, data=request.POST or None)
     if request.method == 'POST':
         if form.is_valid():
             recovery = form.save(report=report)
@@ -462,7 +462,8 @@ def edit_recovery(request, recovery_id):
     recovery = get_object_or_404(Recovery, id=recovery_id)
     report = recovery.report
 
-    form = RecoveryForm(instance=recovery, data=request.POST or None)
+    form = RecoveryForm(report_id=report.id,
+                        instance=recovery, data=request.POST or None)
     if request.method == 'POST':
         if form.is_valid():
             recovery = form.save(report)

@@ -403,8 +403,6 @@ def test_good_clipc(client, db_setup, tag_data):
 
     url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
 
-    print('url={}'.format(url))
-
     clipc = '14'
     tag_data['clipc'] = clipc
 
@@ -586,6 +584,32 @@ def test_missing_recovery_date(client, db_setup, tag_data):
 
     assert recoveries[0].recovery_date is None
     assert recoveries[0].date_flag is 0
+
+
+
+@pytest.mark.django_db
+def test_recovery_date_greater_than_report_date(client, db_setup, tag_data):
+    """a tag recovery event cannot occur after the reporting date.  A
+    recovery event cannot be recorded if it had not happened when the
+    report was created.  If the recovery date is a head of the report
+    date, an appropriate error message should be returned.
+
+    """
+
+    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
+    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+
+    week_late = recovery.report.report_date + timedelta(days=7)
+
+    tag_data['recovery_date'] = week_late.date()
+
+    response = client.post(url, tag_data)
+
+    assert response.status_code == 200
+    content = str(response.content)
+
+    msg = "Recovery date occurs after report date."
+    assert msg in content
 
 
 @pytest.mark.django_db

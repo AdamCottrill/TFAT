@@ -272,6 +272,11 @@ class RecoveryForm(ModelForm):
         }
 
 
+    def __init__(self, *args, **kwargs):
+        self.report_id = kwargs.pop('report_id')
+        super(RecoveryForm, self).__init__(*args, **kwargs)
+
+
     def save(self, report, *args, **kwargs):
         recovery = super(RecoveryForm, self).save(commit=False)
         recovery.report = report
@@ -366,10 +371,21 @@ class RecoveryForm(ModelForm):
         recovery_date = self.cleaned_data['recovery_date']
         today = datetime.today()
 
+        try:
+            report_date = Report.objects.values_list('report_date')\
+                                        .get(id=self.report_id)[0]
+        except Report.DoesNotExist:
+            report_date = None
+
+
         if recovery_date:
             if recovery_date > today.date():
                 err_msg = 'Dates in the future are not allowed.'
                 raise forms.ValidationError(err_msg)
+            if report_date:
+                if recovery_date > report_date.date():
+                    err_msg = 'Recovery date occurs after report date.'
+                    raise forms.ValidationError(err_msg)
         return recovery_date
 
 
