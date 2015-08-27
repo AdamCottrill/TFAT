@@ -130,7 +130,7 @@
                                     <td> {{ object.tag_origin }} </td>
                                     <td> {{ object.tagstat }} </td>
                                     <td class="metric"> {{ object.tlen|intcomma }} </td>
-                                    <td class="imperial"> {{ object.inches }} </td>
+                                    <td class="imperial"> {{ object.tlen_inches }} </td>
                                     <td class="metric"> {{ object.rwt|intcomma }} </td>
                                     <td class="imperial"> {{ object.pounds }} </td>
                                 </tr>
@@ -188,7 +188,7 @@
                             <td> {{ object.tag_origin }} </td>
                             <td> {{ object.tagstat }} </td>
                             <td class="metric"> {{ object.tlen|intcomma }} </td>
-                            <td class="imperial"> {{ object.inches }} </td>
+                            <td class="imperial"> {{ object.tlen_inches }} </td>
                             <td class="metric"> {{ object.rwt|intcomma }} </td>
                             <td class="imperial"> {{ object.pounds }} </td>
                             {% if object.tagstat = 'A' %}
@@ -253,7 +253,7 @@
                         <td> {{ object.tag_origin }} </td>
                         <td> {{ object.tagstat }} </td>
                         <td class="metric"> {{ object.tlen|intcomma }} </td>
-                        <td class="imperial"> {{ object.inches }} </td>
+                        <td class="imperial"> {{ object.tlen_inches }} </td>
                         <td class="metric"> {{ object.rwt|intcomma }} </td>
                         <td class="imperial"> {{ object.pounds }} </td>
                         {% if object.tagstat = 'A' %}
@@ -317,7 +317,7 @@
                         <td> {{ object.tag_origin }} </td>
                         <td> {{ object.tagstat }} </td>
                         <td class="metric"> {{ object.tlen|intcomma }} </td>
-                        <td class="imperial"> {{ object.inches }} </td>
+                        <td class="imperial"> {{ object.tlen_inches }} </td>
                         <td class="metric"> {{ object.rwt|intcomma }} </td>
                         <td class="imperial"> {{ object.pounds }} </td>
                         <td> {{ object.report.reported_by}} </td>

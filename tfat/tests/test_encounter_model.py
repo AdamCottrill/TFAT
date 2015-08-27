@@ -110,3 +110,89 @@ def test_encounter_pop_text():
     for k,v in elements.items():
         print(k,v)
         assert v in popup_text
+
+
+
+
+@pytest.mark.django_db
+def test_encounter_has_latlon_true():
+    """
+    """
+    species = SpeciesFactory()
+    project = ProjectFactory()
+    encounter = EncounterFactory(project=project,
+                               spc=species,
+                               dd_lat = 45.5, dd_lon=-81.3)
+    assert encounter.has_latlon() is True
+
+
+
+@pytest.mark.django_db
+def test_encounter_flen_inches():
+    """
+    """
+    species = SpeciesFactory()
+    project = ProjectFactory()
+    encounter = EncounterFactory(project=project,
+                               spc=species,
+                               flen=450)
+    assert encounter.flen_inches() == 17.7
+
+
+@pytest.mark.django_db
+def test_encounter_flen_inches_none():
+    """
+    """
+    species = SpeciesFactory()
+    project = ProjectFactory()
+    encounter = EncounterFactory(project=project,
+                               spc=species,
+                               flen=None)
+    assert encounter.flen_inches() is None
+
+@pytest.mark.django_db
+def test_encounter_tlen_inches():
+    """
+    """
+    species = SpeciesFactory()
+    project = ProjectFactory()
+    encounter = EncounterFactory(project=project,
+                               spc=species,
+                               tlen=450)
+    assert encounter.tlen_inches() == 17.7
+
+
+@pytest.mark.django_db
+def test_encounter_tlen_inches_none():
+    """
+    """
+    species = SpeciesFactory()
+    project = ProjectFactory()
+    encounter = EncounterFactory(project=project,
+                               spc=species,
+                               tlen=None)
+    assert encounter.tlen_inches() is None
+
+
+@pytest.mark.django_db
+def test_encounter_rwt_pounds():
+    """
+    """
+    species = SpeciesFactory()
+    project = ProjectFactory()
+    encounter = EncounterFactory(project=project,
+                               spc=species,
+                               rwt=2000)
+    assert encounter.pounds() == 4.4
+
+
+@pytest.mark.django_db
+def test_encounter_rwt_pounds_none():
+    """
+    """
+    species = SpeciesFactory()
+    project = ProjectFactory()
+    encounter = EncounterFactory(project=project,
+                               spc=species,
+                               rwt=None)
+    assert encounter.pounds() is None

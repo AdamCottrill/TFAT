@@ -550,7 +550,6 @@ class Encounter(models.Model):
         ordering = ['tagdoc', 'tagid', 'observation_date']
 
 
-
     def has_latlon(self):
         if self.dd_lat and self.dd_lon:
             return True
@@ -562,7 +561,14 @@ class Encounter(models.Model):
         return '{}<{}>({})'.format(self.tagid, self.tagdoc,
                                    self.observation_date)
 
-    def inches(self):
+    def flen_inches(self):
+        if self.flen:
+            length = round(self.flen * 0.03937, 1)
+        else:
+            length = None
+        return length
+
+    def tlen_inches(self):
         if self.tlen:
             length = round(self.tlen * 0.03937, 1)
         else:
