@@ -120,7 +120,7 @@ class ProjectTagsAppliedListView(ListView):
 
     def get_queryset(self):
         "projects that re-captured at least one tag"
-        projects = Project.objects.filter(Encounters__tagid__isnull=False,
+        projects = Project.objects.filter(Encounters__tagid_isnull=False,
                                           Encounters__tagstat='A').distinct()
         return projects
 
@@ -172,11 +172,12 @@ def tagid_detail_view(request, tagid):
     - `tagid`:
 
     """
-    encounter_list = get_list_or_404(Encounter, tagid=tagid)
+    #encounter_list = get_list_or_404(Encounter, tagid=tagid)
+    encounter_list = Encounter.objects.filter(tagid=tagid).all()
 
     detail_data = get_tagid_detail_data(tagid, encounter_list)
 
-    return render_to_response('tfat/tagid_contains.html',
+    return render_to_response('tfat/tagid_details.html',
                               {'tagid':tagid,
                                'encounter_list':encounter_list,
                                'angler_recaps':detail_data.get('angler_recaps'),

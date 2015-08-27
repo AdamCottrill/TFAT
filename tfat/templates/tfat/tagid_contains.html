@@ -5,10 +5,10 @@
 
 {% block extrahead %}
 
-  {% leaflet_js %}
-  {% leaflet_css %}
+{% leaflet_js %}
+{% leaflet_css %}
 
-  <script src="/static/Leaflet.MakiMarkers.js"></script>
+<script src="/static/Leaflet.MakiMarkers.js"></script>
 
 {% endblock %}
 
@@ -45,56 +45,192 @@
     <br />
 
 
-    {% if encounter_list %}
-      <script type="text/javascript">
-       function map_init_basic (map, options) {
+    <script type="text/javascript">
+     function map_init_basic (map, options) {
 
-           var applied = L.MakiMarkers.icon({icon: "circle", color: "#b0b", size: "s"});
-           var recap = L.MakiMarkers.icon({icon: "square", color: "#0a0", size: "s"});
-           var angler = L.MakiMarkers.icon({icon: "star", color: "#00f", size: "s"});
+         var applied = L.MakiMarkers.icon({icon: "circle", color: "#b0b", size: "s"});
+         var recap = L.MakiMarkers.icon({icon: "square", color: "#0a0", size: "s"});
+         var angler = L.MakiMarkers.icon({icon: "star", color: "#00f", size: "s"});
 
-           {% if mls %}
-           L.geoJson({{ mls|safe }}).addTo(map)
-           {% endif %}
+         {% if mls %}
+         L.geoJson({{ mls|safe }}).addTo(map)
+         {% endif %}
 
-           {% for object in encounter_list %}
+         {% if encounter_list %}
+         {% for object in encounter_list %}
 
-           L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon:{{ object.marker_class }}}).addTo(map)
-               .bindPopup('{{ object.popup_text|safe }}');
-           {% endfor %}
+         L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon:{{ object.marker_class }}}).addTo(map)
+          .bindPopup('{{ object.popup_text|safe }}');
+         {% endfor %}
+         {% endif %}
 
 
-           {% if angler_recaps %}
-           {% for object in angler_recaps %}
+         {% if angler_recaps %}
+         {% for object in angler_recaps %}
 
-           L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon: angler}).addTo(map)
-               .bindPopup('{{ object.popup_text|safe }}');
-           {% endfor %}
+         L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon: angler}).addTo(map)
+          .bindPopup('{{ object.popup_text|safe }}');
+         {% endfor %}
 
-           {% endif %}
+         {% endif %}
 
-       }
-      </script>
-      {% leaflet_map "mymap" callback="window.map_init_basic" %}
-
-    {% else %}
-
-      {% leaflet_map "mymap" callback="window.map_init_basic" %}
-
-    {% endif %}
+     }
+    </script>
+    {% leaflet_map "mymap" callback="window.map_init_basic" %}
 
 
     {% if tag_paths %}
 
-      {% for tag,pts in tag_paths.items %}
-      <p>{{ tag }} - {{pts}} </p>
-      {% endfor %}
+    {% for tag,pts in tag_paths.items %}
+    <p>{{ tag }} - {{pts}} </p>
+    {% endfor %}
 
-     {% endif %}
+    {% endif %}
 
 
     <br />
-    {% if encounter_list %}
+
+    <div role="tabpanel">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#" aria-controls="applied" role="tab" data-toggle="tab">Tagging Events (N = {{ applied|length }}) </a></li>
+            <li role="presentation"><a href="#angler_recaps" appliedaria-controls="angler_recaps" role="tab" data-toggle="tab">Non-MNR Recoveries (N = {{ angler_recaps.nobs }})</a></li>
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="applied">
+                <br />
+                <p>These are tags that were applied in this project.</p>
+
+                {% if applied %}
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="tablesorter table" id="myTable">
+                            <thead>
+                                <tr>
+                                    <th>TagID</th>
+                                    <th>Species</th>
+                                    <th>Date</th>
+                                    <th>Grid</th>
+                                    <th>Type</th>
+                                    <th>Colour</th>
+                                    <th>Origin</th>
+                                    <th>TagStat</th>
+                                    <th class="metric">Length <br /> (mm)</th>
+                                    <th class="imperial">Length <br />(in)</th>
+                                    <th class="metric">Weight <br />(g)</th>
+                                    <th class="imperial">Weight <br />(lbs)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for object in applied %}
+                                <tr>
+                                    <td> <a href="{% url 'tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
+                                    <td> {{ object.spc.common_name }} </td>
+                                    <td> {{ object.observation_date }} </td>
+                                    <td> {{ object.grid }} </td>
+                                    <td> {{ object.tag_type }} </td>
+                                    <td> {{ object.tag_colour }} </td>
+                                    <td> {{ object.tag_origin }} </td>
+                                    <td> {{ object.tagstat }} </td>
+                                    <td class="metric"> {{ object.tlen|intcomma }} </td>
+                                    <td class="imperial"> {{ object.inches }} </td>
+                                    <td class="metric"> {{ object.rwt|intcomma }} </td>
+                                    <td class="imperial"> {{ object.pounds }} </td>
+                                </tr>
+                                {% endfor%}
+                            </tbody>
+                        </table>
+                        <div class="checkbox pull-right">
+                            <label>
+                                <input type='checkbox' onclick='handleClick(this);'>metric/imperial
+                            </label>
+                        </div>
+                    </div>
+                </div> <!-- class="row" -->
+                {% else %}
+                <p>Sorry no tags match that criteria.</p>
+                <hr />
+                <br />
+                <br />
+
+                {% endif %}
+            </div><!-- applied tabpanel -->
+
+            <div role="tabpanel" class="tab-pane" id="recovered">
+        </br>
+        {% if recovered.nobs %}
+        <p>There are the subsequent recovery events for tags applied in {{ project.prj_cd }}.</p>
+        <div class="row">
+            <div class="col-md-12">
+                <table class="tablesorter table" id="myTable">
+                    <thead>
+                        <tr>
+                            <th>TagID</th>
+                            <th>Species</th>
+                            <th>Date</th>
+                            <th>Grid</th>
+                            <th>Type</th>
+                            <th>Colour</th>
+                            <th>Origin</th>
+                            <th>TagStat</th>
+                            <th class="metric">Length <br /> (mm)</th>
+                            <th class="imperial">Length <br />(in)</th>
+                            <th class="metric">Weight <br />(g)</th>
+                            <th class="imperial">Weight <br />(lbs)</th>
+                            <th>Project Code</th>
+                            <th>Project Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for object in recovered.queryset %}
+                        <tr>
+                            <td> <a href="{% url 'tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
+                            <td> {{ object.spc.common_name }} </td>
+                            <td> {{ object.observation_date }} </td>
+                            <td> {{ object.grid }} </td>
+                            <td> {{ object.tag_type }} </td>
+                            <td> {{ object.tag_colour }} </td>
+                            <td> {{ object.tag_origin }} </td>
+                            <td> {{ object.tagstat }} </td>
+                            <td class="metric"> {{ object.tlen|intcomma }} </td>
+                            <td class="imperial"> {{ object.inches }} </td>
+                            <td class="metric"> {{ object.rwt|intcomma }} </td>
+                            <td class="imperial"> {{ object.pounds }} </td>
+                            {% if object.tagstat = 'A' %}
+                            <td><a href="{% url 'tags_applied_in_project' object.project.slug %}">{{ object.project.prj_cd }}</a> </td>
+                            {% else %}
+                            <td><a href="{% url 'tags_recovered_in_project' object.project.slug %}">{{ object.project.prj_cd }}</a> </td>
+                            {% endif %}
+                            <td> {{ object.project.prj_nm }} </td
+                        </tr>
+                        {% endfor%}
+                    </tbody>
+                </table>
+                <div class="checkbox pull-right">
+                    <label>
+                        <input type='checkbox' onclick='handleClick(this);'>metric/imperial
+                    </label>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <p>Sorry no tags match that criteria.</p>
+        <hr />
+        <br />
+        <br />
+        {% endif %}
+            </div><!-- recovered tabpanel -->
+
+
+
+
+            <div role="tabpanel" class="tab-pane" id="angler_recaps">
+    </br>
+    {% if angler_recaps.nobs %}
+    <p>There are the subsequent recovery events reported by the
+        general public for tags applied in {{ project.prj_cd }}.</p>
     <div class="row">
         <div class="col-md-12">
             <table class="tablesorter table" id="myTable">
@@ -107,40 +243,16 @@
                         <th>Type</th>
                         <th>Colour</th>
                         <th>Origin</th>
-                        <th>TagStat</th>
                         <th class="metric">Length <br /> (mm)</th>
                         <th class="imperial">Length <br />(in)</th>
                         <th class="metric">Weight <br />(g)</th>
                         <th class="imperial">Weight <br />(lbs)</th>
-                        <th>Project Code/<br>Returned By</th>
-                        <th>Project Name/Comments</th>
+                        <th>Returned By</th>
+                        <th>General Location</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for object in encounter_list %}
-                    <tr>
-                        <td> <a href="{% url 'tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
-                        <td> {{ object.spc.common_name }} </td>
-                        <td> {{ object.observation_date }} </td>
-                        <td> {{ object.grid }} </td>
-                        <td> {{ object.tag_type }} </td>
-                        <td> {{ object.tag_colour }} </td>
-                        <td> {{ object.tag_origin }} </td>
-                        <td> {{ object.tagstat }} </td>
-                        <td class="metric"> {{ object.tlen|intcomma }} </td>
-                        <td class="imperial"> {{ object.inches }} </td>
-                        <td class="metric"> {{ object.rwt|intcomma }} </td>
-                        <td class="imperial"> {{ object.pounds }} </td>
-                        {% if object.tagstat = 'A' %}
-                        <td><a href="{% url 'tags_applied_in_project' object.project.slug %}">{{ object.project.prj_cd }}</a> </td>
-                        {% else %}
-                        <td><a href="{% url 'tags_recovered_in_project' object.project.slug %}">{{ object.project.prj_cd }}</a> </td>
-                        {% endif %}
-                        <td> {{ object.project.prj_nm }} </td
-                    </tr>
-                    {% endfor%}
-
-                    {% for object in angler_recaps %}
+                    {% for object in angler_recaps.queryset %}
                     <tr>
                         <td> <a href="{% url 'tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
                         <td> {{ object.spc.common_name }} </td>
@@ -149,7 +261,6 @@
                         <td> {{ object.get_tag_type_display }} </td>
                         <td> {{ object.get_tag_colour_display }} </td>
                         <td> {{ object.get_tag_origin_display }} </td>
-                        <td>C</td>
                         <td class="metric"> {{ object.tlen|intcomma }} </td>
                         <td class="imperial"> {{ object.inches }} </td>
                         <td class="metric"> {{ object.rwt|intcomma }} </td>
@@ -158,9 +269,6 @@
                         <td> {{ object.general_location }} </td>
                     </tr>
                     {% endfor%}
-
-
-
                 </tbody>
             </table>
             <div class="checkbox pull-right">
@@ -168,12 +276,19 @@
                     <input type='checkbox' onclick='handleClick(this);'>metric/imperial
                 </label>
             </div>
-            {% else %}
-            <p>Sorry no tags match that criteria.</p>
-            {% endif %}
         </div>
     </div>
-</div>
+    {% else %}
+    <p>Sorry no tags match that criteria.</p>
+
+    <hr />
+    <br />
+    <br />
+
+    {% endif %}
+            </div><!-- angler_recaps tabpanel -->
+        </div>
+    </div>
 
 
 <script type="text/javascript">

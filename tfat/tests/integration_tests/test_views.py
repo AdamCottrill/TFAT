@@ -44,21 +44,6 @@ class TestAnlgerList(TestCase):
                                          tagid='33333')
 
 
-    def test_tagid_does_not_exist(self):
-        '''if we try to access the detail page for a tagid that does
-        no exist return an appropriate message'''
-
-        response = self.client.get(reverse('tagid_detail_view',
-                                           kwargs={'tagid':9999}),
-                                   follow=True)
-
-        self.assertEqual(response.status_code,404)
-        #self.assertTemplateUsed(response, '404.html')
-        #self.assertContains(response, 'Not Found')
-
-
-
-
 
     def test_anglers_render_in_angler_listview(self):
         '''.'''

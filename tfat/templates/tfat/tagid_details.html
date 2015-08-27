@@ -1,0 +1,328 @@
+{% extends "tfat/tfat_base.html" %}
+
+{% load leaflet_tags %}
+{% load humanize %}
+
+{% block extrahead %}
+
+{% leaflet_js %}
+{% leaflet_css %}
+
+<script src="/static/Leaflet.MakiMarkers.js"></script>
+
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <div class="row">
+        {% if partial %}
+        <h2>Tags that contain '{{ partial }}' (N = {{ nobs }} ) </h2>
+        {% else %}
+        <h2>Encounters with tag number:{{ tagid }} (N = {{ nobs }} ) </h2>
+        {% endif %}
+    </div>
+
+    {% if encounter_list|length > max_record_count %}
+    <div class="alert alert-danger" role="alert">
+        More than {{ max_record_count }} records where found that match that criteria. You may want to refine your criteria here <a href="#">Find a tag</a>
+    </div>
+    {% endif %}
+
+    {% if spc_warn %}
+    <div class="alert alert-warning" role="alert">
+        <p>There appears to be more than one species associated with the records on this page. Interpret with caution.</p>
+    </div>
+    {% endif %}
+
+    {% if tagdoc_warn %}
+    <div class="alert alert-warning" role="alert">
+        <p>There appears to be more than one tagdoc code associated with the records on this page. Interpret with caution.</p>
+    </div>
+    {% endif %}
+
+
+    <br />
+
+
+    <script type="text/javascript">
+     function map_init_basic (map, options) {
+
+         var applied = L.MakiMarkers.icon({icon: "circle", color: "#b0b", size: "s"});
+         var recap = L.MakiMarkers.icon({icon: "square", color: "#0a0", size: "s"});
+         var angler = L.MakiMarkers.icon({icon: "star", color: "#00f", size: "s"});
+
+         {% if mls %}
+         L.geoJson({{ mls|safe }}).addTo(map)
+         {% endif %}
+
+         {% if encounter_list %}
+         {% for object in encounter_list %}
+         {% if object.has_latlon %}
+         L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon:{{ object.marker_class }}}).addTo(map)
+          .bindPopup('{{ object.popup_text|safe }}');
+         {% endif %}
+         {% endfor %}
+         {% endif %}
+
+         {% if angler_recaps %}
+         {% for object in angler_recaps %}
+         {% if object.has_latlon %}
+         L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon: angler}).addTo(map)
+          .bindPopup('{{ object.popup_text|safe }}');
+         {% endif %}
+         {% endfor %}
+
+         {% endif %}
+
+     }
+    </script>
+    {% leaflet_map "mymap" callback="window.map_init_basic" %}
+
+
+    {% if tag_paths %}
+
+    {% for tag,pts in tag_paths.items %}
+    <p>{{ tag }} - {{pts}} </p>
+    {% endfor %}
+
+    {% endif %}
+
+
+    <br />
+
+    <div role="tabpanel">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#uglmu" aria-controls="applied" role="tab" data-toggle="tab">UGLMU Encounters (N = {{ encounter_list|length }}) </a></li>
+            <li role="presentation"><a href="#angler_recaps" appliedaria-controls="angler_recaps" role="tab" data-toggle="tab">Non-MNR Recoveries (N = {{ angler_recaps|length }})</a></li>
+            <li role="presentation"><a href="#combined" appliedaria-controls="combined" role="tab" data-toggle="tab">Combined</a></li>
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="uglmu">
+                <br />
+                {% if encounter_list %}
+                <p>UGLMU encounters with tag {{ tagid }} .</p>
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="tablesorter table" id="myTable">
+                            <thead>
+                                <tr>
+                                    <th>Species</th>
+                                    <th>Date</th>
+                                    <th>Grid</th>
+                                    <th>Type</th>
+                                    <th>Colour</th>
+                                    <th>Origin</th>
+                                    <th>TagStat</th>
+                                    <th class="metric">Length <br /> (mm)</th>
+                                    <th class="imperial">Length <br />(in)</th>
+                                    <th class="metric">Weight <br />(g)</th>
+                                    <th class="imperial">Weight <br />(lbs)</th>
+                                    <th>Project Code</th>
+                                    <th>Project Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for object in encounter_list %}
+                                <tr>
+                                    <td> {{ object.spc.common_name }} </td>
+                                    <td> {{ object.observation_date|date:"M d, Y" }} </td>
+                                    <td> {{ object.grid }} </td>
+                                    <td> {{ object.tag_type }} </td>
+                                    <td> {{ object.tag_colour }} </td>
+                                    <td> {{ object.tag_origin }} </td>
+                                    <td> {{ object.tagstat }} </td>
+                                    <td class="metric"> {{ object.tlen|intcomma }} </td>
+                                    <td class="imperial"> {{ object.inches }} </td>
+                                    <td class="metric"> {{ object.rwt|intcomma }} </td>
+                                    <td class="imperial"> {{ object.pounds }} </td>
+                                    {% if object.tagstat = 'A' %}
+                                    <td><a href="{% url 'tags_applied_in_project' object.project.slug %}">{{ object.project.prj_cd }}</a> </td>
+                                    {% else %}
+                                    <td><a href="{% url 'tags_recovered_in_project' object.project.slug %}">{{ object.project.prj_cd }}</a> </td>
+                                    {% endif %}
+                                    <td> {{ object.project.prj_nm }} </td
+                                </tr>
+                                {% endfor%}
+                            </tbody>
+                        </table>
+                        <div class="checkbox pull-right">
+                            <label>
+                                <input type='checkbox' onclick='handleClick(this);'>metric/imperial
+                            </label>
+                        </div>
+                    </div> <!-- class="col-md-12" -->
+                </div> <!-- class="row" -->
+                {% else %}
+                <p>{{ tagid }} has not been observed in any UGLMU project.</p>
+                <hr />
+                <br />
+                <br />
+                {% endif %}
+            </div><!-- applied tabpanel -->
+
+            <div role="tabpanel" class="tab-pane" id="angler_recaps">
+                <br />
+                {% if angler_recaps %}
+                <p>There are the subsequent recovery events reported by the
+                    general public or other agencies for tag {{ tagid }}.</p>
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="tablesorter table" id="myTable">
+                            <thead>
+                                <tr>
+                                    <th>Species</th>
+                                    <th>Date</th>
+                                    <th>Grid</th>
+                                    <th>Type</th>
+                                    <th>Colour</th>
+                                    <th>Origin</th>
+                                    <th class="metric">Length <br /> (mm)</th>
+                                    <th class="imperial">Length <br />(in)</th>
+                                    <th class="metric">Weight <br />(g)</th>
+                                    <th class="imperial">Weight <br />(lbs)</th>
+                                    <th>Returned By</th>
+                                    <th>General Location</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for object in angler_recaps %}
+                                <tr>
+                                    <td> {{ object.spc.common_name }} </td>
+                                    <td> {{ object.observation_date|date:"M d, Y" }} </td>
+                                    <td> {{ object.grid }} </td>
+                                    <td> {{ object.get_tag_type_display }} </td>
+                                    <td> {{ object.get_tag_colour_display }} </td>
+                                    <td> {{ object.get_tag_origin_display }} </td>
+                                    <td class="metric"> {{ object.tlen|intcomma }} </td>
+                                    <td class="imperial"> {{ object.inches }} </td>
+                                    <td class="metric"> {{ object.rwt|intcomma }} </td>
+                                    <td class="imperial"> {{ object.pounds }} </td>
+                                    <td> {{ object.report.reported_by}} </td>
+                                    <td> {{ object.general_location }} </td>
+                                </tr>
+                                {% endfor%}
+                            </tbody>
+                        </table>
+                        <div class="checkbox pull-right">
+                            <label>
+                                <input type='checkbox' onclick='handleClick(this);'>metric/imperial
+                            </label>
+                        </div>
+                    </div> <!-- col-md-12  -->
+                </div> <!-- row -->
+                {% else %}
+                <p>There are no reports of tag {{ tagid }} from the general public or other agencies.</p>
+
+                <hr />
+                <br />
+                <br />
+                {% endif %}
+            </div><!-- angler_recaps tabpanel -->
+
+            <div role="tabpanel" class="tab-pane" id="combined">
+                <br />
+                <p>ALL encounters with tag {{ tagid }} .</p>
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="tablesorter table" id="myTable">
+                            <thead>
+                                <tr>
+                                    <th>Species</th>
+                                    <th>Date</th>
+                                    <th>Grid</th>
+                                    <th>Type</th>
+                                    <th>Colour</th>
+                                    <th>Origin</th>
+                                    <th>TagStat</th>
+                                    <th class="metric">Length <br /> (mm)</th>
+                                    <th class="imperial">Length <br />(in)</th>
+                                    <th class="metric">Weight <br />(g)</th>
+                                    <th class="imperial">Weight <br />(lbs)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for object in encounter_list %}
+                                <tr>
+                                    <td> {{ object.spc.common_name }} </td>
+                                    <td> {{ object.observation_date|date:"M d, Y" }} </td>
+                                    <td> {{ object.grid }} </td>
+                                    <td> {{ object.tag_type }} </td>
+                                    <td> {{ object.tag_colour }} </td>
+                                    <td> {{ object.tag_origin }} </td>
+                                    <td> {{ object.tagstat }} </td>
+                                    <td class="metric"> {{ object.tlen|intcomma }} </td>
+                                    <td class="imperial"> {{ object.inches }} </td>
+                                    <td class="metric"> {{ object.rwt|intcomma }} </td>
+                                    <td class="imperial"> {{ object.pounds }} </td>
+                                </tr>
+                                {% endfor%}
+
+                                {% for object in angler_recaps %}
+                                <tr>
+                                    <td> {{ object.spc.common_name }} </td>
+                                    <td> {{ object.observation_date|date:"M d, Y" }} </td>
+                                    <td> {{ object.grid }} </td>
+                                    <td> {{ object.tag_type }} </td>
+                                    <td> {{ object.tag_colour }} </td>
+                                    <td> {{ object.tag_origin }} </td>
+                                    <td> {{ object.tagstat }} </td>
+                                    <td class="metric"> {{ object.tlen|intcomma }} </td>
+                                    <td class="imperial"> {{ object.inches }} </td>
+                                    <td class="metric"> {{ object.rwt|intcomma }} </td>
+                                    <td class="imperial"> {{ object.pounds }} </td>
+                                </tr>
+                                {% endfor%}
+                            </tbody>
+                        </table>
+                        <div class="checkbox pull-right">
+                            <label>
+                                <input type='checkbox' onclick='handleClick(this);'>metric/imperial
+                            </label>
+                        </div>
+                    </div><!-- class="col-md-12" -->
+                </div> <!-- class="row" -->
+            </div><!-- combined tabpanel -->
+
+        </div> <!-- tabcontent -->
+    </div> <!-- tabpanel -->
+
+</div> <!-- container -->
+
+
+    <script type="text/javascript">
+
+     $(".tablesorter").tablesorter({
+         theme: 'bootstrap',
+         widthFixed: true,
+         showProcessing: true,
+         headerTemplate: '{content} {icon}',
+         widgets: ['zebra', 'uitheme', 'scroller'],
+         widgetOptions: {
+             scroller_height: 300,
+             scroller_barWidth: 17,
+             scroller_jumpToHeader: true,
+             scroller_idPrefix: 's_'
+         }
+     });
+
+
+     $(document).ready(function(){
+         $("#myTable").tablesorter();
+         $('.metric').show();
+         $('.imperial').hide();
+     }
+     );
+
+
+     function handleClick(cb) {
+         $('.metric').toggle();
+         $('.imperial').toggle();
+     }
+
+    </script>
+
+    {% endblock %}
