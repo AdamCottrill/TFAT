@@ -251,7 +251,10 @@
                         <td class="imperial"> {{ object.tlen_inches }} </td>
                         <td class="metric"> {{ object.rwt|intcomma }} </td>
                         <td class="imperial"> {{ object.pounds }} </td>
-                        <td> {{ object.report.reported_by}} </td>
+
+                        <td> <a href="{% url 'angler_reports' angler_id=object.report.reported_by.id %}">
+                            {{ object.report.reported_by }}</a> </td>
+
                         <td> {{ object.general_location }} </td>
                     </tr>
                     {% endfor%}
