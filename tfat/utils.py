@@ -12,6 +12,7 @@ A. Cottrill
 =============================================================
 '''
 
+from datetime import datetime
 from geojson import MultiLineString
 from tfat.models import *
 
@@ -99,9 +100,10 @@ def tagdoc_warning(qs_list):
 
 def get_tagid_detail_data(tagid, encounter_list, partial=False):
     """A helper view to compile all of the information needed to render
-    the tagid detial page.  These elements include:
+    the tagid detail page.  These elements include:
 
     + OMNR Encounters (tag application and any recoveries)
+
     + Angler recaptures
 
     + multi-linestring representing the path of tag recoveries in
@@ -166,9 +168,12 @@ def qs_to_tagdict(qs, tag_dict=None):
 
     for pt in qs:
         #obs_point = [pt['observation_date'], (pt['dd_lon'],pt['dd_lat'])]
-        obs_point = [pt.observation_date, (pt.dd_lon, pt.dd_lat)]
+        if isinstance(pt.observation_date, datetime):
+            obs_point = [pt.observation_date.date(), (pt.dd_lon, pt.dd_lat)]
+        else:
+            obs_point = [pt.observation_date, (pt.dd_lon, pt.dd_lat)]
         tagid = pt.tagid
-        if pt.dd_lat and pt.dd_lon:
+        if pt.dd_lat and pt.dd_lon and pt.observation_date:
             if tag_dict.get(tagid):
                 tag_dict[tagid].append(obs_point)
             else:
@@ -261,6 +266,16 @@ def get_omnr_tag_recoveries(project_slug):
     AND recap.tagstat = 'C'
     ORDER BY recap.observation_date"""
 
+#    #using a subquery to get tagids instead of a join
+#    sql = '''
+#    SELECT * FROM tfat_encounter recap
+#    WHERE recap.tagstat='C' AND tagid IN (
+#      SELECT tagid FROM tfat_encounter applied
+#      JOIN tfat_project proj ON proj.id=applied.project_id
+#      WHERE proj.slug=%s
+#      AND tagstat='A'
+#    ) ORDER BY observation_date'''
+
     queryset = Encounter.objects.raw(sql,[project_slug])
 
     nobs = len([x.id for x in queryset])
@@ -303,6 +318,12 @@ def get_angler_tag_recoveries(project_slug, tagstat='A'):
     AND proj.slug=%s
     ORDER BY recovery.recovery_date
     """
+
+#    sql = '''
+#    select recovery.* from tfat_recovery recovery where tagid in (
+#    select tagid from tfat_encounter encounter join tfat_project project on project.id=encounter.project_id where slug=%s and tagstat='{tagstat}'
+#    ) order by recovery_date
+#    '''
 
     sql = sql.format(**{'tagstat':tagstat})
 

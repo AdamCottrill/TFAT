@@ -232,10 +232,14 @@ def tagid_contains_view(request, partial):
     """
 
     encounter_list = Encounter.objects.filter(tagid__icontains=partial)
-    if not encounter_list:
-        raise Http404
-    else:
-        encouter_list = encounter_list.order_by('tagid',
+#    if not encounter_list:
+#        raise Http404
+#    else:
+#        encouter_list = encounter_list.order_by('tagid',
+#                                                'tagstat')[:MAX_RECORD_CNT]
+
+    if encounter_list:
+         encouter_list = encounter_list.order_by('tagid',
                                                 'tagstat')[:MAX_RECORD_CNT]
 
     detail_data = get_tagid_detail_data(partial, encounter_list, partial=True)

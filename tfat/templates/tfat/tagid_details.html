@@ -16,11 +16,7 @@
 <div class="container">
 
     <div class="row">
-        {% if partial %}
-        <h2>Tags that contain '{{ partial }}' (N = {{ nobs }} ) </h2>
-        {% else %}
         <h2>Encounters with tag number:{{ tagid }} (N = {{ nobs }} ) </h2>
-        {% endif %}
     </div>
 
     {% if encounter_list|length > max_record_count %}
@@ -167,7 +163,7 @@
             <div role="tabpanel" class="tab-pane" id="angler_recaps">
                 <br />
                 {% if angler_recaps %}
-                <p>There are the subsequent recovery events reported by the
+                <p>These are the subsequent recovery events reported by the
                     general public or other agencies for tag {{ tagid }}.</p>
                 <div class="row">
                     <div class="col-md-12">
