@@ -186,19 +186,27 @@ class Recovery(models.Model):
     #clipc from that.)
     clipc = models.CharField("Clip Code", max_length=5,blank=True, null=True)
     tagid = models.CharField(max_length=10, db_index=True)
-    tag_origin  = models.CharField("Tag Origin", max_length=3,db_index=True,
-                               choices=TAG_ORIGIN_CHOICES, default="01")
+    _tag_origin = models.CharField("Tag Origin",
+                                  max_length=3,db_index=True,
+                                  db_column="tag_origin",
+                                  choices=TAG_ORIGIN_CHOICES,
+                                  default="01")
 
-    tag_position = models.CharField("Tag Position", max_length=3, db_index=True,
-                                    choices=TAG_POSITION_CHOICES, default="1")
-    tag_type = models.CharField("Tag Type", max_length=3, db_index=True,
-                               choices=TAG_TYPE_CHOICES, default="1")
+    _tag_position = models.CharField("Tag Position", max_length=3,
+                                     db_index=True,
+                                     db_column="tag_position",
+                                     choices=TAG_POSITION_CHOICES,
+                                     default="1")
 
-    tag_colour = models.CharField("Tag Colour", max_length=3, db_index=True,
-                               choices=TAG_COLOUR_CHOICES, default="2")
+    _tag_type = models.CharField("Tag Type", max_length=3,
+                                 db_index=True, db_column="tag_type",
+                                 choices=TAG_TYPE_CHOICES, default="1")
 
-    #tagdoc will be calculated from tag type, position, origin and
-    #colour following fishnet-II definitions
+    _tag_colour = models.CharField("Tag Colour", max_length=3,
+                                   db_index=True, db_column="tag_colour",
+                                   choices=TAG_COLOUR_CHOICES,
+                                   default="2")
+
     tagdoc =  models.CharField('TAGDOC', max_length=6,
                                #blank=True, null=True,
                                db_index=True, default='25012')
@@ -357,6 +365,89 @@ class Recovery(models.Model):
             return False
 
 
+    def tagstat(self):
+        '''By definintion, all of the recoveries from other agencies/the
+        general public will have the tag on capture.  This method will ensure
+        that the appropriate code is returned for rending in templates.
+        '''
+        return 'C'
+
+    @property
+    def tag_colour(self):
+        '''a little function to parse tag doc and return the tag colour as a
+        string.'''
+        colour = 'Unknown'
+        if self.tagdoc:
+            try:
+                key = self.tagdoc[4]
+            except IndexError as e:
+                key = '9'  #unknown
+            choice_dict = {k:v for k,v in TAG_COLOUR_CHOICES}
+            colour = choice_dict.get(key, 'Unknown')
+        return colour
+
+    @tag_colour.setter
+    def tag_colour(self, value):
+        self._tag_colour = value
+
+    @property
+    def tag_type(self):
+        '''a little function to parse tag doc and return the tag type as a
+        string.'''
+        tag_type = 'Unknown'
+        if self.tagdoc:
+            try:
+                key = self.tagdoc[0]
+            except IndexError as e:
+                key = '9'  #unknown
+            choice_dict = {k:v for k,v in TAG_TYPE_CHOICES}
+            tag_type = choice_dict.get(key, 'Unknown')
+        return tag_type
+
+    @tag_type.setter
+    def tag_type(self, value):
+        self._tag_type = value
+
+    @property
+    def tag_position(self):
+        '''a little function to parse tag doc and return the tag position as a
+        string.'''
+        tag_position = 'Unknown'
+        if self.tagdoc:
+            try:
+                key = self.tagdoc[1]
+            except IndexError as e:
+                key = '9'  #unknown
+            choice_dict = {k:v for k,v in TAG_POSITION_CHOICES}
+            tag_position = choice_dict.get(key, 'Unknown')
+        return tag_position
+
+
+    @tag_position.setter
+    def tag_position(self, value):
+        self._tag_position = value
+
+
+    @property
+    def tag_origin(self):
+        '''a little function to parse tag doc and return the tag origin as a
+        string.'''
+        tag_origin = 'Unknown'
+        if self.tagdoc:
+            try:
+                key = self.tagdoc[2:4]
+            except IndexError as e:
+                key = '9'  #unknown
+            choice_dict = {k:v for k,v in TAG_ORIGIN_CHOICES}
+            tag_origin = choice_dict.get(key, 'Unknown')
+        return tag_origin
+
+
+    @tag_origin.setter
+    def tag_origin(self, value):
+        self._tag_origin = value
+
+
     def save(self, *args, **kwargs):
         '''We will need a custom save method to generate tagdoc from tag type,
         colour, position and orgin'''
@@ -457,6 +548,14 @@ class Encounter(models.Model):
 
     class Meta:
         ordering = ['tagdoc', 'tagid', 'observation_date']
+
+
+
+    def has_latlon(self):
+        if self.dd_lat and self.dd_lon:
+            return True
+        else:
+            return False
 
 
     def __str__(self):

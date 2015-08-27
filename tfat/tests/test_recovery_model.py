@@ -13,6 +13,8 @@ A. Cottrill
 
 
 from tfat.models import Recovery
+from tfat.constants import (TAG_COLOUR_CHOICES, TAG_ORIGIN_CHOICES,
+                            TAG_TYPE_CHOICES, TAG_POSITION_CHOICES)
 
 from tfat.tests.factories import *
 
@@ -333,3 +335,93 @@ def test_recovery_rwt_pounds_none():
                                spc=species,
                                rwt=None)
     assert recovery.pounds() is None
+
+
+
+
+@pytest.mark.django_db
+def test_recovery_tagstat():
+    """ By definintion, all of the recoveries from other agencies/the
+        general public will have the tag on capture.  This method will ensure
+        that the appropriate code is returned for rending in templates.
+    """
+    species = SpeciesFactory()
+    report = ReportFactory()
+    recovery = RecoveryFactory(report=report, spc=species)
+    assert recovery.tagstat() == 'C'
+
+
+
+#======================
+#   TAG ATTRIBUTES
+
+@pytest.mark.django_db
+def test_recovery_tag_type():
+    """
+    """
+
+    species = SpeciesFactory()
+    report = ReportFactory()
+
+    tagdoc_base = '{}5012'
+
+    should_be = {k:v for k,v in TAG_TYPE_CHOICES}
+    for k,tag_type in should_be.items():
+        tagdoc = tagdoc_base.format(k)
+        recovery = RecoveryFactory(report=report, spc=species,
+                                     tagdoc=tagdoc)
+        assert recovery.tag_type == tag_type
+
+
+@pytest.mark.django_db
+def test_recovery_tag_origin():
+    """
+    """
+
+    species = SpeciesFactory()
+    report = ReportFactory()
+
+    tagdoc_base = '25{}2'
+
+    should_be = {k:v for k,v in TAG_ORIGIN_CHOICES}
+    for k,origin in should_be.items():
+        tagdoc = tagdoc_base.format(k)
+        recovery = RecoveryFactory(report=report, spc=species,
+                                     tagdoc=tagdoc)
+        assert recovery.tag_origin == origin
+
+
+@pytest.mark.django_db
+def test_recovery_tag_position():
+    """
+    """
+
+    species = SpeciesFactory()
+    report = ReportFactory()
+
+    tagdoc_base = '2{}012'
+
+    should_be = {k:v for k,v in TAG_POSITION_CHOICES}
+    for k,position in should_be.items():
+        tagdoc = tagdoc_base.format(k)
+        recovery = RecoveryFactory(report=report, spc=species,
+                                     tagdoc=tagdoc)
+        assert recovery.tag_position == position
+
+
+@pytest.mark.django_db
+def test_recovery_tag_colour():
+    """
+    """
+
+    species = SpeciesFactory()
+    report = ReportFactory()
+
+    tagdoc_base = '2501{}'
+
+    should_be = {k:v for k,v in TAG_COLOUR_CHOICES}
+    for k,colour in should_be.items():
+        tagdoc = tagdoc_base.format(k)
+        recovery = RecoveryFactory(report=report, spc=species,
+                                     tagdoc=tagdoc)
+        assert recovery.tag_colour == colour

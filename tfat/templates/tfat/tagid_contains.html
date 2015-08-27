@@ -196,9 +196,9 @@
                                     <td> {{ object.spc.common_name }} </td>
                                     <td> {{ object.observation_date|date:"M d, Y" }} </td>
                                     <td> {{ object.grid }} </td>
-                                    <td> {{ object.get_tag_type_display }} </td>
-                                    <td> {{ object.get_tag_colour_display }} </td>
-                                    <td> {{ object.get_tag_origin_display }} </td>
+                                    <td> {{ object.tag_type }} </td>
+                                    <td> {{ object.tag_colour }} </td>
+                                    <td> {{ object.tag_origin }} </td>
                                     <td class="metric"> {{ object.tlen|intcomma }} </td>
                                     <td class="imperial"> {{ object.inches }} </td>
                                     <td class="metric"> {{ object.rwt|intcomma }} </td>
