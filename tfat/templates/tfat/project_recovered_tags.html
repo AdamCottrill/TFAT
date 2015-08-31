@@ -23,10 +23,8 @@
           <h3>N = {{ recovered|length }}  </h3>
       </div>
 
-      <p>A summary of tags applied in this project can be found <a href="
-{% url 'tags_applied_in_project' project.slug %}
-">here.</a></p>
-
+      <p>A summary of tags applied in this project can be found
+          <a href="{% url 'tags_applied_in_project' project.slug %}">here.</a></p>
 
       {% if recovered %}
       <script type="text/javascript">
@@ -49,8 +47,10 @@
 
            {% if angler_recaps.nobs %}
            {% for object in angler_recaps.queryset %}
+           {% if object.has_latlon %}
            L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon: angler}).addTo(map)
                .bindPopup('{{ object.popup_text|safe }}');
+           {% endif %}
            {% endfor %}
            {% endif %}
 
@@ -153,7 +153,7 @@
             </div> <!-- panel -->
             <div role="tabpanel" class="tab-pane" id="applied">
         </br>
-        <p>There are the original tagging events associated with the recaptures on the previous page.</p>
+        <p>There are the original tagging events associated with the recaptures on the previous tab.</p>
         {% if applied.nobs %}
         <div class="row">
             <div class="col-md-12">
@@ -180,7 +180,7 @@
                         {% for object in applied.queryset %}
                         <tr>
                             <td> <a href="{% url 'tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
-                            <td> {{ object.spc.common_name }} </td>
+                            <td> {{ object.common_name }} </td>
                             <td> {{ object.observation_date }} </td>
                             <td> {{ object.grid }} </td>
                             <td> {{ object.tag_type }} </td>
@@ -192,11 +192,11 @@
                             <td class="metric"> {{ object.rwt|intcomma }} </td>
                             <td class="imperial"> {{ object.pounds }} </td>
                             {% if object.tagstat = 'A' %}
-                            <td><a href="{% url 'tags_applied_in_project' object.project.slug %}">{{ object.project.prj_cd }}</a> </td>
+                            <td><a href="{% url 'tags_applied_in_project' object.slug %}">{{ object.prj_cd }}</a> </td>
                             {% else %}
-                            <td><a href="{% url 'tags_recovered_in_project' object.project.slug %}">{{ object.project.prj_cd }}</a> </td>
+                            <td><a href="{% url 'tags_recovered_in_project' object.slug %}">{{ object.prj_cd }}</a> </td>
                             {% endif %}
-                            <td> {{ object.project.prj_nm }} </td
+                            <td> {{ object.prj_nm }} </td
                         </tr>
                         {% endfor%}
                     </tbody>
@@ -245,7 +245,7 @@
                     {% for object in other_recoveries.queryset %}
                     <tr>
                         <td> <a href="{% url 'tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
-                        <td> {{ object.spc.common_name }} </td>
+                        <td> {{ object.common_name }} </td>
                         <td> {{ object.observation_date }} </td>
                         <td> {{ object.grid }} </td>
                         <td> {{ object.tag_type }} </td>
@@ -257,11 +257,11 @@
                         <td class="metric"> {{ object.rwt|intcomma }} </td>
                         <td class="imperial"> {{ object.pounds }} </td>
                         {% if object.tagstat = 'A' %}
-                        <td><a href="{% url 'tags_applied_in_project' object.project.slug %}">{{ object.project.prj_cd }}</a> </td>
+                        <td><a href="{% url 'tags_applied_in_project' object.slug %}">{{ object.prj_cd }}</a> </td>
                         {% else %}
-                        <td><a href="{% url 'tags_recovered_in_project' object.project.slug %}">{{ object.project.prj_cd }}</a> </td>
+                        <td><a href="{% url 'tags_recovered_in_project' object.slug %}">{{ object.prj_cd }}</a> </td>
                         {% endif %}
-                        <td> {{ object.project.prj_nm }} </td
+                        <td> {{ object.prj_nm }} </td
                     </tr>
                     {% endfor%}
                 </tbody>
@@ -309,7 +309,7 @@
                     {% for object in angler_recaps.queryset %}
                     <tr>
                         <td> <a href="{% url 'tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
-                        <td> {{ object.spc.common_name }} </td>
+                        <td> {{ object.common_name }} </td>
                         <td> {{ object.observation_date }} </td>
                         <td> {{ object.grid }} </td>
                         <td> {{ object.tag_type }} </td>
@@ -320,7 +320,8 @@
                         <td class="imperial"> {{ object.tlen_inches }} </td>
                         <td class="metric"> {{ object.rwt|intcomma }} </td>
                         <td class="imperial"> {{ object.pounds }} </td>
-                        <td> {{ object.report.reported_by}} </td>
+                        <td> <a href="{% url 'angler_reports' angler_id=object.reported_by_id %}">
+                            {{ object.reported_by }}</a> </td>
                         <td> {{ object.general_location }} </td>
                     </tr>
                     {% endfor%}
@@ -334,7 +335,7 @@
         </div>
     </div>
     {% else %}
-    <p>Sorry no tags match that criteria.</p>
+    <p>None of the tags applied in this project have been reported by other agencies or the general public.</p>
     <hr />
     <br />
     <br />

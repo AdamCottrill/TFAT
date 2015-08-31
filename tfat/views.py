@@ -120,7 +120,7 @@ class ProjectTagsAppliedListView(ListView):
 
     def get_queryset(self):
         "projects that re-captured at least one tag"
-        projects = Project.objects.filter(Encounters__tagid_isnull=False,
+        projects = Project.objects.filter(Encounters__tagid__isnull=False,
                                           Encounters__tagstat='A').distinct()
         return projects
 
@@ -150,7 +150,8 @@ def angler_reports_view(request, angler_id):
     angler = get_object_or_404(JoePublic, id=angler_id)
 
     recoveries = Recovery.objects.filter(report__reported_by=angler).\
-                 order_by('report__report_date')
+                 order_by('-report__report_date').\
+                 select_related('spc__common_name')
 
     #the subset of recovery events with both lat and lon (used for plotting)
     recoveries_with_latlon = [x for x in recoveries if x.dd_lat and x.dd_lon]
@@ -232,11 +233,6 @@ def tagid_contains_view(request, partial):
     """
 
     encounter_list = Encounter.objects.filter(tagid__icontains=partial)
-#    if not encounter_list:
-#        raise Http404
-#    else:
-#        encouter_list = encounter_list.order_by('tagid',
-#                                                'tagstat')[:MAX_RECORD_CNT]
 
     if encounter_list:
          encouter_list = encounter_list.order_by('tagid',
@@ -278,6 +274,10 @@ def tags_applied_project(request, slug):
     project = Project.objects.get(slug=slug)
 
     applied = Encounter.objects.filter(tagstat='A', project=project)
+
+    applied = applied.select_related('project__prj_cd', 'project__prj_nm',
+                                     'spc__common_name')
+
     recovered = get_omnr_tag_recoveries(slug)
     angler_recaps = get_angler_tag_recoveries(slug, 'A')
 
@@ -318,8 +318,14 @@ def tags_recovered_project(request, slug):
 
     recovered = Encounter.objects.filter(tagstat='C', project=project)
 
+    recovered = recovered.select_related('project__prj_cd', 'project__prj_nm',
+                                     'spc__common_name')
+
     applied = get_omnr_tag_application(slug)
     other_recoveries = get_other_omnr_recoveries(slug)
+
+    #import pdb;pdb.set_trace()
+
     angler_recaps = get_angler_tag_recoveries(slug, tagstat='C')
 
     mls = get_multilinestring([applied.get('queryset'), recovered,

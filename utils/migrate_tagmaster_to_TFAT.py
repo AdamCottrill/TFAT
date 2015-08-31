@@ -52,9 +52,16 @@ cursor.execute(sql)
 joe_public = cursor.fetchall()
 
 for person in joe_public:
+    if person[1]:
+        first_name = person[1].title()
+        last_name = person[2].title()
+    else:
+        nm = person[2].split(' ')
+        first_name = nm[0].title()
+        last_name = ' '.join(nm[1:]).title()
     joe = JoePublic(
-        first_name = person[1].title(),
-        last_name = person[2].title(),
+        first_name=first_name,
+        last_name=last_name,
         address1 = person[3],
         town = person[4],
         province = person[5],
@@ -64,28 +71,34 @@ for person in joe_public:
         email = person[9],)
     joe.save()
 
-#now we need a way to map the angler id numbers from tag master to the
-#id numbers of each JoePublic in the django application
 
+
+
+#now we need a way to map the angler id numbers from tag master to the
+#id numbers of each JoePublic in the django application create a
+#dictionary of first and last name (in lowercase without spaces)
+#mapped to id in our original tagging database.
+# e.g. bertadams:3, kenadams:4
 tm_anglers = {}
 for person in joe_public:
     if person[1]:
-        tm_anglers[person[1].lower() + person[2].lower()] = person[0]
+        label = person[1].lower() + person[2].lower()
     else:
-        tm_anglers[person[2].lower()] = person[0]
+        label = person[2].lower()
+    tm_anglers[label.replace(' ','')] = person[0]
 
 
 joes = JoePublic.objects.all()
 tfat_anglers = {}
 for person in joes:
     key = person.first_name.lower() + person.last_name.lower()
-    tfat_anglers[key] = person.id
-
+    tfat_anglers[key.replace(' ','')] = person.id
 
 #this will create a dictionary that has the tag master id's as the
 #keys, and the tfat ids as the values.  This dictionary can then be
 #used to get the correct Joe Public from reports generated from
 #tag_master
+#  <tag_master_ID>:<tfat_angler_id>
 angler_id_map = {}
 for k,v in tm_anglers.items():
     angler_id_map[v] = tfat_anglers[k]
@@ -141,7 +154,8 @@ for record in recoveries:
     if angler_id:
         joe = JoePublic.objects.get(id=angler_id)
     else:
-        print('problem with angler_id = {}'.format(record[0]))
+        msg = 'problem with tag_return.angler_id = {}. In tfat as "N/A N/A"'
+        print(msg.format(record[0]))
         joe = JoePublic.objects.get(first_name='N/A')
     report_date = timezone.localize(record[1])
     report  = Report.objects.get(reported_by=joe,
@@ -159,12 +173,18 @@ for record in recoveries:
         tagdoc = '99999'
     else:
         tagdoc=record[13]
+
+    if record[5]:
+        general_location = record[5][:50]
+    else:
+        general_location = None
+
     recovery = Recovery(
         report = report,
         spc = spc,
         recovery_date = timezone.localize(recovery_date),
         date_flag = date_flag,
-        general_location = record[5],
+        general_location = general_location,
         dd_lat = record[6],
         dd_lon = record[7],
         latlon_flag = int(record[8]),

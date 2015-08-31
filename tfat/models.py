@@ -2,6 +2,8 @@ from django.db import models
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
 
+import os
+
 import html
 
 from .constants import (REPORTING_CHOICES, SEX_CHOICES,
@@ -18,7 +20,7 @@ from .constants import (REPORTING_CHOICES, SEX_CHOICES,
 
 class Species(models.Model):
     species_code = models.IntegerField(unique=True)
-    common_name = models.CharField(max_length=30)
+    common_name = models.CharField(max_length=40)
     scientific_name = models.CharField(max_length=50, null=True, blank=True)
 
     class Meta:
@@ -47,7 +49,7 @@ class JoePublic(models.Model):
 
     first_name = models.CharField(max_length=15)
     last_name = models.CharField(max_length=50)
-    initial = models.CharField(max_length=50, blank=True, null=True)
+    initial = models.CharField(max_length=5, blank=True, null=True)
     # the address should should be 1-many with a default/current
     address1 = models.CharField(max_length=50, blank=True, null=True)
     address2 = models.CharField(max_length=50, blank=True, null=True)
@@ -76,6 +78,7 @@ class JoePublic(models.Model):
         else:
             display = '{}'.format(self.last_name)
         return display
+
 
 class Report(models.Model):
     '''
@@ -108,6 +111,9 @@ class Report(models.Model):
     #exactly is the follow up and who is it assigned to, who did it.
     follow_up  = models.BooleanField(default=False)
 
+    class Meta:
+        ordering = ['-report_date']
+
     def __str__(self):
         report = ""
         if self.reported_by and self.report_date:
@@ -125,7 +131,7 @@ class Report(models.Model):
         Arguments:
         - `self`:
         """
-        tags = self.Report.select_related()
+        tags = self.Report.select_related('spc__common_name')
         return tags
 
     def get_recoveries_with_latlon(self):
@@ -178,7 +184,7 @@ class Recovery(models.Model):
     tlen = models.IntegerField("Total Length", blank=True, null=True)
     rwt = models.IntegerField("Round Weight", blank=True, null=True)
 
-    sex  = models.CharField("Sex", max_length=30,
+    sex  = models.CharField("Sex", max_length=3,
                             choices=SEX_CHOICES, default="9",
                             null=True, blank=True)
     #clip information may need to be in a child table and presented as
@@ -212,13 +218,14 @@ class Recovery(models.Model):
                                db_index=True, default='25012')
 
     tag_removed = models.BooleanField(default=False)
-    fate = models.CharField("Fate", max_length=30, blank=True, null=True,
+    fate = models.CharField("Fate", max_length=3, blank=True, null=True,
                                choices=FATE_CHOICES, default="R")
 
     comment = models.CharField(max_length=500, blank=True, null=True)
 
     class Meta:
         ordering = ['tagdoc', 'tagid']
+        index_together = ['tagid', 'tagdoc', 'spc']
 
     def _get_observation_date(self):
         """An aliase for recovery date - if recovery date is available use it,
@@ -465,14 +472,32 @@ class Recovery(models.Model):
         super(Recovery, self).save(*args, **kwargs)
 
 
+
+class Database(models.Model):
+    '''A lookup table to hole list of master databases.'''
+    master_database = models.CharField(max_length=250)
+    path = models.CharField(max_length=250)
+
+    class Meta:
+        verbose_name = "Master Database"
+
+    def __unicode__(self):
+        '''return the database name as its string representation'''
+        return os.path.split(self.master_database)[1]
+
+
 class Project(models.Model):
     '''A model to hold basic information about the project in which tags
     were deployed or recovered'''
 
+    dbase  = models.ForeignKey(Database)
     year = models.IntegerField(db_index=True)
     prj_cd = models.CharField(db_index=True, max_length=12)
-    prj_nm = models.CharField(max_length=30)
+    prj_nm = models.CharField(max_length=100)
     slug = models.SlugField(db_index=True, blank=True, editable=False)
+
+    class Meta:
+        ordering = ['-year', 'prj_cd']
 
     def __str__(self):
         return '{} ({})'.format(self.prj_cd, self.prj_nm)
@@ -520,6 +545,8 @@ class Encounter(models.Model):
     spc  = models.ForeignKey(Species)
     sam = models.CharField(max_length=5)
     eff = models.CharField(max_length=3)
+    grp = models.CharField(max_length=3)
+    fish = models.CharField(max_length=10)
     observation_date = models.DateField()
     grid = models.CharField(max_length=4)
     dd_lat = models.FloatField()
@@ -530,7 +557,7 @@ class Encounter(models.Model):
     rwt = models.IntegerField(null=True, blank=True)
     age = models.IntegerField(null=True, blank=True)
 
-    sex  = models.CharField("Sex", max_length=30,
+    sex  = models.CharField("Sex", max_length=3,
                             choices=SEX_CHOICES, default="9",
                             null=True, blank=True)
     clipc = models.CharField(max_length=5, null=True, blank=True)
@@ -548,7 +575,7 @@ class Encounter(models.Model):
 
     class Meta:
         ordering = ['tagdoc', 'tagid', 'observation_date']
-
+        index_together = ['tagid', 'tagdoc', 'spc']
 
     def has_latlon(self):
         if self.dd_lat and self.dd_lon:

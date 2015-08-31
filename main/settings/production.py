@@ -5,23 +5,11 @@ TEMPLATE_DEBUG = DEBUG
 
 ALLOWED_HOSTS = ['*']
 
-DB_FILE = os.path.abspath(os.path.join(BASE_DIR, '../db/tfat.db')),
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': DB_FILE[0],
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'tfat',
+        'USER': 'cottrillad',
+        'PASSWORD': 'django',
     }
 }
-
-
-
-
-#DATABASES = {
-#    'default': {
-#         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-#         'NAME': 'pjtk2',
-#         'USER': 'adam',
-#         'PASSWORD': 'django',
-#     }
-#}

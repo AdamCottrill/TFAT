@@ -65,6 +65,13 @@ class RecoveryFactory(factory.DjangoModelFactory):
     fate = 'K'
 
 
+class DatabaseFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = Database
+
+    master_database = "Fake Master"
+    path = "C:/Path/to/somedb.mdb"
+
 
 class ProjectFactory(factory.DjangoModelFactory):
     class Meta:
@@ -73,6 +80,7 @@ class ProjectFactory(factory.DjangoModelFactory):
     year = '2012'
     prj_cd = 'LHA_IS12_123'
     prj_nm = 'My Fake Project'
+    dbase = factory.SubFactory(DatabaseFactory)
 
     #slug = factory.LazyAttribute(lambda o: o.prj_cd.lower())
 
