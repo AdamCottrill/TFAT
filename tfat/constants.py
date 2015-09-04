@@ -65,6 +65,7 @@ TAG_TYPE_CHOICES = {
     ('8', 'Secure Tie'),
 #    ('9', 'Type Unknown or not applicable'),
     ('A', 'Internal (Radio)'),
+    ('B', 'Metal Livestock'),
 #    ('X', 'Tag Scar/obvious loss'),
 }
 
@@ -95,7 +96,9 @@ TAG_ORIGIN_CHOICES = {
     ('11', 'Sir Sandford Fleming College'),
     ('12', 'Private Club'),
     ('13', 'Ontario Hydro'),
-    ('19', 'Other'),
+    ('19', 'USWFW'),
+    ('20', 'USGS'),
+    ('98', 'Other'),
     ('99', 'Unknown'),
 }
 
@@ -105,7 +108,7 @@ TAG_COLOUR_CHOICES = {
     ('3', 'Red'),
     ('4', 'Green'),
     ('5', 'Orange'),
-    ('6', 'Other'),
+    ('6', 'Silver'),
     ('9', 'Unknown'),
 }
 

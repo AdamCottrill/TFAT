@@ -481,9 +481,10 @@ class Database(models.Model):
     class Meta:
         verbose_name = "Master Database"
 
-    def __unicode__(self):
+    def __str__(self):
         '''return the database name as its string representation'''
-        return os.path.split(self.master_database)[1]
+
+        return  self.master_database
 
 
 class Project(models.Model):
@@ -583,6 +584,20 @@ class Encounter(models.Model):
         else:
             return False
 
+    def fn_key(self):
+        """
+
+        Arguments:
+        - `self`:
+        """
+        base_string = '{}-{}-{}-{}-{}-{}'
+        fn_key = base_string.format(self.project.prj_cd, self.sam,
+                                    self.eff, self.spc.species_code,
+                                    self.grp, self.fish)
+        return fn_key
+
+
+
 
     def __str__(self):
         return '{}<{}>({})'.format(self.tagid, self.tagdoc,
@@ -651,7 +666,7 @@ class Encounter(models.Model):
                        '    </tr>' +
                        '    <tr>' +
                        '        <td>FN Fields:</td>' +
-                       '        <td>{fn_key}-SAM-EFF-SPC-GRP-FISH</td>' +
+                       '        <td>{fn_key}</td>' +
                        '    </tr>' +
                        '</table>')
 
@@ -665,7 +680,7 @@ class Encounter(models.Model):
                           'obs_date':obs_date,
                           'common_name':self.spc.common_name,
                           'species_code':self.spc.species_code,
-                          'fn_key':self.project.prj_cd}
+                          'fn_key':self.fn_key()}
 
         popup = base_string.format(**encounter_dict)
 

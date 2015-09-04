@@ -8,7 +8,7 @@ from tfat.views import (SpeciesListView, ReportListView,
                         tagid_contains_view, tagid_detail_view,
                         angler_reports_view, create_angler, update_angler,
                         tags_recovered_project, tags_applied_project,
-                        tagid_quicksearch_view,
+                        tagid_quicksearch_view, encounter_detail_view,
                         create_report, edit_report, report_detail_view,
                         create_recovery, edit_recovery, recovery_detail_view,
                         serve_file)
@@ -88,8 +88,6 @@ urlpatterns = patterns("",
 
 
 
-
-
         url(
             regex=r'^project_list/tagged_in$',
             view=ProjectTagsAppliedListView.as_view(),
@@ -119,6 +117,14 @@ urlpatterns = patterns("",
             view=tags_applied_project,
             name='tags_applied_in_project'
             ),
+
+
+        url(
+            regex=r'^encounter_detail/(?P<encounter_id>\d+)/$',
+            view=encounter_detail_view,
+            name='encounter_detail'
+            ),
+
 
 
         #CRUD Anglers

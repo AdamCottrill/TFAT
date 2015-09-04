@@ -114,6 +114,21 @@ class EncounterListView(ListView):
     model = Encounter
 
 
+def encounter_detail_view(request, encounter_id):
+    """This view returns the detailed information about an mnr encounter
+    event (i.e. - a 125 record in one of our master databases).
+
+    Arguments:
+    - `recovery_id`:
+
+    """
+    encounter = get_object_or_404(Encounter, id=encounter_id)
+
+    return render_to_response('tfat/encounter_detail.html',
+                              {'encounter':encounter,},
+                              context_instance=RequestContext(request))
+
+
 class ProjectTagsAppliedListView(ListView):
     model = Project
     template_name = 'tfat/project_applied_list.html'
@@ -324,8 +339,6 @@ def tags_recovered_project(request, slug):
     applied = get_omnr_tag_application(slug)
     other_recoveries = get_other_omnr_recoveries(slug)
 
-    #import pdb;pdb.set_trace()
-
     angler_recaps = get_angler_tag_recoveries(slug, tagstat='C')
 
     mls = get_multilinestring([applied.get('queryset'), recovered,
@@ -501,6 +514,9 @@ def recovery_detail_view(request, recovery_id):
     return render_to_response('tfat/recovery_detail.html',
                               {'recovery':recovery,},
                               context_instance=RequestContext(request))
+
+
+
 
 
 
