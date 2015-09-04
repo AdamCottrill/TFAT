@@ -12,7 +12,9 @@ A. Cottrill
 =============================================================
 '''
 
+from collections import OrderedDict
 from datetime import datetime
+from django.db.models import Count
 from geojson import MultiLineString
 from tfat.models import *
 
@@ -446,3 +448,41 @@ def get_omnr_tag_application(project_slug):
     nobs = len([x.id for x in queryset])
 
     return { 'queryset':queryset, 'nobs':nobs }
+
+
+
+def get_recoveries_per_year():
+    """A helper function used by years_with_tag_recoveries view.  returns
+    a set of nested dictionaries.  The outer dictionary is ordered and
+    keyed by year.  The inner dictionaries contain the keys 'anglers'
+    and 'omnr', each containing the number of tags recoverd by source
+    for that year.
+
+    """
+    omnr_recaps = Encounter.objects.filter(tagstat='C').\
+                  values_list('project__year').annotate(total=Count('sam')).\
+                  order_by('project__year')
+
+    omnr_recap_dict = {k:v for k,v in omnr_recaps}
+
+    angler_recoveries = Recovery.objects.filter(recovery_date__isnull=False)\
+                                 .values_list('recovery_date')
+
+    years = [x[0].year for x in angler_recoveries]
+    recovery_dict = dict()
+    for yr in years:
+        if recovery_dict.get(yr):
+            recovery_dict[yr] += 1
+        else:
+            recovery_dict[yr] = 1
+
+        #tags_recovered[yr] = dict('encounters':N, 'recoveries':N)
+    tags_recovered = OrderedDict()
+    yrs = list(set(recovery_dict.keys()).union(set(omnr_recap_dict.keys())))
+    yrs.sort(reverse=True)
+    for yr in yrs:
+        omnr = omnr_recap_dict.get(yr) if omnr_recap_dict.get(yr) else 0
+        anglers = recovery_dict.get(yr) if recovery_dict.get(yr) else 0
+        tags_recovered[yr] = dict(omnr=omnr, anglers=anglers)
+
+    return tags_recovered

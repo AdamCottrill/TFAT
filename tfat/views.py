@@ -114,6 +114,8 @@ class EncounterListView(ListView):
     model = Encounter
 
 
+
+
 def encounter_detail_view(request, encounter_id):
     """This view returns the detailed information about an mnr encounter
     event (i.e. - a 125 record in one of our master databases).
@@ -150,6 +152,43 @@ class ProjectTagsRecoveredListView(ListView):
         projects = Project.objects.filter(Encounters__tagid__isnull=False,
                                           Encounters__tagstat='C').distinct()
         return projects
+
+
+
+def years_with_tags_applied_view(request):
+    '''Render a list of years in which tags were applied.  The list of
+    years should be in descending order and include the number of tags
+    applied
+
+    '''
+
+    tags_applied  = Encounter.objects.filter(tagstat='A').\
+                  values_list('project__year').annotate(total=Count('sam')).\
+                  order_by('-project__year')
+
+    tags_applied_dict = OrderedDict()
+
+    for yr, total in tags_applied:
+        tags_applied_dict[yr] = total
+
+    return render_to_response('tfat/years_with_tags_applied.html',
+                              {'tags_applied':tags_applied_dict},
+                              context_instance=RequestContext(request))
+
+def years_with_tags_recovered_view(request):
+    '''Render a list of years in which tags were recovered either by OMNR
+    or outside agency.  The list of years should be in descending
+    order and include the number of tags recovered by the OMNR and the
+    number recovered by the general public or other agencies.
+    '''
+
+    #calculate the number of recoveries per year:
+
+    tags_recovered = get_recoveries_per_year()
+
+    return render_to_response('tfat/years_with_tags_recovered.html',
+                              {'tags_recovered':tags_recovered},
+                              context_instance=RequestContext(request))
 
 
 def angler_reports_view(request, angler_id):
@@ -265,6 +304,98 @@ def tagid_contains_view(request, partial):
                                'max_record_count':MAX_RECORD_CNT,
                                'nobs':detail_data.get('nobs',0),
                            }, context_instance=RequestContext(request))
+
+
+def tags_recovered_year(request, year):
+    '''A view to show the where recoveries in a particular year originated
+
+    Required data elements:
+
+    - tags recovered in this year
+    - application events (ie. - OMNR encounters were tagstat=A)
+    - subsequent recoveries of those tags:
+      + in other UGLMU Years (tagstat=C, id different that this event)
+      + in recaptured by anglers/non-mnr sources
+    - mls line connecting encounters with the same tagid
+
+    Only recaptures/application events of the same species will be
+    included - no warning is issued if multiple tagdocs are returned -
+    this is only relevant on an individual tag id basis (there could
+    very well be more than one tagdoc deployed and subsequently
+    recovered in a year)
+
+    '''
+
+    encounter_list = Encounter.objects.filter(tagstat='C', project__year=year)
+
+    encounter_list = encounter_list.select_related('project__prj_cd',
+                                              'project__prj_nm',
+                                              'spc__common_name')
+
+    #applied = get_omnr_tag_application(slug)
+    #other_recoveries = get_other_omnr_recoveries(slug)
+
+    #angler_recaps = get_angler_tag_recoveries(slug, tagstat='C')
+
+    angler_recaps = Recovery.objects.filter(recovery_date__year=year)
+
+    #mls = get_multilinestring([applied.get('queryset'), recovered,
+    #                           other_recoveries.get('queryset'),
+    #                           angler_recaps.get('queryset')])
+
+    return render_to_response('tfat/year_recovered_tags.html',
+                              {'year':year,
+                               'encounter_list':encounter_list,
+                               #'other_recoveries':other_recoveries,
+                               'angler_recaps':angler_recaps,
+                               #'applied':applied,
+                               #'mls':mls
+                           }, context_instance=RequestContext(request))
+
+
+
+
+
+
+def tags_applied_year(request, year):
+    '''A view to show the of all tags applied in a particular
+    year and their assoiciated recoveries
+
+    Required data elements:
+
+    - tags applied in this year
+    - subsequent recoveries of those tags:
+      + in other UGLMU Years
+      + in recaptured by anglers/non-mnr sources
+    - mls line connecting encounters with the same tagid
+
+    Only recaptures of the same species will be included - no warning
+    is issued if multiple tagdocs are returned - this is only relevant
+    on an individual tag id basis (there could very well be more than
+    one tagdoc deployed and subsequently recovered in a year)
+
+    '''
+
+    applied = Encounter.objects.filter(tagstat='A', project__year=year)
+
+    applied = applied.select_related('project__prj_cd', 'project__prj_nm',
+                                     'spc__common_name')
+
+    #recovered = get_omnr_tag_recoveries(slug)
+    #angler_recaps = get_angler_tag_recoveries(slug, 'A')
+
+    #mls = get_multilinestring([applied, recovered.get('queryset'),
+    #                           angler_recaps.get('queryset')])
+
+    return render_to_response('tfat/year_applied_tags.html',
+                              {'year':year,
+                               'applied':applied,
+                               #'recovered':recovered,
+                               #'angler_recaps':angler_recaps,
+                               #'mls':mls,
+                           }, context_instance=RequestContext(request))
+
+
 
 
 

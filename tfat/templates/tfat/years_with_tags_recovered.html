@@ -1,0 +1,61 @@
+{% extends "tfat/tfat_base.html" %}
+
+<!-- {% block pages %}
+
+
+{% endblock %}
+-->
+
+{% block extrahead %}
+
+<style type="text/css" media="screen">
+ .table td {
+   text-align: center;
+}
+
+ th {
+   text-align: center;
+}
+</style>
+
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <div class="row">
+    <h2>Tags Recovered By Year </h2>
+  </div>
+  <br />
+  {% if tags_recovered %}
+  <div class="row">
+    <div class="col-md-6 col-md-offset-1">
+      <table class="table">
+          <thead>
+              <tr>
+                  <th>Year</th>
+                  <th>OMNR Recoveries</th>
+                  <th>Anlger Returns</th>
+              </tr>
+          </thead>
+        {% for yr, counts in tags_recovered.items %}
+        <tr>
+            <td><a href="{% url 'tags_recovered_in_year' yr %}">{{ yr }}</a> </td>
+            <td>{{ counts.omnr }}</td>
+            <td>{{ counts.anglers }}</td>
+        </tr>
+        {% endfor%}
+      </table>
+      {% else %}
+      <p>Sorry no tagging data available.</p>
+      {% endif %}
+    </div>
+  </div>
+
+
+</div>
+
+
+
+
+{% endblock %}

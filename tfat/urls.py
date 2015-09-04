@@ -11,6 +11,10 @@ from tfat.views import (SpeciesListView, ReportListView,
                         tagid_quicksearch_view, encounter_detail_view,
                         create_report, edit_report, report_detail_view,
                         create_recovery, edit_recovery, recovery_detail_view,
+                        years_with_tags_applied_view,
+                        years_with_tags_recovered_view,
+                        tags_applied_year,
+                        tags_recovered_year,
                         serve_file)
 
 urlpatterns = patterns("",
@@ -87,7 +91,7 @@ urlpatterns = patterns("",
             ),
 
 
-
+       #TAGGED AND RECOVERED IN A PROJECT
         url(
             regex=r'^project_list/tagged_in$',
             view=ProjectTagsAppliedListView.as_view(),
@@ -117,6 +121,39 @@ urlpatterns = patterns("",
             view=tags_applied_project,
             name='tags_applied_in_project'
             ),
+
+
+
+       #TAGGED AND RECOVERED IN A YEAR
+        url(
+            regex=r'^years/tagged_in$',
+            view=years_with_tags_applied_view,
+            name='yearlist_taggedin'
+            ),
+
+
+        url(
+            regex=r'^years/recovered_in$',
+            view=years_with_tags_recovered_view,
+            name='yearlist_recoveredin'
+            ),
+
+
+        url(
+            regex=(r'^recovered_in/(?P<year>\d{4})/$'),
+            view=tags_recovered_year,
+            name='tags_recovered_in_year'
+            ),
+
+
+        url(
+            regex=(r'^applied_in/(?P<year>\d{4})/$'),
+            view=tags_applied_year,
+            name='tags_applied_in_year'
+            ),
+
+
+
 
 
         url(

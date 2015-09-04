@@ -64,7 +64,6 @@
       <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav">
 
-
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Report A Tag<b class="caret"></b></a>
             <ul class="dropdown-menu">
@@ -87,8 +86,8 @@
                 {% url 'angler_list' as anglers_url%}
               <li><a href="{{ anglers_url }}">By Reporter</a></li>
               <li class="divider"></li>
-              <li><a href="#">Tagged in an Year</a></li>
-              <li><a href="#">Recovered in a Year</a></li>
+              <li><a href="{% url 'yearlist_taggedin' %}">Tagged in an Year</a></li>
+              <li><a href="{% url 'yearlist_recoveredin' %}">Recovered in a Year</a></li>
 
               <li class="divider"></li>
               {% url 'projectlist_taggedin' as projectlist_taggedin %}
