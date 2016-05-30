@@ -55,6 +55,14 @@ urlpatterns = patterns("",
 
 
         url(
+            r'^angler_reports/report_a_tag/(?P<angler_id>\d+)/$',
+            angler_reports_view,
+            {'report_a_tag':True},
+            name='angler_report_a_tag',
+
+            ),
+
+        url(
             regex=r'^reports/$',
             view=ReportListView.as_view(),
             name='report_list'

@@ -171,3 +171,33 @@ def test_report_follow_up_in_response(client, db_setup):
                                   kwargs={'angler_id':angler.id}))
     content = str(response.content)
     assert 'Follow-up Required' in content
+
+
+@pytest.mark.django_db
+def test_step2_not_in_anlger_reports(client, db_setup):
+    """Verify that Step 2 instructions are not in the normal angler report view.
+    """
+
+    angler = JoePublic.objects.get(first_name='Homer')
+    response = client.get(reverse('angler_reports',
+                                  kwargs={'angler_id':angler.id}))
+    content = str(response.content)
+    assert 'Step 2' not in content
+
+
+@pytest.mark.django_db
+def test_step2_in_anlger_report_a_tag(client, db_setup):
+    """When the angler reports is accessed through the angler_report_a_tag
+    url, it should contain a message describing the next
+    step in the process. (i.e. - click the new report button)
+
+    """
+
+    angler = JoePublic.objects.get(first_name='Homer')
+    response = client.get(reverse('angler_report_a_tag',
+                                  kwargs={'angler_id':angler.id}))
+    content = str(response.content)
+
+    msg = ('Step 2 - To create a new report click on the' +
+           ' "Create New Report" button')
+    assert msg in content

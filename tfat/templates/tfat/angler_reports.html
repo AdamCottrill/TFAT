@@ -26,6 +26,12 @@
 {% block content %}
 <div class="container">
 
+    {% if report_a_tag == True %}
+    <div class="alert alert-info" role="alert">
+        <h3>Step 2 - To create a new report click on the "Create New Report" button</h3>
+    </div>
+    {% endif %}
+
     <div class="row">
         <h2>Tag Reports Filed By {{ angler }}</h2>
     </div>

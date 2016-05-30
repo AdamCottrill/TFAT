@@ -7,6 +7,8 @@ from django.shortcuts import render, redirect
 from django.template import RequestContext
 from django.views.generic import ListView
 
+from django.contrib import messages
+
 import os
 import mimetypes
 
@@ -89,27 +91,23 @@ report_list = RecoveryReportsListView.as_view()
 
 
 class AnglerListView(ListFilteredMixin, ListView):
+    '''A generic list view of all anglers in our database.  If the view is
+    called with an optional report at tag option, instructions will be
+    included in the response.
+    '''
+
 
     model = JoePublic
     queryset = JoePublic.objects.all()
     filter_set = JoePublicFilter
     paginage_by = ANGLER_PAGE_CNT
     template_name = 'tfat/angler_list.html'
-    #extra_context = {'report_a_tag':False}
     extra_context = {}
 
     def get_context_data(self, *args, **kwargs):
         context = super(AnglerListView, self).get_context_data(*args, **kwargs)
         context.update(self.extra_context)
         return context
-
-#        import pdb;pdb.set_trace()
-#
-#        if 'report_a_tag' in self.kwargs:
-#            context['report_a_tag'] = self.kwargs['report_a_tag']
-#        else:
-#            context['report_a_tag'] = False
-#        return context
 
 report_a_tag = AnglerListView.as_view(extra_context={'report_a_tag':True})
 angler_list = AnglerListView.as_view()
@@ -210,9 +208,12 @@ def years_with_tags_recovered_view(request):
                               context_instance=RequestContext(request))
 
 
-def angler_reports_view(request, angler_id):
+def angler_reports_view(request, angler_id, report_a_tag=False):
     """Display all of the reports associated with an angler.  Returns
     recoveries to template, which are then grouped by report in template.
+
+    report_a_tag is used to include additional information in the
+    rendered template.
 
     Arguments:
     - `request`:
@@ -232,8 +233,11 @@ def angler_reports_view(request, angler_id):
     return render_to_response('tfat/angler_reports.html',
                               {'angler':angler,
                                'recoveries_with_latlon':recoveries_with_latlon,
-                               'recoveries':recoveries},
+                               'recoveries':recoveries,
+                               'report_a_tag':report_a_tag},
                               context_instance=RequestContext(request))
+
+
 
 def tagid_detail_view(request, tagid):
     """This view returns all of the omnr encounters and any angler
