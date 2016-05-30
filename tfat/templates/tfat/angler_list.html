@@ -12,7 +12,13 @@
 
     <div class="row">
         <div class="col-md-8" >
+            {% if report_a_tag == True %}
+            <br />
+            <h2>Step 1 - Find or Create the Person or Organization:</h2>
+            {% else %}
             <h2>Tag Returnees</h2>
+            {% endif %}
+
         </div>
         <div class="col-md-4" >
             <a class="btn btn-default" href="#" role="button" onclick="toggle_visibility('filter');">Filter </a>
@@ -129,14 +135,21 @@
 
 function toggle_visibility(id) {
 var e = document.getElementById(id);
-if(e.style.display == 'block')
-e.style.display = 'none';
-else
+
+if(e.style.display == 'none')
 e.style.display = 'block';
+else
+e.style.display = 'none';
+
 }
 
+
+{% if report_a_tag == True %}
+$(document).ready(function(){
+    toggle_visibility('filter');
+});
+{% endif %}
+
 </script>
-
-
 
 {% endblock %}

@@ -89,13 +89,32 @@ report_list = RecoveryReportsListView.as_view()
 
 
 class AnglerListView(ListFilteredMixin, ListView):
+
     model = JoePublic
     queryset = JoePublic.objects.all()
     filter_set = JoePublicFilter
     paginage_by = ANGLER_PAGE_CNT
     template_name = 'tfat/angler_list.html'
+    #extra_context = {'report_a_tag':False}
+    extra_context = {}
 
+    def get_context_data(self, *args, **kwargs):
+        context = super(AnglerListView, self).get_context_data(*args, **kwargs)
+        context.update(self.extra_context)
+        return context
+
+#        import pdb;pdb.set_trace()
+#
+#        if 'report_a_tag' in self.kwargs:
+#            context['report_a_tag'] = self.kwargs['report_a_tag']
+#        else:
+#            context['report_a_tag'] = False
+#        return context
+
+report_a_tag = AnglerListView.as_view(extra_context={'report_a_tag':True})
 angler_list = AnglerListView.as_view()
+
+
 
 
 class SpeciesListView(ListView):

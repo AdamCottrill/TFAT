@@ -15,6 +15,7 @@ from tfat.views import (SpeciesListView, ReportListView,
                         years_with_tags_recovered_view,
                         tags_applied_year,
                         tags_recovered_year,
+                        report_a_tag,
                         serve_file)
 
 urlpatterns = patterns("",
@@ -199,6 +200,11 @@ urlpatterns = patterns("",
             ),
 
 
+        url(
+            regex=r'^report_a_tag/$',
+            view = 'tfat.views.report_a_tag',
+            name='report_a_tag'
+            ),
 
 
         #TAG RECOVERIES
