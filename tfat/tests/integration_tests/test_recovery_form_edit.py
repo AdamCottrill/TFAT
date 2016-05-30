@@ -121,6 +121,31 @@ def test_basic_data(client, db_setup):
 
 
 @pytest.mark.django_db
+def test_basic_data_no_add_another(client, db_setup):
+    """If we are editing an existing recovery, when it is submitted, the
+    'Add Another Tag' button should not appear in the repsonse.  It is for
+    new tags only.
+
+    """
+
+    recoveries = Recovery.objects.all()
+    assert len(recoveries) == 1
+
+    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
+    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+
+    tagid = '33333'
+    tagdoc = '25012'
+    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,}
+
+    response = client.post(url, tag_data, follow=True)
+
+    content = str(response.content)
+
+    assert "Add Another Tag" not in content
+
+
+@pytest.mark.django_db
 def test_missing_tagid(client, db_setup):
     """tagid is a required field.  If the form is submitted without it, a
     meaningful error message should be generated.

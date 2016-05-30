@@ -118,6 +118,27 @@ def test_basic_data(client, db_setup, tag_data):
     assert recoveries[0].tagdoc == tagdoc
 
 
+@pytest.mark.django_db
+def test_basic_data_add_another(client, db_setup, tag_data):
+    """When we create a new tag recovery object, a button should appear on the
+    associated details page allowing us to add another tag recovery.
+
+    """
+
+    report = Report.objects.get(reported_by__first_name='Homer')
+    url = reverse('create_recovery', kwargs={'report_id':report.id})
+
+    tagid = '12345'
+    tagdoc = '25012'
+    tag_data['tagid'] = tagid
+    tag_data['tagdoc'] = tagdoc
+
+    response = client.post(url, tag_data, follow=True)
+
+    content = str(response.content)
+    assert 'Add Another Tag' in content
+
+
 
 @pytest.mark.django_db
 def test_missing_tagid(client, db_setup, tag_data):

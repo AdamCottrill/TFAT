@@ -591,10 +591,8 @@ def edit_report(request, report_id):
         form = ReportForm(request.POST, request.FILES, instance=report)
         if form.is_valid():
             report = form.save(commit=False)
-            #report.associated_file = request.FILES.get('associated_file')
             report.reported_by = angler
             report.save()
-            #redirect to report details:
             return redirect('report_detail', report_id=report.id)
     else:
         form = ReportForm(instance=report)
@@ -619,7 +617,7 @@ def create_recovery(request, report_id):
     if request.method == 'POST':
         if form.is_valid():
             recovery = form.save(report=report)
-            return redirect('recovery_detail', recovery_id=recovery.id)
+            return redirect('new_recovery_detail', recovery_id=recovery.id)
     return render(request, 'tfat/recovery_form.html', {'form': form,
                                                        'clip_codes':clip_codes,
                                                        'tag_types':tag_types,
@@ -656,20 +654,20 @@ def edit_recovery(request, recovery_id):
 
 
 
-def recovery_detail_view(request, recovery_id):
+def recovery_detail_view(request, recovery_id, add_another=False):
     """This view returns the detailed information about a recovery event.
 
     Arguments:
     - `recovery_id`:
-
+    - `add_another`: a flag to control if an add another button should
+    be dispalyed
     """
     recovery = get_object_or_404(Recovery, id=recovery_id)
 
     return render_to_response('tfat/recovery_detail.html',
-                              {'recovery':recovery,},
+                              {'recovery':recovery,
+                               'add_another':add_another},
                               context_instance=RequestContext(request))
-
-
 
 
 

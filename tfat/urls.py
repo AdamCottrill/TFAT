@@ -236,6 +236,13 @@ urlpatterns = patterns("",
             name='recovery_detail'
             ),
 
+        url(
+            r'^recovery_detail/new/(?P<recovery_id>\d+)/$',
+            recovery_detail_view,
+            {'add_another':True},
+            name='new_recovery_detail'
+            ),
+
 
 
 
