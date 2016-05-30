@@ -20,7 +20,7 @@ from django.core.urlresolvers import reverse
 
 from tfat.tests.factories import *
 
-from datetime import datetime
+#from datetime import datetime
 
 
 @pytest.fixture(scope='class')

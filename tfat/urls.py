@@ -199,6 +199,8 @@ urlpatterns = patterns("",
             ),
 
 
+
+
         #TAG RECOVERIES
         url(
             regex=r'^create_recovery/(?P<report_id>\d+)/$',

@@ -7,3 +7,4 @@ db/*
 htmlcov/*
 static/*
 media/*
+docs/*

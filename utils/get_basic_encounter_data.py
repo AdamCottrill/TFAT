@@ -127,7 +127,7 @@ def yr_from_prjcd(prj_cd):
 #and project object too.
 
 #clear out existing encounter objects:
-#foo = Encounter.objects.all().delete()
+foo = Encounter.objects.all().delete()
 
 sql = 'exec Get_All_Encounters'
 

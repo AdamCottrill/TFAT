@@ -300,7 +300,7 @@ class Recovery(models.Model):
             recovery_date = 'Unknown'
 
         comments = self.get_comments()
-
+        last_name = html.escape(self.report.reported_by.last_name)
         href = '<a href="{}">{}</a>'.format(self.get_tagid_url(), self.tagid)
 
         encounter_dict = {'tagid': href,
@@ -309,7 +309,7 @@ class Recovery(models.Model):
                           'common_name':self.spc.common_name,
                           'species_code':self.spc.species_code,
                           'first_name':self.report.reported_by.first_name,
-                          'last_name':self.report.reported_by.last_name,
+                          'last_name':last_name,
                           'comments':comments}
 
         popup = base_string.format(**encounter_dict)
