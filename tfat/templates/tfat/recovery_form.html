@@ -260,9 +260,7 @@
                                     {% endfor %}
                                     {% endif %}
                                 </div>
-
                                 <h4>Coordinates</h4>
-
 
                                 <div class="panel panel-default"> <!-- out tabpanel -->
                                     <div class="panel-body">      <!-- out tab panel body-->
@@ -515,6 +513,7 @@
 
                                 </p>
                                 <div id="main_map" style="width: 500px; height: 500px;"></div>
+                                <p class="pull-right"  id="latlon_text"></p>
                             </div> <!-- map column-->
                         </div>
 
@@ -909,6 +908,9 @@
          $('input[id="dms_lon_min"]').val(lon_iminutes);
          $('input[id="dms_lon_sec"]').val(lon_seconds);
 
+
+         // the coordinates under the map:
+         $("#latlon_text").html('<em>' +  dd_lat.toFixed(4) + '&deg;N ' + dd_lon.toFixed(4) + '&deg;W</em>');
 
      }
 
@@ -1665,7 +1667,7 @@
 
      $('input[id="id_rwt_lbs"]').change (function () {
          var rwt_lbs = parseFloat($('input[id="id_rwt_lbs"]').val());
-         var rwt = rwt_lbs * 453.592 ;
+         var rwt = Math.round(rwt_lbs * 453.592);
          $('input[id="id_rwt"]').val(rwt);
      });
 
@@ -1679,13 +1681,13 @@
 
      $('input[id="id_flen"]').change (function () {
          var flen = parseFloat($('input[id="id_flen"]').val());
-         var flen_inches = flen / 25.4 ;
+         var flen_inches = flen / 25.4;
          $('input[id="id_flen_inches"]').val(flen_inches);
      });
 
      $('input[id="id_flen_inches"]').change (function () {
          var flen_inches = parseFloat($('input[id="id_flen_inches"]').val());
-         var flen = flen_inches * 25.4 ;
+         var flen = Math.round(flen_inches * 25.4);
          $('input[id="id_flen"]').val(flen);
      });
 
@@ -1704,7 +1706,7 @@
 
      $('input[id="id_tlen_inches"]').change (function () {
          var tlen_inches = parseFloat($('input[id="id_tlen_inches"]').val());
-         var tlen = tlen_inches * 25.4 ;
+         var tlen = Math.round(tlen_inches * 25.4);
          $('input[id="id_tlen"]').val(tlen);
      });
 

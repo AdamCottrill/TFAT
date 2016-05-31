@@ -34,16 +34,13 @@
     <div class="row">
         <h2>Tag Recovery Event ({{ recovery.id }})</h2>
         <div class="btn-toolbar pull-right">
+        <a class="btn btn-primary" href="{% url 'edit_recovery' recovery_id=recovery.id  %}" role="button">
+            <span class="glyphicon glyphicon-edit"></span>  Edit Recovery Data</a>
         {% if add_another %}
             <a class="btn btn-danger" href="{% url 'create_recovery' report_id=recovery.report.id  %}" role="button">
                 <span class="glyphicon glyphicon-plus-sign"></span>  Add Another Tag </a>
-
         {% endif %}
-
-        <a class="btn btn-primary" href="{% url 'edit_recovery' recovery_id=recovery.id  %}" role="button">
-            <span class="glyphicon glyphicon-edit"></span>  Edit Recovery Data</a>
         </div>
-
     </div>
 
     <hr />
