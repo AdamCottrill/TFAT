@@ -4,6 +4,14 @@
 {% block content %}
 <div class="container">
 
+    {% if report_a_tag == True %}
+    <br />
+    <div class="alert alert-info" role="alert">
+        <h3>Step 1b - Create the Person or Organization:</h3>
+    </div>
+    {% else %}
+    <h2>Contact Info</h2>
+    {% endif %}
 
     <form method="post" action="{{ request.path }}">
         {% csrf_token %}

@@ -67,7 +67,7 @@
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Report A Tag<b class="caret"></b></a>
             <ul class="dropdown-menu">
-              {% url 'report_a_tag' as report_a_tag_url %}
+              {% url 'report_a_tag_angler_list' as report_a_tag_url %}
               <li><a href="{{ report_a_tag_url }}">New Report</a></li>
               {% url 'recovery_report_list' as recovery_reports_url %}
               <li><a href="{{ recovery_reports_url  }}">Existing Reports</a></li>

@@ -109,10 +109,9 @@ class AnglerListView(ListFilteredMixin, ListView):
         context.update(self.extra_context)
         return context
 
-report_a_tag = AnglerListView.as_view(extra_context={'report_a_tag':True})
 angler_list = AnglerListView.as_view()
-
-
+report_a_tag_angler_list = AnglerListView.as_view(extra_context=
+                                                  {'report_a_tag':True})
 
 
 class SpeciesListView(ListView):
@@ -268,7 +267,7 @@ def tagid_detail_view(request, tagid):
 
 
 
-def report_detail_view(request, report_id):
+def report_detail_view(request, report_id, report_a_tag=False):
     """This view returns the detailed information and a summary of tags
     associated with a particular report.
 
@@ -281,6 +280,7 @@ def report_detail_view(request, report_id):
 
     return render_to_response('tfat/report_detail.html',
                               {'report':report,
+                               'report_a_tag':report_a_tag
                                #'angler':angler
                            },
                               context_instance=RequestContext(request))
@@ -524,7 +524,7 @@ def update_angler(request, angler_id):
         return render(request, 'tfat/angler_form.html', {'form': form,
                                                          'action':'Edit '})
 
-def create_angler(request):
+def create_angler(request, report_a_tag=False):
     """This view is used to create a new tag reporter / angler.
 
     when we create a new angler, we do not want to duplicate entries
@@ -540,7 +540,11 @@ def create_angler(request):
         form = CreateJoePublicForm(request.POST)
         if form.is_valid():
             angler = form.save()
-            return redirect('angler_reports', angler_id=angler.id)
+            if report_a_tag:
+                return redirect('report_a_tag_angler_reports',
+                                angler_id=angler.id)
+            else:
+                return redirect('angler_reports', angler_id=angler.id)
         else:
             first_name = form.cleaned_data.get('first_name')
             last_name = form.cleaned_data.get('last_name')
@@ -548,17 +552,20 @@ def create_angler(request):
                                            last_name__iexact=last_name).all()
             if len(anglers):
                 return render(request, 'tfat/angler_form.html',
-                              {'form': form, 'anglers':anglers,
+                              {'form': form,
+                               'anglers':anglers,
+                               'report_a_tag':report_a_tag,
                                'action':'Create New '})
     else:
         form = CreateJoePublicForm()
 
     return render(request, 'tfat/angler_form.html', {'form': form,
+                                                     'report_a_tag':report_a_tag,
                                                      'action':'Create New '})
 
 
 
-def create_report(request, angler_id):
+def create_report(request, angler_id, report_a_tag=False):
     """This view is used to create a new tag report.
     """
 
@@ -572,12 +579,17 @@ def create_report(request, angler_id):
             report.reported_by = angler
             report.save()
             #redirect to report details:
-            return redirect('report_detail', report_id=report.id)
+            if report_a_tag:
+                return redirect('report_a_tag_report_detail',
+                                report_id=report.id)
+            else:
+                return redirect('report_detail', report_id=report.id)
     else:
         form = ReportForm(initial={'reported_by':angler})
 
     return render(request, 'tfat/report_form.html', {'form': form,
                                                      'angler':angler,
+                                                     'report_a_tag':report_a_tag,
                                                      'action': 'Create',})
 
 

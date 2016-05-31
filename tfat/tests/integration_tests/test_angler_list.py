@@ -43,6 +43,10 @@ def test_angler_list(client, db_setup):
     """The default angler list should include a list of all anlgers in the
     database.
 
+    The link to add a new angler should not appear until a filter has
+    been applied and we can be reasonably sure that this person is not
+    already there.
+
     """
 
     url = reverse('angler_list')
@@ -78,6 +82,49 @@ def test_angler_list_filter_first_name(client, db_setup):
     assert 'Add New Person' in content
 
 
+
+@pytest.mark.django_db
+def test_add_new_person_link(client, db_setup):
+    """when we apply a filter, the Add New Person should be the content
+    and it should point to the create_angler url not the
+    report_a_tag_new_angler url.
+
+    """
+
+    url = reverse('angler_list')
+    response = client.get(url + '?first_name=home')
+    content = str(response.content)
+
+    assert 'Add New Person' in content
+    url = reverse('create_angler')
+    assert url in content
+
+    url = reverse('report_a_tag_new_angler')
+    assert url not in content
+
+
+
+@pytest.mark.django_db
+def test_add_new_person_report_a_tag_link(client, db_setup):
+    """when we apply a filter to the report_a_tag link, the string "Add
+    New Person" should be the content and it should point to
+    report_a_tag_new_angler url not the url for create_angler.
+
+    """
+
+    url = reverse('report_a_tag_angler_list')
+    response = client.get(url + '?first_name=home')
+    content = str(response.content)
+
+    print(content)
+    assert 'Add New Person' in content
+    url = reverse('create_angler')
+    assert url not in content
+
+    url = reverse('report_a_tag_new_angler')
+    assert url in content
+
+
 @pytest.mark.django_db
 def test_angler_list_filter_last_name(client, db_setup):
     """Verify that the filter works if we provide a partial last name
@@ -89,13 +136,15 @@ def test_angler_list_filter_last_name(client, db_setup):
     content = str(response.content)
 
     assert 'Homer Simpson' in content
+    assert 'Add New Person' in content
+
     assert 'Montgomery Burns' not in content
     assert 'Barney Gumble' not in content
     assert 'George Costansa' not in content
 
     #These should not appear in the response if people are returned
     assert 'Sorry no people match that criteria' not in content
-    assert 'Add New Person' in content
+
 
 
 @pytest.mark.django_db

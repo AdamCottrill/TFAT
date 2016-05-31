@@ -163,6 +163,12 @@ def test_reports_detail_contains_report_date(client, db_setup):
     assert 'Oct 10, 2010' in content
 
 
+
+
+
+
+
+
 @pytest.mark.django_db
 def test_reports_detail_contains_report_format(client, db_setup):
     """verify that the report format is included in the reponse
@@ -309,3 +315,50 @@ def test_report_detail_with_comment(client, db_setup):
 
     assert "Comments:" in content
     assert "A fake comment." in content
+
+
+
+@pytest.mark.django_db
+def test_report_detail_no_step3_message(client, db_setup):
+    """When we access the report detail page through the normal url,
+    it should NOT include an instructive message.
+
+    """
+
+    report = Report.objects.get(reported_by__first_name='Homer')
+    response = client.get(reverse('report_detail',
+                                  kwargs={'report_id':report.id}))
+    content = str(response.content)
+    msg = "Step 3 - Add tags as necessary to complete report"
+    assert msg not in content
+
+
+@pytest.mark.django_db
+def test_report_a_tag_report_detail_url(client, db_setup):
+    """Verify that we can navigate to the report detail page (status
+    code=200) and that the template is the one we think it is when we
+    access it through the report-a-tag url.
+
+    """
+
+    report = Report.objects.get(reported_by__first_name='Homer')
+    response = client.get(reverse('report_a_tag_report_detail',
+                                  kwargs={'report_id':report.id}))
+
+    assert 'tfat/report_detail.html' in [x.name for x in response.templates]
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_report_a_tag_report_detail_message(client, db_setup):
+    """When we access the report detail page through the report-a-tag url,
+    it should include an instructive message.
+
+    """
+
+    report = Report.objects.get(reported_by__first_name='Homer')
+    response = client.get(reverse('report_a_tag_report_detail',
+                                  kwargs={'report_id':report.id}))
+    content = str(response.content)
+    msg = "Step 3 - Add tags as necessary to complete report"
+    assert msg in content

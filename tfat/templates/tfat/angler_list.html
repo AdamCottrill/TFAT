@@ -26,8 +26,16 @@
             <a class="btn btn-default" href="#" role="button" onclick="toggle_visibility('filter');">Filter </a>
             <a class="btn btn-default" href="{% url 'angler_list' %}" role="button">Reset</a>
             {% if request.GET %}
-            <a class="btn btn-primary" href="{% url 'create_angler' %}" role="button">
+
+            {% if report_a_tag %}
+            {% url 'report_a_tag_new_angler' as new_angler_url %}
+            {% else %}
+            {% url 'create_angler' as new_angler_url %}
+            {% endif %}
+
+            <a class="btn btn-primary" href="{{ new_angler_url }}" role="button">
                 <span class="glyphicon glyphicon-plus-sign"></span> Add New Person</a>
+
             {% endif %}
         </div>
     </div>
@@ -101,7 +109,7 @@
         {% for object in object_list %}
         <tr>
             {% if report_a_tag %}
-            {% url 'angler_report_a_tag' angler_id=object.id as angler_report_url %}
+            {% url 'report_a_tag_angler_reports' angler_id=object.id as angler_report_url %}
             {% else %}
             {% url 'angler_reports' angler_id=object.id as angler_report_url %}
             {% endif %}
@@ -120,7 +128,7 @@
     <div  class="row" >
         <div class="col-md-3" >
                         <a class="btn btn-primary"
-                           href="{% url 'create_angler'%}"
+                           href="{{ new_angler_url }}"
                            role="button">
                             <span class="glyphicon glyphicon-plus-sign"></span>
                             Add New Person</a>

@@ -41,13 +41,16 @@ def db_setup():
 
 def test_can_create_angler_url(client):
     """Verify that the form and its correct elements are rendered when we
-    call the create_angler form"""
+    call the create_angler form.  The default url will not contain any
+    instructional messages.
+    """
 
     url = reverse('create_angler')
     response = client.get(url)
     assert response.status_code == 200
     content = str(response.content)
 
+    assert 'Contact Info' in content
     assert 'Create New Tag Reporter' in content
     assert 'First name:' in content
     assert 'Last name:' in content
@@ -58,11 +61,32 @@ def test_can_create_angler_url(client):
     assert 'Existing Anglers:' not in content
     assert 'Edit Details' not in content
 
+    assert 'Step 1b - Create the Person or Organization:' not in content
+
+
+def test_report_a_tag_new_angler_url(client):
+    """If this form is rendered through the 'report-a-tag' url, the status
+    code will still be 200 and it should include instructions on what
+    to do next
+    """
+
+    url = reverse('report_a_tag_new_angler')
+    response = client.get(url)
+    assert response.status_code == 200
+    content = str(response.content)
+
+    assert 'Step 1b - Create the Person or Organization:' in content
+
+
 
 @pytest.mark.django_db
 def test_can_create_angler(client, db_setup):
     """if we pass in a dictionary with valid angler information, a new angler
     should be created.
+
+    the response should not include the informative messages required
+    for the report_a_tag stream.
+
     """
     angler = {'first_name':'Barney', 'last_name':'Gumble', 'same_name':False}
 
@@ -70,6 +94,29 @@ def test_can_create_angler(client, db_setup):
     response = client.post(url, angler, follow=True)
     content = str(response.content)
 
+    assert 'Tag Reports Filed By Barney Gumble' in content
+    assert 'Angler Details' in content
+
+    msg = ('Step 2 - To create a new report click on the ' +
+           '"Create New Report" button')
+    assert msg not in content
+
+
+@pytest.mark.django_db
+def test_can_create_angler_report_a_tag(client, db_setup):
+    """If we create an angler using the report_a_tag rule, the response
+    should incude an instructional message regarding the next step in
+    the process.
+    """
+    angler = {'first_name':'Barney', 'last_name':'Gumble', 'same_name':False}
+
+    url = reverse('report_a_tag_new_angler')
+    response = client.post(url, angler, follow=True)
+    content = str(response.content)
+
+    msg = ('Step 2 - To create a new report click on the ' +
+           '"Create New Report" button')
+    assert msg in content
     assert 'Tag Reports Filed By Barney Gumble' in content
     assert 'Angler Details' in content
 

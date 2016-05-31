@@ -186,18 +186,51 @@ def test_step2_not_in_anlger_reports(client, db_setup):
 
 
 @pytest.mark.django_db
+def test_step2_in_anlger_report_a_tag_url(client, db_setup):
+    """Verify that the report_at_tag_angler url works as expected (status
+    code=200).
+    """
+
+    angler = JoePublic.objects.get(first_name='Homer')
+    response = client.get(reverse('report_a_tag_angler_reports',
+                                  kwargs={'angler_id':angler.id}))
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
 def test_step2_in_anlger_report_a_tag(client, db_setup):
-    """When the angler reports is accessed through the angler_report_a_tag
-    url, it should contain a message describing the next
-    step in the process. (i.e. - click the new report button)
+    """When the angler reports is accessed through the
+    report_a_tag_angler_reports url, it should contain a message
+    describing the next step in the process. (i.e. - click the new
+    report button)
 
     """
 
     angler = JoePublic.objects.get(first_name='Homer')
-    response = client.get(reverse('angler_report_a_tag',
+    response = client.get(reverse('report_a_tag_angler_reports',
                                   kwargs={'angler_id':angler.id}))
     content = str(response.content)
 
     msg = ('Step 2 - To create a new report click on the' +
            ' "Create New Report" button')
     assert msg in content
+
+
+@pytest.mark.django_db
+def test_report_a_tag_anlger_report_create_report_link(client, db_setup):
+    """When we view the angler reports through the report-a-tag url, the
+    link to create reports shoudl also be report-a-tag url, not the
+    standard create report url.
+
+    """
+
+    angler = JoePublic.objects.get(first_name='Homer')
+    response = client.get(reverse('report_a_tag_angler_reports',
+                                  kwargs={'angler_id':angler.id}))
+    content = str(response.content)
+
+    url = reverse('create_report', kwargs={'angler_id':angler.id})
+    assert url not in content
+
+    url = reverse('report_a_tag_create_report', kwargs={'angler_id':angler.id})
+    assert url in content

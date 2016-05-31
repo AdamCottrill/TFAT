@@ -56,8 +56,9 @@ def db_setup():
 
 @pytest.mark.django_db
 def test_create_report_url(client, db_setup):
-    """Verify that the form and its correct elements are rendered when we
-    call create_report and all of the appropriate elements are there"""
+    """Verify that the form rendered with status code 200 and uses teh
+    correct template.
+    """
 
     angler = JoePublic.objects.get(first_name='Barney')
 
@@ -65,6 +66,19 @@ def test_create_report_url(client, db_setup):
     response = client.get(url)
     assert response.status_code == 200
     assert 'tfat/report_form.html' in [x.name for x in response.templates]
+
+
+@pytest.mark.django_db
+def test_create_report_elements(client, db_setup):
+    """Verify that the form has the correct elements. WHen the form is
+    accessed throught the basic approach, it will not have an
+    instructional message.
+    """
+
+    angler = JoePublic.objects.get(first_name='Barney')
+
+    url = reverse('create_report', kwargs={'angler_id':angler.id})
+    response = client.get(url)
 
     content = str(response.content)
     assert "Report Date:" in content
@@ -74,6 +88,9 @@ def test_create_report_url(client, db_setup):
     assert "Effort Number:" in content
     assert "Comment:" in content
     assert "Follow-up Required or Requested" in content
+
+    assert "Step 2b - Fill in Report Details:" not in content
+
 
 @pytest.mark.django_db
 def test_create_report_url_404(client, db_setup):
@@ -312,3 +329,42 @@ def test_create_report_with_follow_up(client, db_setup):
     #query the database and make sure the data is how we expect it.
     report = Report.objects.get(reported_by__first_name='Barney')
     assert report.follow_up is True
+
+
+#======================================
+#         REPORT-A-TAG
+
+
+@pytest.mark.django_db
+def test_report_at_tag_create_report_url(client, db_setup):
+    """Verify that the report-a-tag create report url renders properly"""
+
+    angler = JoePublic.objects.get(first_name='Barney')
+
+    url = reverse('report_a_tag_create_report', kwargs={'angler_id':angler.id})
+    response = client.get(url)
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_report_at_tag_create_report_url(client, db_setup):
+    """When rendered through the report-a-tag create report url, the
+    response should include an instructional message."""
+
+    angler = JoePublic.objects.get(first_name='Barney')
+
+    url = reverse('report_a_tag_create_report', kwargs={'angler_id':angler.id})
+    response = client.get(url)
+    content = str(response.content)
+
+    assert "Step 2b - Fill in Report Details:" in content
+
+
+@pytest.mark.django_db
+def test_report_a_tag_create_report_url_404(client, db_setup):
+    """If we try to create a report for an angler who does not exist, we
+    should get a 404 error."""
+
+    url = reverse('report_a_tag_create_report', kwargs={'angler_id':9999999})
+    response = client.get(url)
+    assert response.status_code == 404

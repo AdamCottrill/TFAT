@@ -15,7 +15,7 @@ from tfat.views import (SpeciesListView, ReportListView,
                         years_with_tags_recovered_view,
                         tags_applied_year,
                         tags_recovered_year,
-                        report_a_tag,
+                        report_a_tag_angler_list,
                         serve_file)
 
 urlpatterns = patterns("",
@@ -53,14 +53,6 @@ urlpatterns = patterns("",
             name='angler_reports'
             ),
 
-
-        url(
-            r'^angler_reports/report_a_tag/(?P<angler_id>\d+)/$',
-            angler_reports_view,
-            {'report_a_tag':True},
-            name='angler_report_a_tag',
-
-            ),
 
         url(
             regex=r'^reports/$',
@@ -180,6 +172,7 @@ urlpatterns = patterns("",
             name='create_angler'
             ),
 
+
         url(
             regex=r'^update_angler/(?P<angler_id>\d+)/$',
             view=update_angler,
@@ -195,11 +188,13 @@ urlpatterns = patterns("",
             name='report_detail'
             ),
 
+
         url(
             regex=r'^create_report/(?P<angler_id>\d+)/$',
             view=create_report,
             name='create_report'
             ),
+
 
         url(
             regex=r'^edit_report/(?P<report_id>\d+)/$',
@@ -208,11 +203,6 @@ urlpatterns = patterns("",
             ),
 
 
-        url(
-            regex=r'^report_a_tag/$',
-            view = 'tfat.views.report_a_tag',
-            name='report_a_tag'
-            ),
 
 
         #TAG RECOVERIES
@@ -241,6 +231,45 @@ urlpatterns = patterns("",
             recovery_detail_view,
             {'add_another':True},
             name='new_recovery_detail'
+            ),
+
+
+        # REPORT-A-TAG
+        # same as urls above but with additional argument
+
+        url(
+            regex=r'^report_a_tag/$',
+            view = 'tfat.views.report_a_tag_angler_list',
+            name='report_a_tag_angler_list'
+            ),
+
+        url(
+            r'^report_a_tag/create_angler/$',
+            create_angler,
+            {'report_a_tag': True},
+            name='report_a_tag_new_angler'
+            ),
+
+        url(
+            r'^report_a_tag/angler_reports/(?P<angler_id>\d+)/$',
+            angler_reports_view,
+            {'report_a_tag':True},
+            name='report_a_tag_angler_reports',
+
+            ),
+
+        url(
+            r'^report_a_tag/create_report/(?P<angler_id>\d+)/$',
+            create_report,
+            {'report_a_tag':True},
+            name='report_a_tag_create_report'
+            ),
+
+        url(
+            r'^report_a_tag/report_detail/(?P<report_id>\d+)/$',
+            report_detail_view,
+            {'report_a_tag':True},
+            name='report_a_tag_report_detail'
             ),
 
 

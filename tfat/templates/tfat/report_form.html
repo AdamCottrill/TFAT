@@ -38,6 +38,13 @@ input[readonly] {
 
 <div class="container">
 
+    {% if report_a_tag == True %}
+    <div class="alert alert-info" role="alert">
+        <h3>Step 2b - Fill in Report Details:</h3>
+    </div>
+    {% endif %}
+
+
     <form enctype="multipart/form-data" method="post" action="{{ request.path }}">
         {% csrf_token %}
         {% if form.errors %}

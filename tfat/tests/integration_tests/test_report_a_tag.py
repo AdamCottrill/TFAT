@@ -54,7 +54,7 @@ def test_report_a_tag(client, db_setup):
 
     """
 
-    url = reverse('report_a_tag')
+    url = reverse('report_a_tag_angler_list')
     response = client.get(url)
     content = str(response.content)
 

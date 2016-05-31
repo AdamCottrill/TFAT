@@ -4,18 +4,18 @@
 
 {% block extrahead %}
 
-  {% leaflet_js %}
-  {% leaflet_css %}
+{% leaflet_js %}
+{% leaflet_css %}
 
-  <script src="/static/Leaflet.MakiMarkers.js"></script>
+<script src="/static/Leaflet.MakiMarkers.js"></script>
 
 
 <style>
 
-    #mymap {  /* all maps */
-        width:  700px;
-        height: 600px;
-    }
+ #mymap {  /* all maps */
+     width:  700px;
+     height: 600px;
+ }
 
 </style>
 
@@ -25,6 +25,12 @@
 
 {% block content %}
 <div class="container">
+
+    {% if report_a_tag == True %}
+    <div class="alert alert-info" role="alert">
+        <h3>Step 3 - Add tags as necessary to complete report</h3>
+    </div>
+    {% endif %}
 
     <div class="row">
         <h2>Tag Report {{ report.id }}</h2>
@@ -130,53 +136,63 @@
 
     <hr />
 
-    <h2>Tag Recoveries</h2>
-{% if report.get_recoveries %}
 
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>TagID </th>
-                        <th>TagDoc </th>
-                        <th>Colour </th>
-                        <th>Species</th>
-                        <th>Tlen</th>
-                        <th>Flen</th>
-                        <th>Date </th>
-                        <th>Location</th>
-                        <th></th>
-                    </tr>
-                </thead>
+    <div  class="row" >
+        <div class="col-md-9" >
+            <h2>Tag Recoveries</h2>
+        </div>
 
-                {% for item in report.get_recoveries %}
-                <tr>
-                    <td> <a href="{% url 'tagid_detail_view' tagid=item.tagid %}">{{item.tagid}}</a> </td>
-                    <td>{{ item.tagdoc }} </td>
-                    <td>{{ item.tag_colour }} </td>
-                    <td>{{ item.spc.common_name }} </td>
-                    <td>{{ item.tlen }} </td>
-                    <td>{{ item.flen }} </td>
-                    <td>{{ item.recovery_date }} </td>
-                    <td>{{ item.general_location }} </td>
-                    <td> <a class="btn btn-primary pull-right" href="{% url 'recovery_detail' recovery_id=item.id %}" role="button">
-                        <span class="glyphicon glyphicon-edit"></span>  Details</a></td>
-                </tr>
-                {% endfor %}
-            </table>
-
-{% else %}
-
-  <div class="alert alert-warning">
-    <h3>Oops!</h3>
-    <p> There don't seem to be any tags associated with this report.</p>
-  </div>
-
-{% endif %}
-
-
-            <hr />
+        <div class="col-md-3" >
             <a class="btn btn-danger pull-right" href="{% url 'create_recovery' report_id=report.id  %}" role="button">
                 <span class="glyphicon glyphicon-plus-sign"></span>  Add New Tag</a>
+
+        </div>
+    </div>
+    <br />
+
+    {% if report.get_recoveries %}
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>TagID </th>
+                <th>TagDoc </th>
+                <th>Colour </th>
+                <th>Species</th>
+                <th>Tlen</th>
+                <th>Flen</th>
+                <th>Date </th>
+                <th>Location</th>
+                <th></th>
+            </tr>
+        </thead>
+
+        {% for item in report.get_recoveries %}
+        <tr>
+            <td> <a href="{% url 'tagid_detail_view' tagid=item.tagid %}">{{item.tagid}}</a> </td>
+            <td>{{ item.tagdoc }} </td>
+            <td>{{ item.tag_colour }} </td>
+            <td>{{ item.spc.common_name }} </td>
+            <td>{{ item.tlen }} </td>
+            <td>{{ item.flen }} </td>
+            <td>{{ item.recovery_date }} </td>
+            <td>{{ item.general_location }} </td>
+            <td> <a class="btn btn-primary pull-right" href="{% url 'recovery_detail' recovery_id=item.id %}" role="button">
+                <span class="glyphicon glyphicon-edit"></span>  Details</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    {% else %}
+
+    <div class="alert alert-warning">
+        <h3>Oops!</h3>
+        <p> There don't seem to be any tags associated with this report.</p>
+    </div>
+
+    {% endif %}
+
+    <hr />
 
 </div>
 
