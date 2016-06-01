@@ -20,6 +20,40 @@ from tfat.tests.factories import *
 import pytest
 
 
+@pytest.fixture(scope='class')
+def db_setup():
+
+    report_date = datetime(2010,10,10)
+    spc = SpeciesFactory()
+
+    angler1 = JoePublicFactory.create(first_name='Homer',
+                                      last_name='Simpson',
+                                      address1 = '742 Evergreen Tarrace',
+                                      address2 = 'Box 123',
+                                      town = 'Springfield',
+                                      province = 'Ontario',
+                                      postal_code = 'N0W2T2',
+                                      email = 'hsimpson@hotmail.com',
+                                      phone = '555-321-1234',)
+
+    angler2 = JoePublicFactory.create(first_name='Montgomery',
+                                           last_name='Burns')
+
+    #report filed by Homer
+    report = ReportFactory(reported_by=angler1, report_date = report_date)
+    tagids = ['111111','222222','333333']
+    for tag in tagids:
+        recovery = RecoveryFactory(report=report,spc=spc,tagid=tag)
+
+    #a report filed by Monty Burns
+    report = ReportFactory(reported_by=angler1, follow_up=True,
+                                report_date = report_date)
+
+    tagids = ['4444','5555']
+    for tag in tagids:
+        recovery = RecoveryFactory(report=report,spc=spc,tagid=tag)
+
+
 @pytest.mark.django_db
 def test_str_complete():
     '''if an angler (joe public) has both first name and an initial, the
@@ -66,3 +100,32 @@ def test_str_no_initial():
 #                              initial=None,
 #                              last_name=names.get('last_name'))
 #    assert str(angler) == names['last_name']
+
+
+
+@pytest.mark.django_db
+def test_joepublic_report_count(db_setup):
+    """the report count() method of a JoePublic object should be the number
+    of tag reports they have filed.
+    """
+    #homer has 2 reports, monty has 0
+
+    homer = JoePublic.objects.get(first_name='Homer')
+    assert homer.report_count() == 2
+
+    monty = JoePublic.objects.get(first_name='Montgomery')
+    assert monty.report_count() == 0
+
+
+@pytest.mark.django_db
+def test_joepublic_tag_count(db_setup):
+    """the tag_count() method of a JoePublic object should be the number
+    of tags tehy have reported (summed across all reports)
+    """
+    #homer has 5 tags, monty has 0
+
+    homer = JoePublic.objects.get(first_name='Homer')
+    assert homer.tag_count() == 5
+
+    monty = JoePublic.objects.get(first_name='Montgomery')
+    assert monty.tag_count() == 0

@@ -116,13 +116,29 @@ def test_add_new_person_report_a_tag_link(client, db_setup):
     response = client.get(url + '?first_name=home')
     content = str(response.content)
 
-    print(content)
     assert 'Add New Person' in content
     url = reverse('create_angler')
     assert url not in content
 
     url = reverse('report_a_tag_new_angler')
     assert url in content
+
+
+@pytest.mark.django_db
+def test_report_a_tag_no_match(client, db_setup):
+    """If we apply a filter that that does not match any existing anglers
+    and we are accessing the report-a-tag urls, a message explaining what
+    do do next should be included in the response
+    """
+
+    url = reverse('report_a_tag_angler_list')
+    response = client.get(url + '?first_name=nomatch')
+    content = str(response.content)
+
+    msg = ('Sorry no people match that criteria. Please add their ' +
+    'contact information to continue.')
+    assert msg in content
+
 
 
 @pytest.mark.django_db

@@ -91,7 +91,6 @@ class JoePublic(models.Model):
         #unique_together = ('last_name', 'first_name')
 
 
-
     def __str__(self):
         if self.initial and self.first_name:
             display = '{} {}. {}'.format(self.first_name,
@@ -101,6 +100,23 @@ class JoePublic(models.Model):
         else:
             display = '{}'.format(self.last_name)
         return display
+
+    def report_count(self):
+        """Return the number of reports filed by this particular person.
+
+        Arguments:
+        - `self`:
+        """
+        return len(Report.objects.filter(reported_by=self))
+
+    def tag_count(self):
+        """Return the number of tags returned by this particular person.
+
+        Arguments:
+        - `self`:
+        """
+        return len(Recovery.objects.filter(report__reported_by=self))
+
 
 
 class Report(models.Model):
