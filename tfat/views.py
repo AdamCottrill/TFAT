@@ -14,7 +14,6 @@ import mimetypes
 
 from geojson import MultiLineString
 
-
 from tfat.constants import CLIP_CODE_CHOICES
 from tfat.models import Species, JoePublic, Report, Recovery, Encounter, Project
 from tfat.filters import JoePublicFilter
@@ -376,8 +375,14 @@ def tags_recovered_year(request, year):
                            }, context_instance=RequestContext(request))
 
 
+def tags_recovered_this_year(request):
+    """Get the most recent year in the recoveries table and
+    pass the information onto our tags_recovered_this_year view.
+    """
 
+    latest_year = Recovery.objects.latest('recovery_date').recovery_date.year
 
+    return tags_recovered_year(request, latest_year)
 
 
 def tags_applied_year(request, year):

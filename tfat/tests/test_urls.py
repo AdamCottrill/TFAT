@@ -20,5 +20,6 @@ from tfat.views import *
 
 
 def test_root_url_resolves_to_home_page_view():
-    found = resolve('/tfat/project_list/tagged_in')
-    assert found.func == ProjectTagsAppliedListView
+    '''the home page should be the view of the most recent tag recoveries.'''
+    found = resolve('/tfat/')
+    assert found.func == tags_recovered_this_year

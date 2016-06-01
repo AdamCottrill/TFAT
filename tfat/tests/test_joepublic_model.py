@@ -32,8 +32,8 @@ def test_str_complete():
     angler = JoePublicFactory(first_name=names.get('first_name'),
                               initial=names.get('initial'),
                               last_name=names.get('last_name'))
-    should_be = '{first_name} {initial}. {last_name}'
 
+    should_be = '{first_name} {initial}. {last_name}'
     assert str(angler) == should_be.format(**names)
 
 

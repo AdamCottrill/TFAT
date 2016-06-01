@@ -18,13 +18,34 @@ from .constants import (REPORTING_CHOICES, SEX_CHOICES,
                         PROVINCES_STATE_CHOICES)
 
 
+class ActiveSpecies(models.Manager):
+    '''only return those species where primary is true - keeps dropdowns
+    reasonably small'''
+    def get_queryset(self):
+        #use_for_related_fields = True
+        return super(ActiveSpecies, self).get_queryset().filter(primary=True)
+
+
+class AllSpecies(models.Manager):
+    '''only return all species currently in database. Used primary in
+    admin or shell'''
+    def get_queryset(self):
+        #use_for_related_fields = True
+        return super(AllSpecies, self).get_queryset()
+
+
 class Species(models.Model):
     species_code = models.IntegerField(unique=True)
     common_name = models.CharField(max_length=40)
     scientific_name = models.CharField(max_length=50, null=True, blank=True)
+    primary = models.BooleanField(default=False)
+
+    objects = ActiveSpecies()
+    allspecies = AllSpecies()
 
     class Meta:
-        ordering = ['common_name']
+        ordering = ['-primary', 'common_name']
+        verbose_name_plural = "Species"
 
     def __str__(self):
         if self.scientific_name:
@@ -68,6 +89,8 @@ class JoePublic(models.Model):
     class Meta:
         ordering = ['last_name', 'first_name']
         #unique_together = ('last_name', 'first_name')
+
+
 
     def __str__(self):
         if self.initial and self.first_name:
@@ -113,6 +136,7 @@ class Report(models.Model):
 
     class Meta:
         ordering = ['-report_date']
+        verbose_name_plural = "JoePublic"
 
     def __str__(self):
         report = ""

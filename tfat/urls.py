@@ -22,7 +22,8 @@ urlpatterns = patterns("",
 
         url(
             regex=r'^$',
-            view='tfat.views.report_list',
+            #view='tfat.views.report_list',
+            view = 'tfat.views.tags_recovered_this_year',
             name='home'
             ),
 

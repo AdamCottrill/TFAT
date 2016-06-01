@@ -13,7 +13,7 @@ class SpeciesFactory(factory.DjangoModelFactory):
     species_code = '091'
     common_name = 'Lake Whitefish'
     scientific_name = 'Coregonus clupeaformis'
-
+    primary = True
 
 class JoePublicFactory(factory.DjangoModelFactory):
     class Meta:
