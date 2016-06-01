@@ -27,7 +27,6 @@ urlpatterns = patterns("",
             name='home'
             ),
 
-
         url(
             regex=r'^recovery_reports/$',
             view='tfat.views.report_list',

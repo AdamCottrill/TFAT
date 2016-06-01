@@ -16,7 +16,7 @@
 <div class="container">
 
     <div class="row">
-        <h2>Tags recovered in {{ year }} </h2>
+        <h2>Tags recovered {% if this_year %}so far {% endif %}in {{ year }} </h2>
     </div>
 
       <p>A summary of tags applied in {{ year }} can be found <a href= "{% url 'tags_applied_in_year' year %}" >here.</a></p>
@@ -123,7 +123,12 @@
                     </div> <!-- class="col-md-12" -->
                 </div> <!-- class="row" -->
                 {% else %}
-                <p>No tags were recovered in any UGMLU project in {{ year }}</p>
+                {% if this_year %}
+                <p>No tags have been recovered yet in any UGMLU project in {{ year }}.</p>
+                {% else %}
+                <p>No tags were recovered in any UGMLU project in {{ year }}.</p>
+                {% endif %}
+
                 <hr />
                 <br />
                 <br />
@@ -184,7 +189,12 @@
                     </div> <!-- col-md-12  -->
                 </div> <!-- row -->
                 {% else %}
+                {% if this_year %}
+                <p>There haven't been any reports of tags from the general public or other agencies in {{ year }} yet.</p>
+                {% else %}
                 <p>There were no reports of tags from the general public or other agencies in {{ year }}.</p>
+                {% endif %}
+
 
                 <hr />
                 <br />

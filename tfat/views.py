@@ -328,7 +328,7 @@ def tagid_contains_view(request, partial):
                            }, context_instance=RequestContext(request))
 
 
-def tags_recovered_year(request, year):
+def tags_recovered_year(request, year, this_year=False):
     '''A view to show the where recoveries in a particular year originated
 
     Required data elements:
@@ -372,17 +372,17 @@ def tags_recovered_year(request, year):
                                'angler_recaps':angler_recaps,
                                #'applied':applied,
                                #'mls':mls
+                               'this_year':this_year
                            }, context_instance=RequestContext(request))
 
 
 def tags_recovered_this_year(request):
-    """Get the most recent year in the recoveries table and
-    pass the information onto our tags_recovered_this_year view.
-    """
+    """Pass the current year into the tags recovered view.  THis will
+    be the TFAT home page.  """
 
-    latest_year = Recovery.objects.latest('recovery_date').recovery_date.year
+    this_year = datetime.now().year
 
-    return tags_recovered_year(request, latest_year)
+    return tags_recovered_year(request, this_year, this_year=True)
 
 
 def tags_applied_year(request, year):
