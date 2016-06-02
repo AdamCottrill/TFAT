@@ -767,9 +767,30 @@
 
      update_tagoptions();
 
-     //start with metric input visible, hide the imperial units
+     //start with metric input visible if this is an existing record
+     // most of our recoveries are from anglers - use imperial units for new reports
+     {% if action == "edit" %}
      $('.metric').show();
      $('.imperial').hide();
+     $('#flen_units_mm').prop('checked', true)
+     $('#tlen_units_mm').prop('checked', true)
+     $('#rwt_units_g').prop('checked', true)
+     $('#flen_units_inches').prop('checked', false)
+     $('#tlen_units_inches').prop('checked', false)
+     $('#rwt_units_lbs').prop('checked', false)
+
+     {% else %}
+     // imperial
+     $('.metric').hide();
+     $('.imperial').show();
+     $('#flen_units_mm').prop('checked', false)
+     $('#tlen_units_mm').prop('checked', false)
+     $('#rwt_units_g').prop('checked', false)
+     $('#flen_units_inches').prop('checked', true)
+     $('#tlen_units_inches').prop('checked', true)
+     $('#rwt_units_lbs').prop('checked', true)
+
+     {% endif %}
 
      var my_map;
      var popup_map;

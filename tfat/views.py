@@ -636,6 +636,7 @@ def create_recovery(request, report_id):
             recovery = form.save(report=report)
             return redirect('new_recovery_detail', recovery_id=recovery.id)
     return render(request, 'tfat/recovery_form.html', {'form': form,
+                                                       'action':'create',
                                                        'clip_codes':clip_codes,
                                                        'tag_types':tag_types,
                                                        'tag_origin':tag_origin,
@@ -663,6 +664,7 @@ def edit_recovery(request, recovery_id):
             recovery = form.save(report)
             return redirect('recovery_detail', recovery_id=recovery.id)
     return render(request, 'tfat/recovery_form.html', {'form': form,
+                                                       'action':'edit',
                                                        'clip_codes':clip_codes,
                                                        'tag_types':tag_types,
                                                        'tag_origin':tag_origin,
