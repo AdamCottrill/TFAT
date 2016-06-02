@@ -53,6 +53,7 @@ class RecoveryFactory(factory.DjangoModelFactory):
     specific_location = "The very end."
     dd_lat = 45.00
     dd_lon = -81.00
+    spatial_followup = False
     tlen = 500
     flen = 484
     clipc = 5

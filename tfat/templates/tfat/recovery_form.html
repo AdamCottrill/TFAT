@@ -260,7 +260,28 @@
                                     {% endfor %}
                                     {% endif %}
                                 </div>
-                                <h4>Coordinates</h4>
+
+                                <div class="row" >
+                                    <div class="col-md-6" >
+                                        <h4>Coordinates</h4>
+                                    </div>
+                                    <div class="col-md-6" >
+                                        <div class="form-group {% if form.effort.errors %}has-error{% endif %}">
+                                            <div class="checkbox">
+                                                <label>
+                                                    {{ form.spatial_followup }}
+                                                    Spatial Follow-up Required
+                                                </label>
+                                            </div>
+                                            {% if form.follow_up.errors %}
+                                            {% for error in form.follow_up.errors %}
+                                            <div class="has-error help-block text-danger">{{ error }}</div>
+                                            {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                </div>
 
                                 <div class="panel panel-default"> <!-- out tabpanel -->
                                     <div class="panel-body">      <!-- out tab panel body-->

@@ -69,8 +69,6 @@
             <ul class="dropdown-menu">
               {% url 'report_a_tag_angler_list' as report_a_tag_url %}
               <li><a href="{{ report_a_tag_url }}">New Report</a></li>
-              {% url 'recovery_report_list' as recovery_reports_url %}
-              <li><a href="{{ recovery_reports_url  }}">Existing Reports</a></li>
             </ul>
           </li>
 
@@ -86,10 +84,11 @@
             <ul class="dropdown-menu">
                 {% url 'angler_list' as anglers_url%}
               <li><a href="{{ anglers_url }}">By Reporter</a></li>
+              {% url 'recovery_report_list' as recovery_reports_url %}
+              <li><a href="{{ recovery_reports_url  }}">Recent Reports</a></li>
               <li class="divider"></li>
               <li><a href="{% url 'yearlist_taggedin' %}">Tagged in an Year</a></li>
               <li><a href="{% url 'yearlist_recoveredin' %}">Recovered in a Year</a></li>
-
               <li class="divider"></li>
               {% url 'projectlist_taggedin' as projectlist_taggedin %}
               <li><a href="{{ projectlist_taggedin }}">Tagged in a Project</a></li>
@@ -98,6 +97,9 @@
               <li class="divider"></li>
               <li><a href="#">Tagged in an Area</a></li>
               <li><a href="#">Recovered in a Area</a></li>
+              <li class="divider"></li>
+              <li><a href="{% url 'spatial_followup' %}">Spatial Follow-up</a></li>
+
             </ul>
           </li>
 

@@ -124,6 +124,14 @@ class ReportListView(ListView):
 class RecoveryListView(ListView):
     model = Recovery
 
+class SpatialFollowupListView(ListView):
+    model = Recovery
+    queryset = Recovery.objects.filter(spatial_followup=True).order_by('-report__report_date').all()
+    paginage_by = MAX_RECORD_CNT
+    template_name = 'tfat/spatial_followup_list.html'
+
+spatial_followup = SpatialFollowupListView.as_view()
+
 
 class EncounterListView(ListView):
     model = Encounter

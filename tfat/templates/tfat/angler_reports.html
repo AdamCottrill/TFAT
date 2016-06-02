@@ -33,7 +33,20 @@
     {% endif %}
 
     <div class="row">
+        <div class="col-md-9" >
         <h2>Tag Reports Filed By {{ angler }}</h2>
+        </div>
+        <div class="col-md-3" >
+            {% if report_a_tag == True %}
+            {% url 'report_a_tag_create_report' angler_id=angler.id as new_report_url %}
+            {% else %}
+            {% url 'create_report' angler_id=angler.id as new_report_url %}
+            {% endif %}
+
+                        <a class="btn btn-primary"
+                           href="{{ new_report_url }}"
+                           role="button">Create New Report</a>
+        </div>
     </div>
 
     <hr />
@@ -110,23 +123,6 @@
             <br>
         </div>
     </div>
-
-
-    <div  class="row" >
-        <div class="col-md-3" >
-
-            {% if report_a_tag == True %}
-            {% url 'report_a_tag_create_report' angler_id=angler.id as new_report_url %}
-            {% else %}
-            {% url 'create_report' angler_id=angler.id as new_report_url %}
-            {% endif %}
-
-                        <a class="btn btn-primary"
-                           href="{{ new_report_url }}"
-                           role="button">Create New Report</a>
-        </div>
-    </div>
-    <br />
 
 
     {% if recoveries %}

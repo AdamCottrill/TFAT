@@ -240,7 +240,7 @@ class RecoveryForm(ModelForm):
         model = Recovery
         fields = [ 'tagid', 'spc', 'recovery_date', 'date_flag',
                    'general_location', 'specific_location', 'dd_lat', 'dd_lon',
-                   'latlon_flag',
+                   'latlon_flag', 'spatial_followup',
                     'tagdoc', 'tag_removed', 'fate',
                     'flen', 'tlen', 'rwt', 'sex', 'clipc',
                    'comment',]

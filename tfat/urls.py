@@ -234,6 +234,14 @@ urlpatterns = patterns("",
             ),
 
 
+        url(
+            regex=r'^recoveries/spatial_followup$',
+            view='tfat.views.spatial_followup',
+            name='spatial_followup'
+            ),
+
+
+
         # REPORT-A-TAG
         # same as urls above but with additional argument
 
@@ -271,8 +279,6 @@ urlpatterns = patterns("",
             {'report_a_tag':True},
             name='report_a_tag_report_detail'
             ),
-
-
 
 
         #this function is used to download reports and files from project pages

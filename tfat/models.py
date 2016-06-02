@@ -210,15 +210,16 @@ class Recovery(models.Model):
     recovery_date = models.DateField(blank=True, null=True)
     date_flag = models.IntegerField("Date Flag",
                                     choices=DATE_FLAG_CHOICES, default=1)
-    general_location = models.CharField("General Location", max_length=50,
+    general_location = models.CharField("General Location", max_length=200,
                                     blank=True, null=True)
-    specific_location = models.CharField("Specific Location", max_length=50,
+    specific_location = models.CharField("Specific Location", max_length=200,
                                      blank=True, null=True)
     #eventually this will be an optional map widget
     dd_lat = models.FloatField(blank=True, null=True)
     dd_lon = models.FloatField(blank=True, null=True)
     latlon_flag = models.IntegerField("Spatial Flag",
                                choices=LATLON_FLAG_CHOICES, default=1)
+    spatial_followup = models.BooleanField(default=False)
 
     flen = models.IntegerField("Fork Length", blank=True, null=True)
     tlen = models.IntegerField("Total Length", blank=True, null=True)
