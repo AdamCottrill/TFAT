@@ -241,6 +241,8 @@ class RecoveryForm(ModelForm):
 
     fate = forms.TypedChoiceField(choices=FATE_CHOICES_WITH_UNKN,
                                   initial='K',
+                                  widget=forms.Select(
+                                      attrs={'class':'form-control'}),
                                   required=False)
 
     class Meta:
