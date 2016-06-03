@@ -570,36 +570,10 @@
                                     <div class="col-md-6" >
                                         <label for="tag_removed">Tag Removed:</label>
                                         <label class="radio-inline">
-                                            <input type="radio" name="tag_removed_true" id="id_tag_removed" value="true"> Yes
+                                            <input type="radio" name="tag_removed" id="id_tag_removed_true" value="true"> Yes
                                         </label>
                                         <label class="radio-inline">
-                                            <input type="radio" name="tag_removed_false" id="id_tag_removed" value="false" checked> No
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <div id="flen_row" class="row" >
-                                    <div class="col-md-3 text-right" >
-                                        {{ form.flen.label_tag }}
-                                    </div>
-                                    <div class="col-md-3" >
-                                        <div class="form-group {% if form.flen.errors %}has-error{% endif %}">
-
-                                            {{ form.flen }}
-                                            <input type="text" class="form-control imperial" id="id_flen_inches" placeholder="inches">
-                                            {% if form.flen.errors %}
-                                            {% for error in form.flen.errors %}
-                                            <div class="has-error help-block text-danger">{{ error }}</div>
-                                            {% endfor %}
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6" >
-                                        <label class="radio-inline">
-                                            <input type="radio" name="flen_units" id="flen_units_inches" value="inches"> Inches
-                                        </label>
-                                        <label class="radio-inline">
-                                            <input type="radio" name="flen_units" id="flen_units_mm" value="mm" checked> mm
+                                            <input type="radio" name="tag_removed" id="id_tag_removed_false" value="false" checked> No
                                         </label>
                                     </div>
                                 </div>
@@ -626,6 +600,33 @@
                                         </label>
                                         <label class="radio-inline">
                                             <input type="radio" name="tlen_units" id="tlen_units_mm" value="mm" checked> mm
+                                        </label>
+                                    </div>
+                                </div>
+
+
+                                <div id="flen_row" class="row" >
+                                    <div class="col-md-3 text-right" >
+                                        {{ form.flen.label_tag }}
+                                    </div>
+                                    <div class="col-md-3" >
+                                        <div class="form-group {% if form.flen.errors %}has-error{% endif %}">
+
+                                            {{ form.flen }}
+                                            <input type="text" class="form-control imperial" id="id_flen_inches" placeholder="inches">
+                                            {% if form.flen.errors %}
+                                            {% for error in form.flen.errors %}
+                                            <div class="has-error help-block text-danger">{{ error }}</div>
+                                            {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6" >
+                                        <label class="radio-inline">
+                                            <input type="radio" name="flen_units" id="flen_units_inches" value="inches"> Inches
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="flen_units" id="flen_units_mm" value="mm" checked> mm
                                         </label>
                                     </div>
                                 </div>
@@ -1703,13 +1704,13 @@
 
      $('input[id="id_rwt"]').change (function () {
          var rwt = parseFloat($('input[id="id_rwt"]').val());
-         var rwt_lbs = rwt / 453.592 ;
+         var rwt_lbs = rwt / 453.592 || "";
          $('input[id="id_rwt_lbs"]').val(rwt_lbs);
      });
 
      $('input[id="id_rwt_lbs"]').change (function () {
          var rwt_lbs = parseFloat($('input[id="id_rwt_lbs"]').val());
-         var rwt = Math.round(rwt_lbs * 453.592);
+         var rwt = Math.round(rwt_lbs * 453.592) || "";
          $('input[id="id_rwt"]').val(rwt);
      });
 
@@ -1723,13 +1724,13 @@
 
      $('input[id="id_flen"]').change (function () {
          var flen = parseFloat($('input[id="id_flen"]').val());
-         var flen_inches = flen / 25.4;
+         var flen_inches = flen / 25.4 || "";
          $('input[id="id_flen_inches"]').val(flen_inches);
      });
 
      $('input[id="id_flen_inches"]').change (function () {
          var flen_inches = parseFloat($('input[id="id_flen_inches"]').val());
-         var flen = Math.round(flen_inches * 25.4);
+         var flen = Math.round(flen_inches * 25.4) || "";
          $('input[id="id_flen"]').val(flen);
      });
 
@@ -1742,13 +1743,13 @@
 
      $('input[id="id_tlen"]').change (function () {
          var tlen = parseFloat($('input[id="id_tlen"]').val());
-         var tlen_inches = tlen / 25.4 ;
+         var tlen_inches = tlen / 25.4 || "";
          $('input[id="id_tlen_inches"]').val(tlen_inches);
      });
 
      $('input[id="id_tlen_inches"]').change (function () {
          var tlen_inches = parseFloat($('input[id="id_tlen_inches"]').val());
-         var tlen = Math.round(tlen_inches * 25.4);
+         var tlen = Math.round(tlen_inches * 25.4) || "";
          $('input[id="id_tlen"]').val(tlen);
      });
 

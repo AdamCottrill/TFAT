@@ -1244,6 +1244,10 @@ def test_fish_tag_removed_true(client, db_setup, tag_data):
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
+    content = str(response.content)
+    with open('C:/1work/scrapbook/wtf2.html', 'wb') as f:
+        f.write(response.content)
+
     recoveries = Recovery.objects.all()
     assert len(recoveries) == 1
     assert  recoveries[0].tag_removed == tag_removed

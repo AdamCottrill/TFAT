@@ -64,6 +64,7 @@ class RecoveryFactory(factory.DjangoModelFactory):
     tag_origin = '01'
     tag_colour = '2'
     fate = 'K'
+    tag_removed=False
 
 
 class DatabaseFactory(factory.DjangoModelFactory):

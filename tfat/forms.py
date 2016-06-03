@@ -32,6 +32,9 @@ from .constants import (REPORTING_CHOICES, SEX_CHOICES,
                         LATLON_FLAG_CHOICES,
                         PROVINCES_STATE_CHOICES)
 
+FATE_CHOICES_WITH_UNKN = [('', 'Unknown')] + FATE_CHOICES
+
+
 TODAY = datetime.today().date()
 
 class JoePublicForm(ModelForm):
@@ -236,6 +239,10 @@ class RecoveryForm(ModelForm):
                                         attrs={'class':'radio-inline'}),
                                     initial=1)
 
+    fate = forms.TypedChoiceField(choices=FATE_CHOICES_WITH_UNKN,
+                                  initial='K',
+                                  required=False)
+
     class Meta:
         model = Recovery
         fields = [ 'tagid', 'spc', 'recovery_date', 'date_flag',
@@ -261,7 +268,7 @@ class RecoveryForm(ModelForm):
             'dd_lat':forms.TextInput(attrs={'class':'form-control'}),
             'dd_lon':forms.TextInput(attrs={'class':'form-control'}),
             'tag_removed':forms.CheckboxInput(attrs={'class':'form-control'}),
-            'fate':forms.Select(attrs={'class':'form-control'}),
+            #'fate':forms.Select(attrs={'class':'form-control'}),
             'flen':forms.TextInput(attrs={'class':'form-control metric',
                                           'placeholder':'mm'}),
             'tlen':forms.TextInput(attrs={'class':'form-control metric',

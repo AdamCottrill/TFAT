@@ -119,10 +119,10 @@ TAGSTAT_CHOICES = {
 }
 
 
-FATE_CHOICES = {
+FATE_CHOICES = [
     ('R', 'Released'),
     ('K', 'Killed'),
-}
+]
 
 DATE_FLAG_CHOICES = {
     (0, 'Unknown'),
