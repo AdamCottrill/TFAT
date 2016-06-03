@@ -20,7 +20,7 @@ Specifically, the recovery details page must contain:
   + tag position
   + tag type
 - recovery location
-- fish attributes
+- fish attributes including flen, tlen, rwt, and girth
 - additional comments
 
 - the date of the report
@@ -363,3 +363,29 @@ def test_recovery_details_rwt(client, report, species):
     assert 'Weight:' in content
     assert  '2,200 g' in content
     assert  '( 4.9 lbs)' in content
+
+
+@pytest.mark.django_db
+def test_recovery_details_girth(client, report, species):
+    '''If this recovery has a girth (but no fork or total lengths, or
+    round weight) the response should contain the strings "Girth:",
+    the girth in mm, and the girth in inches.  The response should
+    not contain the strings "Fork Length:", "Total Length:" or "Girth:"
+    '''
+
+    recovery = RecoveryFactory(report=report,
+                               spc=species,
+                               tlen=None, flen=None, girth=450)
+
+    response = client.get(reverse('recovery_detail',
+                                  kwargs={'recovery_id':recovery.id}))
+
+    content = str(response.content)
+
+    assert 'Fork Length:' not in content
+    assert 'Total Length:' not in content
+    assert 'Weight:' not in content
+
+    assert 'Girth:' in content
+    assert  '450 mm' in content
+    assert  '( 17.7 inches)' in content

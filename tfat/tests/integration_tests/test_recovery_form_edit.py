@@ -20,6 +20,7 @@ optional data elements:
 - general location
 - specific location
 - rwt
+- girth
 - fish fate
 - tag removed
 - sex
@@ -1065,6 +1066,27 @@ def test_rwt(client, db_setup, tag_data):
     assert len(recoveries) == 1
     assert  recoveries[0].rwt == rwt
 
+
+@pytest.mark.django_db
+def test_girth(client, db_setup, tag_data):
+    """girth is an optional field.  If it is included in the
+    posted data, it will be correctly associated with the recovery
+    object in the database.
+
+    """
+
+    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
+    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+
+    girth = 1450
+    tag_data['girth'] = girth
+
+    response = client.post(url, tag_data, follow=True)
+    assert response.status_code == 200
+
+    recoveries = Recovery.objects.all()
+    assert len(recoveries) == 1
+    assert  recoveries[0].girth == girth
 
 
 @pytest.mark.django_db

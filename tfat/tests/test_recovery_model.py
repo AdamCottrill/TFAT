@@ -279,6 +279,19 @@ def test_recovery_flen_inches():
 
 
 @pytest.mark.django_db
+def test_recovery_girth_inches():
+    """
+    """
+    species = SpeciesFactory()
+    report = ReportFactory()
+    recovery = RecoveryFactory(report=report,
+                               spc=species,
+                               girth=450)
+    assert recovery.girth_inches() == 17.7
+
+
+
+@pytest.mark.django_db
 def test_recovery_flen_inches_none():
     """
     """

@@ -251,7 +251,7 @@ class RecoveryForm(ModelForm):
                    'general_location', 'specific_location', 'dd_lat', 'dd_lon',
                    'latlon_flag', 'spatial_followup',
                     'tagdoc', 'tag_removed', 'fate',
-                    'flen', 'tlen', 'rwt', 'sex', 'clipc',
+                    'flen', 'tlen', 'rwt', 'girth', 'sex', 'clipc',
                    'comment',]
 
         widgets = {
@@ -274,6 +274,8 @@ class RecoveryForm(ModelForm):
             'flen':forms.TextInput(attrs={'class':'form-control metric',
                                           'placeholder':'mm'}),
             'tlen':forms.TextInput(attrs={'class':'form-control metric',
+                                          'placeholder':'mm'}),
+            'girth':forms.TextInput(attrs={'class':'form-control metric',
                                           'placeholder':'mm'}),
             'rwt':forms.TextInput(attrs={'class':'form-control metric',
                                          'placeholder':'grams'}),

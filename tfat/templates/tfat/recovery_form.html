@@ -657,6 +657,35 @@
                                     </div>
                                 </div>
 
+
+                                <div id="girth_row" class="row" >
+                                    <div class="col-md-3 text-right" >
+                                        {{ form.girth.label_tag }}
+                                    </div>
+                                    <div class="col-md-3" >
+                                        <div class="form-group {% if form.girth.errors %}has-error{% endif %}">
+
+                                            {{ form.girth }}
+                                            <input type="text" class="form-control imperial" id="id_girth_inches" placeholder="inches">
+                                            {% if form.girth.errors %}
+                                            {% for error in form.girth.errors %}
+                                            <div class="has-error help-block text-danger">{{ error }}</div>
+                                            {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6" >
+                                        <label class="radio-inline">
+                                            <input type="radio" name="girth_units" id="girth_units_inches" value="inches"> Inches
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="girth_units" id="girth_units_mm" value="mm" checked> mm
+                                        </label>
+                                    </div>
+                                </div>
+
+
+
                                 <div id="sex_row" class="row" >
                                     <div class="col-md-3 text-right" >
                                         {{ form.sex.label_tag }}
@@ -797,9 +826,11 @@
      $('#flen_units_mm').prop('checked', true)
      $('#tlen_units_mm').prop('checked', true)
      $('#rwt_units_g').prop('checked', true)
+     $('#girth_units_mm').prop('checked', true)
      $('#flen_units_inches').prop('checked', false)
      $('#tlen_units_inches').prop('checked', false)
      $('#rwt_units_lbs').prop('checked', false)
+     $('#girth_units_inches').prop('checked', false)
 
      {% else %}
      // imperial
@@ -807,10 +838,12 @@
      $('.imperial').show();
      $('#flen_units_mm').prop('checked', false)
      $('#tlen_units_mm').prop('checked', false)
+     $('#girth_units_mm').prop('checked', false)
      $('#rwt_units_g').prop('checked', false)
      $('#flen_units_inches').prop('checked', true)
      $('#tlen_units_inches').prop('checked', true)
      $('#rwt_units_lbs').prop('checked', true)
+     $('#girth_units_inches').prop('checked', true)
 
      {% endif %}
 
@@ -1751,6 +1784,26 @@
          var tlen_inches = parseFloat($('input[id="id_tlen_inches"]').val());
          var tlen = Math.round(tlen_inches * 25.4) || "";
          $('input[id="id_tlen"]').val(tlen);
+     });
+
+
+     // GIRTH LENGTH CONTROLS
+
+     $('input[name="girth_units"]').click(function (e) {
+         $('input[id="id_girth_inches"]').toggle();
+         $('input[id="id_girth"]').toggle();
+     });
+
+     $('input[id="id_girth"]').change (function () {
+         var girth = parseFloat($('input[id="id_girth"]').val());
+         var girth_inches = girth / 25.4 || "";
+         $('input[id="id_girth_inches"]').val(girth_inches);
+     });
+
+     $('input[id="id_girth_inches"]').change (function () {
+         var girth_inches = parseFloat($('input[id="id_girth_inches"]').val());
+         var girth = Math.round(girth_inches * 25.4) || "";
+         $('input[id="id_girth"]').val(girth);
      });
 
 

@@ -224,6 +224,7 @@ class Recovery(models.Model):
     flen = models.IntegerField("Fork Length", blank=True, null=True)
     tlen = models.IntegerField("Total Length", blank=True, null=True)
     rwt = models.IntegerField("Round Weight", blank=True, null=True)
+    girth = models.IntegerField("Girth", blank=True, null=True)
 
     sex  = models.CharField("Sex", max_length=3,
                             choices=SEX_CHOICES, default="9",
@@ -397,6 +398,12 @@ class Recovery(models.Model):
             length = None
         return length
 
+    def girth_inches(self):
+        if self.girth:
+            length = round(self.girth * 0.03937, 1)
+        else:
+            length = None
+        return length
 
     def pounds(self):
         if self.rwt:
