@@ -384,30 +384,33 @@ class Recovery(models.Model):
         return comments
 
 
-    def tlen_inches(self):
+    def tlen_inches(self, digits=1):
         if self.tlen:
-            length = round(self.tlen * 0.03937, 1)
+            length = round(self.tlen * 0.03937, digits)
         else:
             length = None
         return length
 
-    def flen_inches(self):
+
+    def flen_inches(self, digits=1):
         if self.flen:
-            length = round(self.flen * 0.03937, 1)
+            length = round(self.flen * 0.03937, digits)
         else:
             length = None
         return length
 
-    def girth_inches(self):
+
+    def girth_inches(self, digits=1):
         if self.girth:
-            length = round(self.girth * 0.03937, 1)
+            length = round(self.girth * 0.03937, digits)
         else:
             length = None
         return length
 
-    def pounds(self):
+
+    def pounds(self, digits=1):
         if self.rwt:
-            wt = round(self.rwt * 0.00220462, 1)
+            wt = round(self.rwt * 0.00220462, digits)
         else:
             wt = None
         return  wt

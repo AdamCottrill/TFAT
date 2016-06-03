@@ -847,6 +847,21 @@
 
      {% endif %}
 
+     // intantiate the metric/imperial fish attributes cells:
+     girth_mm2inches();
+     girth_inches2mm();
+
+     tlen_mm2inches();
+     tlen_inches2mm();
+
+     flen_mm2inches();
+     flen_inches2mm();
+
+     rwt_g2lbs();
+     rwt_lbs2g();
+
+
+
      var my_map;
      var popup_map;
      var my_markers = new Array();
@@ -1553,8 +1568,6 @@
      };
 
 
-
-
      function checkForUnique(str){
          //from:https://ujjaini.wordpress.com/2014/09/04/check-if-a-string-has-
          //    all-unique-characters-in-javascript/
@@ -1570,6 +1583,60 @@
          return true;
      }
 
+
+     // METRIC-IMPERIAL Fucntions
+     // these functions populate their metric-imperial counterpart
+     // called when page is created and when a units radio button is clicked
+
+
+     function girth_mm2inches(){
+         var girth = parseFloat($('input[id="id_girth"]').val());
+         var girth_inches = girth / 25.4 || "";
+         $('input[id="id_girth_inches"]').val(girth_inches);
+     }
+
+     function girth_inches2mm(){
+         var girth_inches = parseFloat($('input[id="id_girth_inches"]').val());
+         var girth = Math.round(girth_inches * 25.4) || "";
+         $('input[id="id_girth"]').val(girth);
+     }
+
+
+     function tlen_mm2inches(){
+         var tlen = parseFloat($('input[id="id_tlen"]').val());
+         var tlen_inches = tlen / 25.4 || "";
+         $('input[id="id_tlen_inches"]').val(tlen_inches);
+     }
+
+     function tlen_inches2mm(){
+         var tlen_inches = parseFloat($('input[id="id_tlen_inches"]').val());
+         var tlen = Math.round(tlen_inches * 25.4) || "";
+         $('input[id="id_tlen"]').val(tlen);
+     }
+
+     function flen_mm2inches(){
+         var flen = parseFloat($('input[id="id_flen"]').val());
+         var flen_inches = flen / 25.4 || "";
+         $('input[id="id_flen_inches"]').val(flen_inches);
+     }
+
+     function flen_inches2mm(){
+         var flen_inches = parseFloat($('input[id="id_flen_inches"]').val());
+         var flen = Math.round(flen_inches * 25.4) || "";
+         $('input[id="id_flen"]').val(flen);
+     }
+
+     function rwt_g2lbs(){
+         var rwt = parseFloat($('input[id="id_rwt"]').val());
+         var rwt_lbs = rwt / 453.592 || "";
+         $('input[id="id_rwt_lbs"]').val(rwt_lbs);
+     }
+
+     function rwt_lbs2g(){
+         var rwt_lbs = parseFloat($('input[id="id_rwt_lbs"]').val());
+         var rwt = Math.round(rwt_lbs * 453.592) || "";
+         $('input[id="id_rwt"]').val(rwt);
+     }
 
 
      $('input[type="radio"]').on('click change', function(e) {
@@ -1734,18 +1801,8 @@
          $('input[id="id_rwt_lbs"]').toggle();
          $('input[id="id_rwt"]').toggle();
      });
-
-     $('input[id="id_rwt"]').change (function () {
-         var rwt = parseFloat($('input[id="id_rwt"]').val());
-         var rwt_lbs = rwt / 453.592 || "";
-         $('input[id="id_rwt_lbs"]').val(rwt_lbs);
-     });
-
-     $('input[id="id_rwt_lbs"]').change (function () {
-         var rwt_lbs = parseFloat($('input[id="id_rwt_lbs"]').val());
-         var rwt = Math.round(rwt_lbs * 453.592) || "";
-         $('input[id="id_rwt"]').val(rwt);
-     });
+     $('input[id="id_rwt"]').change (rwt_g2lbs)
+     $('input[id="id_rwt_lbs"]').change (rwt_lbs2g)
 
 
      // FORK LENGTH CONTROLS
@@ -1753,19 +1810,8 @@
          $('input[id="id_flen_inches"]').toggle();
          $('input[id="id_flen"]').toggle();
      });
-
-
-     $('input[id="id_flen"]').change (function () {
-         var flen = parseFloat($('input[id="id_flen"]').val());
-         var flen_inches = flen / 25.4 || "";
-         $('input[id="id_flen_inches"]').val(flen_inches);
-     });
-
-     $('input[id="id_flen_inches"]').change (function () {
-         var flen_inches = parseFloat($('input[id="id_flen_inches"]').val());
-         var flen = Math.round(flen_inches * 25.4) || "";
-         $('input[id="id_flen"]').val(flen);
-     });
+     $('input[id="id_flen"]').change (flen_mm2inches)
+     $('input[id="id_flen_inches"]').change (flen_inches2mm)
 
      // TOTAL LENGTH CONTROLS
 
@@ -1773,18 +1819,8 @@
          $('input[id="id_tlen_inches"]').toggle();
          $('input[id="id_tlen"]').toggle();
      });
-
-     $('input[id="id_tlen"]').change (function () {
-         var tlen = parseFloat($('input[id="id_tlen"]').val());
-         var tlen_inches = tlen / 25.4 || "";
-         $('input[id="id_tlen_inches"]').val(tlen_inches);
-     });
-
-     $('input[id="id_tlen_inches"]').change (function () {
-         var tlen_inches = parseFloat($('input[id="id_tlen_inches"]').val());
-         var tlen = Math.round(tlen_inches * 25.4) || "";
-         $('input[id="id_tlen"]').val(tlen);
-     });
+     $('input[id="id_tlen"]').change (tlen_mm2inches)
+     $('input[id="id_tlen_inches"]').change (tlen_inches2mm)
 
 
      // GIRTH LENGTH CONTROLS
@@ -1794,17 +1830,8 @@
          $('input[id="id_girth"]').toggle();
      });
 
-     $('input[id="id_girth"]').change (function () {
-         var girth = parseFloat($('input[id="id_girth"]').val());
-         var girth_inches = girth / 25.4 || "";
-         $('input[id="id_girth_inches"]').val(girth_inches);
-     });
-
-     $('input[id="id_girth_inches"]').change (function () {
-         var girth_inches = parseFloat($('input[id="id_girth_inches"]').val());
-         var girth = Math.round(girth_inches * 25.4) || "";
-         $('input[id="id_girth"]').val(girth);
-     });
+     $('input[id="id_girth"]').change (girth_mm2inches)
+     $('input[id="id_girth_inches"]').change (girth_inches2mm)
 
 
      $('input:radio[name="latlon_flag"]').on('click change', function(e) {
