@@ -1,0 +1,85 @@
+{% extends "tfat/tfat_base.html" %}
+
+<!-- {% block pages %}
+
+
+     {% endblock %}
+     -->
+
+{% block content %}
+<div class="container">
+
+    <h2>Tag Recoveries Requiring Spatial Follow-up</h2>
+
+
+    <div class="alert alert-success" role="alert">
+        <p>Tag recoveries on this page have good spatial descriptions but lack coordinates. Do you know where any of these places are? If so, please update the recovery records.</p>
+    </div>
+
+
+    {% if object_list %}
+
+    {% if page_obj %}
+    {% if page_obj.paginator.num_pages > 1 %}
+    <ul class="pager">
+        {% if page_obj.has_previous %}
+        <li class="previous"><a href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+        {% else %}
+        <li class="previous disabled"><a href="#">Previous</a></li>
+        {% endif %}
+
+        <span class="page-current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+        <li class="next"><a href="?page={{ page_obj.next_page_number }}">Next</a></li>
+        {% else %}
+        <li class="next disabled"><a href="#">Next</a></li>
+        {% endif %}
+    </ul>
+    {% else %}
+    <br />
+    {% endif %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-12">
+
+            <table id="myTable" class="table tablesorter">
+                <thead><tr>
+                    <td>Tag Number</td>
+                    <td>Species</td>
+                    <td>Recovery Date</td>
+                    <td>General Location</td>
+                    <td>Specific Location</td>
+                </thead>
+                <tbody>
+                    {% for object  in object_list %}
+                    <tr class="{% cycle row1,row2 %}">
+                        <td> <a href="{% url 'recovery_detail'  object.id  %}">{{ object.tagid }}</a> </td>
+                        <td> {{ object.spc.common_name | title }} </td>
+                        <td> {{ object.recovery_date }} </td>
+                        <td> {{ object.general_location }} </td>
+                        <td> {{ object.specific_location }} </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% else %}
+            <div class="alert alert-success" role="alert">
+                <p>There are currently no tags requiring spatial follow-up. Congratulations!</p>
+            </div>
+            <br />
+
+
+            {% endif %}
+        </div>
+    </div>
+
+
+</div>
+
+
+{% endblock %}
