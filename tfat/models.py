@@ -525,7 +525,7 @@ class Recovery(models.Model):
 
 
 class Database(models.Model):
-    '''A lookup table to hole list of master databases.'''
+    '''A lookup table to hold list of master databases.'''
     master_database = models.CharField(max_length=250)
     path = models.CharField(max_length=250)
 

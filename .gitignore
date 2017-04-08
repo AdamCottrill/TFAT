@@ -4,6 +4,9 @@ db/*
 *.mdb
 *.ldb
 *.pyc
+*.db
+.coverage
+.dir-locals.el
 htmlcov/*
 static/*
 media/*

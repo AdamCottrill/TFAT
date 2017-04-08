@@ -19,7 +19,7 @@ DATABASES = {
         'NAME': 'tfat',
         'USER': 'cottrillad',
         'PASSWORD': 'django',
-        #'HOST': '142.143.160.56',
+        'HOST': 'localhost',
     }
 }
 

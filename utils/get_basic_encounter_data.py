@@ -75,48 +75,58 @@ def yr_from_prjcd(prj_cd):
 #  print('Done uploading species.')
 #
 #
-#  #==========================================
-#  #    PROJECT and DATBASE   INFO
+#==========================================
+#    PROJECT and DATBASE   INFO
+
+#get the projects, and project names from project tracker and load them
+
+pg_constr = "host={0} dbname={1} user={2} password={3}".\
+            format(PG_HOST, PG_DB, PG_USER, PG_PASS)
+pgconn = psycopg2.connect(pg_constr)
+pgcur = pgconn.cursor()
+
+#sql = "select master_database, path from pjtk2_database"
 #
-#  #get the projects, and project names from project tracker and load them
+#pgcur.execute(sql)
 #
-#  pg_constr = "host={0} dbname={1} user={2} password={3}".\
-#              format(PG_HOST, PG_DB, PG_USER, PG_PASS)
-#  pgconn = psycopg2.connect(pg_constr)
-#  pgcur = pgconn.cursor()
+#dbases = pgcur.fetchall()
+#for db in dbases:
+#    dbase = Database(master_database=db[0], path=db[1])
+#    dbase.save()
 #
-#  sql = "select master_database, path from pjtk2_database"
-#
-#  pgcur.execute(sql)
-#
-#  dbases = pgcur.fetchall()
-#  for db in dbases:
-#      dbase = Database(master_database=db[0], path=db[1])
-#      dbase.save()
-#
-#  print('Done uploading database info.')
-#
-#  #sql = "select prj_cd, prj_nm from pjtk2_project"
-#
-#  sql = """select prj_cd, prj_nm, master_database
-#            from pjtk2_project prj join pjtk2_database dbase
-#            on prj.master_database_id=dbase.id
-#  """
-#
-#  pgcur.execute(sql)
-#
-#  projects = pgcur.fetchall()
-#
-#  for project in projects:
-#      db = Database.objects.get(master_database=project[2])
-#      proj = Project(prj_cd = project[0], prj_nm=project[1],
-#                     year=yr_from_prjcd(project[0]), dbase=db)
-#      proj.save()
-#
-#  print('Done uploading project info.')
-#
-#  pgcur.close()
-#  pgconn.close()
+#print('Done uploading database info.')
+
+#sql = "select prj_cd, prj_nm from pjtk2_project"
+
+sql = """select prj_cd, prj_nm, master_database
+          from pjtk2_project prj join pjtk2_database dbase
+          on prj.master_database_id=dbase.id
+"""
+
+pgcur.execute(sql)
+
+projects = pgcur.fetchall()
+
+
+#add only new projects:
+for project in projects:
+    try:
+        proj = Project.objects.get(prj_cd=project[0])
+    except (Project.DoesNotExist, Project.MultipleObjectsReturned) as err:
+        if 'does not exist' in err.args[0]:
+            msg = "Adding {} ({})".format(project[1], project[0])
+            print(msg)
+            db = Database.objects.get(master_database=project[2])
+            proj = Project(prj_cd = project[0], prj_nm=project[1],
+                           year=yr_from_prjcd(project[0]), dbase=db)
+            proj.save()
+        else:
+            msg = 'Multiple projects found with prj_cd={}'.format()
+            print(msg)
+print('Done uploading project info.')
+pgcur.close()
+pgconn.close()
+
 
 
 #==========================================

@@ -113,6 +113,8 @@ STATICFILES_DIRS = (
     os.path.abspath(os.path.join(BASE_DIR, "../static")),
  )
 
+print("STATIC_ROOT = " + STATIC_ROOT)
+print("STATICFILE_DIRS = " + STATICFILES_DIRS)
 
 LEAFLET_CONFIG = {
     #minx, miny, maxx,maxy
