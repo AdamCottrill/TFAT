@@ -3,12 +3,7 @@
 {% block extrahead %}
 
 <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
-<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
-
 <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
-<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
-
-<script src="/static/Leaflet.MakiMarkers.js"></script>
 
 <style type="text/css" media="screen">
 
@@ -472,7 +467,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="col-md-5" >
-                                                    <select class="form-control">
+                                                    <select class="form-control" id="lake_name">
                                                         <option>Lake Huron</option>
                                                         <option>Lake Superior</option>
                                                         <option>Lake Erie</option>
@@ -480,13 +475,12 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <p>Lots more work to do here.  we need
-                                                to write a api in our application that
-                                                will get the centroid of the supplied
-                                                grid number and populate the other
-                                                controls or take the lat-lon from the
-                                                other controls and get the assocaiated
-                                                grid number.</p>
+
+                                            <div id="grid_no_error" class="alert alert-danger" role="alert">
+                                                'Oops! I can't seem to find that grid number!'
+                                            </div>
+
+
                                         </div>  <!-- tabpanel -->
                                     </div>  <!-- tabcontent -->
                                 </div>  <!-- outer tab panel body -->
@@ -801,6 +795,13 @@
 </div><!-- /.modal -->
 
 
+(
+<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+<script src="/static/Leaflet.MakiMarkers.js"></script>
+<script src="/static/grids.js"></script>
+
+
 <script type="text/javascript">
 
  $(document).ready(function(){
@@ -896,7 +897,18 @@
 
          $( "#ddm_lon_deg_error" ).hide();
          $( "#ddm_lon_min_error" ).hide();
+
+         $( "#grid_no_error" ).hide();
      }
+
+
+
+     function get_grid_number(ddlat, ddlon){
+         // for now clear the grid number if the point comes from any-other control
+         // someday we will call get_grid api and pass in the coordinates to get it.
+         $('input[id="grid_no"]').val('');
+
+     };
 
 
      function refresh_map(){
@@ -908,6 +920,8 @@
 
 
          if(isNaN(ddlat)===false && isNaN(ddlon)===false){
+
+             get_grid_number(ddlat, ddlon);
 
              $('input:radio[name="latlon_flag"]').val(["1"]); // 1 == 'Reported'
 
@@ -942,6 +956,38 @@
          }).addTo(my_map);
 
      };
+
+     function clear_spatial_controls(){
+         // if the grid and lake we selected don't exist.  clear any
+         //existing information in the lat-long controls.
+         if (my_markers.length && typeof my_markers[0] !== 'undefined'){
+             my_map.removeLayer(my_markers[0]);
+             delete my_markers[0];
+         }
+
+         $('input[id="id_dd_lat"]').val('');
+
+         $('input[id="ddm_lat_deg"]').val('');
+         $('input[id="ddm_lat_min"]').val('');
+
+         $('input[id="dms_lat_deg"]').val('');
+         $('input[id="dms_lat_min"]').val('');
+         $('input[id="dms_lat_sec"]').val('');
+
+         $('input[id="id_dd_lon"]').val('');
+
+         $('input[id="ddm_lon_deg"]').val('');
+         $('input[id="ddm_lon_min"]').val('');
+
+         $('input[id="dms_lon_deg"]').val('');
+         $('input[id="dms_lon_min"]').val('');
+         $('input[id="dms_lon_sec"]').val('');
+
+         // the coordinates under the map:
+         $("#latlon_text").html('');
+
+
+     }
 
 
      function update_controls(dd_lat, dd_lon){
@@ -1003,6 +1049,9 @@
          // the coordinates under the map:
          $("#latlon_text").html('<em>' +  dd_lat.toFixed(4) + '&deg;N ' + dd_lon.toFixed(4) + '&deg;W</em>');
 
+         // when we have a grid api we can update the grid and lake based on the Coordinates
+         // we could do that here.
+
      }
 
 
@@ -1013,6 +1062,8 @@
          var dd_lon = e.latlng.lng;
 
          update_controls(dd_lat, dd_lon);
+         get_grid_number(dd_lat, dd_lon)
+
      }
 
      // call the onMapClick function when user click on map
@@ -1090,6 +1141,7 @@
              if (popup_markers.length && typeof popup_markers[0] !== 'undefined'){
                  var pt = popup_markers[0].getLatLng();
                  update_controls(pt.lat, pt.lng);
+                 get_grid_number(pt.lat, pt.lng);
              }
 
              //finally hide the popup map:
@@ -1122,6 +1174,37 @@
 
 
      });
+
+
+     var grid_change = function(){
+         // see if a point exists in our grid lookup-key
+         var lake = $('#lake_name').find(':selected').text().split(" ")[1];
+         var grid_no = parseInt($('input[name="grid_no"]').val());
+         var coord;
+         if (grids[lake]){
+             coord = grids[lake][grid_no];
+         }
+
+         if (coord){
+             update_controls(coord[1], coord[0]);
+             $( "#grid_no_error" ).hide();
+         } else {
+             clear_spatial_controls();
+             $( "#grid_no_error" ).show();
+         }
+
+     };
+
+     $('#lake_name').on('change', function(){
+         console.log('Lake Changed!')
+         grid_change();
+     });
+
+
+     $('input[name="grid_no"]').focusout(function(){
+         grid_change();
+     });
+
 
 
      $('input[id="id_dd_lon"]').change (function () {
