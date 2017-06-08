@@ -308,30 +308,32 @@ class Recovery(models.Model):
 
         base_string = ('<table>' +
                        '    <tr>' +
-                       '        <td>TagID:</td>' +
+                       '        <td><strong>TagID:</strong></td>' +
                        '        <td>{tagid}</td>' +
                        '    </tr>' +
 
                        '    <tr>' +
-                       '        <td>TagDoc:</td>' +
+                       '        <td><strong>TagDoc:</strong></td>' +
                        '        <td>{tagdoc}</td>' +
                        '    </tr>' +
 
                        '<tr>' +
-                       '    <td>Date:</td>' +
+                       '    <td><strong>Date:</strong></td>' +
                        '    <td>{recovery_date}</td>' +
                        '</tr>' +
                        '    <tr>' +
-                       '        <td>Species: </td>' +
+                       '        <td><strong>Species:</strong></td>' +
                        '        <td>{common_name} ({species_code})</td>' +
                        '    </tr>' +
                        '    <tr>' +
-                       '        <td>Repored By:</td>' +
+                       '        <td><strong>Repored By</strong>:</td>' +
                        '        <td>{first_name} {last_name}</td>' +
                        '    </tr>' +
                        '    <tr>' +
-                       '        <td>Comments:</td>' +
-                       '        <td>{comments}</td>' +
+                       '        <td style="vertical-align: top;"> ' +
+                       '          <strong>Comments:<\strong> ' +
+                       '        </td>' +
+                       '        <td style="white-space:pre">{comments}</td>' +
                        '    </tr>' +
 
                        '</table>')
@@ -381,6 +383,7 @@ class Recovery(models.Model):
             comments += html.escape('({})'.format(self.specific_location))
         if self.comment:
             comments += '<br>' + html.escape('{}'.format(self.comment))
+        comments = comments.replace(os.linesep, '\\n')
         return comments
 
 
