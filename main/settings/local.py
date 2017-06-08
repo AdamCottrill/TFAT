@@ -18,7 +18,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'tfat',
         'USER': 'cottrillad',
-        'PASSWORD': 'django',
+        'PASSWORD': 'django123',
         'HOST': 'localhost',
     }
 }
