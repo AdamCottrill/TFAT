@@ -66,6 +66,8 @@ TAG_TYPE_CHOICES = {
 #    ('9', 'Type Unknown or not applicable'),
     ('A', 'Internal (Radio)'),
     ('B', 'Metal Livestock'),
+    ('C', 'Cinch'),
+    ('P' ,'PIT tag'),
 #    ('X', 'Tag Scar/obvious loss'),
 }
 
@@ -98,6 +100,9 @@ TAG_ORIGIN_CHOICES = {
     ('13', 'Ontario Hydro'),
     ('19', 'USWFW'),
     ('20', 'USGS'),
+    ('24', 'CORA'),
+    ('25', 'AOFRC'),
+    ('26', 'GLLFAS'),
     ('98', 'Other'),
     ('99', 'Unknown'),
 }
@@ -109,6 +114,7 @@ TAG_COLOUR_CHOICES = {
     ('4', 'Green'),
     ('5', 'Orange'),
     ('6', 'Silver'),
+    ('7', 'White'),
     ('9', 'Unknown'),
 }
 
