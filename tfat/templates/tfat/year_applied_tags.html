@@ -33,8 +33,10 @@
          var angler = L.MakiMarkers.icon({icon: "star", color: "#00f", size: "s"});
 
          {% for object in applied %}
+         {% if object.dd_lat and object.dd_lon %}
          L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon:tagging_marker}).addTo(map)
-          .bindPopup('{{ object.popup_text|safe }}');
+                     .bindPopup('{{ object.popup_text|safe }}');
+         {% endif %}
          {% endfor %}
 
 

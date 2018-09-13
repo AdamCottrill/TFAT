@@ -382,8 +382,10 @@ class Recovery(models.Model):
         if self.specific_location:
             comments += html.escape('({})'.format(self.specific_location))
         if self.comment:
-            comments += '<br>' + html.escape('{}'.format(self.comment))
-        comments = comments.replace(os.linesep, '\\n')
+            #tmp = self.comment.replace('\n', '<br />')
+            comments += '<br />' + html.escape('{}'.format(self.comment))
+        comments = comments.replace(os.linesep, '<br />')
+
         return comments
 
 

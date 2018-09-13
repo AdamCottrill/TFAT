@@ -7,6 +7,7 @@
 {% leaflet_js %}
 {% leaflet_css %}
 
+
 <script src="/static/Leaflet.MakiMarkers.js"></script>
 
 
@@ -120,8 +121,9 @@
 
                  {% for object in report.get_recoveries_with_latlon %}
 
+                 {% if object.dd_lat and object.dd_lon %}
                  L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}]).addTo(map).bindPopup('{{ object.popup_text|safe }}');
-
+                 {% endif %}
 
                  {% endfor %}
 

@@ -54,18 +54,20 @@
 
          {% if encounter_list %}
          {% for object in encounter_list %}
-
+         {% if object.dd_lat and object.dd_lon %}
          L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon:{{ object.marker_class }}}).addTo(map)
           .bindPopup('{{ object.popup_text|safe }}');
+         {% endif %}
          {% endfor %}
          {% endif %}
 
 
          {% if angler_recaps %}
          {% for object in angler_recaps %}
-
+         {% if object.dd_lat and object.dd_lon %}
          L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon: angler}).addTo(map)
-          .bindPopup('{{ object.popup_text|safe }}');
+                     .bindPopup('{{ object.popup_text|safe }}');
+         {% endif %}
          {% endfor %}
 
          {% endif %}

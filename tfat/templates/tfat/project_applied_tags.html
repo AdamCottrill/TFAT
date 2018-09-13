@@ -42,22 +42,27 @@
            var angler = L.MakiMarkers.icon({icon: "star", color: "#00f", size: "s"});
 
            {% for object in applied %}
+           {% if object.has_latlon %}
            L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon:tagging_marker}).addTo(map)
-            .bindPopup('{{ object.popup_text|safe }}');
+                       .bindPopup('{{ object.popup_text|safe }}');
+           {% endif %}
            {% endfor %}
 
            {% if recovered.nobs %}
            {% for object in recovered.queryset %}
+           {% if object.dd_lat and object.dd_lon %}
            L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon:recap_marker}).addTo(map)
-            .bindPopup('{{ object.popup_text|safe }}');
+                          .bindPopup('{{ object.popup_text|safe }}');
+           {% endif %}
            {% endfor %}
            {% endif %}
 
            {% if angler_recaps.nobs %}
            {% for object in angler_recaps.queryset %}
-
+           {% if object.has_latlon %}
            L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon: angler}).addTo(map)
-               .bindPopup('{{ object.popup_text|safe }}');
+                              .bindPopup('{{ object.popup_text|safe }}');
+           {% endif %}
            {% endfor %}
 
            {% endif %}

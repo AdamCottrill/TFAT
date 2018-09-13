@@ -40,8 +40,10 @@
 
            {% if recovered %}
            {% for object in recovered %}
+           {% if object.dd_lat and object.dd_lon %}
            L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon:recap_marker}).addTo(map)
-            .bindPopup('{{ object.popup_text|safe }}');
+                       .bindPopup('{{ object.popup_text|safe }}');
+           {% endif %}
            {% endfor %}
            {% endif %}
 
@@ -57,15 +59,19 @@
 
            {% if other_recoveries.nobs %}
            {% for object in other_recoveries.queryset %}
+           {% if object.dd_lat and object.dd_lon %}
            L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon:recap_marker}).addTo(map)
-            .bindPopup('{{ object.popup_text|safe }}');
+                                 .bindPopup('{{ object.popup_text|safe }}');
+           {% endif %}
            {% endfor %}
            {% endif %}
 
            {% if applied.nobs %}
            {% for object in applied.queryset %}
+           {% if object.dd_lat and object.dd_lon %}
            L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon:tagging_marker}).addTo(map)
-            .bindPopup('{{ object.popup_text|safe }}');
+                        .bindPopup('{{ object.popup_text|safe }}');
+           {% endif %}
            {% endfor %}
            {% endif %}
 

@@ -175,16 +175,17 @@
 
         <div class="col-md-7" >
 
-            {% if encounter.has_latlon %}
+
             <script type="text/javascript">
              function map_init_basic (map, options) {
                  map.setZoom(7)
 
-                     L.marker([{{ encounter.dd_lat }}, {{ encounter.dd_lon}}]).addTo(map).bindPopup('{{ encounter.popup_text|safe }}');
-
+                 {% if encounter.has_latlon %}
+                 L.marker([{{ encounter.dd_lat }}, {{ encounter.dd_lon}}]).addTo(map).bindPopup('{{ encounter.popup_text|safe }}');
+                 {% endif %}
              }
             </script>
-            {% endif %}
+
 
             {% leaflet_map "mymap" callback="window.map_init_basic" %}
             <br>

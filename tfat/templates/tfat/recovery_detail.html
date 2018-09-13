@@ -22,6 +22,17 @@
     td {
         padding: 0px 10px 2px 0px;}
 
+     /*make leaflet popups wrap text*/
+     .leaflet-popup-content{
+         /*width: 100px;*/
+         white-space: normal;
+     }
+
+
+
+
+
+
 </style>
 
 
@@ -187,12 +198,14 @@
 
             {% if recovery.has_latlon %}
             <script type="text/javascript">
+
              function map_init_basic (map, options) {
                  map.setZoom(7)
-
+                     {% if recovery.dd_lat and recovery.dd_lon %}
                      L.marker([{{ recovery.dd_lat }}, {{ recovery.dd_lon}}]).addTo(map).bindPopup('{{ recovery.popup_text|safe }}');
-
+                 {% endif %}
              }
+
             </script>
             {% endif %}
 
@@ -288,7 +301,7 @@
                     <h3 class="panel-title">Additional Comments</h3>
                 </div>
                 <div class="panel-body">
-                    <p style="white-space:pre">{{ recovery.comment }}</p>
+                    <p style="white-space:pre">{{ recovery.comment|linebreaks }}</p>
                 </div>
             </div>
 

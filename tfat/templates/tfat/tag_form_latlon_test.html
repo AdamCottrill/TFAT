@@ -173,7 +173,7 @@
                                             </div>
                                         </div>
                                         <div class="col-md-3" >
-                                            <select class="form-control">
+                                            <select class="form-control" id ="lake_name">
                                                 <option>Lake Huron</option>
                                                 <option>Lake Superior</option>
                                                 <option>Lake Erie</option>
@@ -220,9 +220,12 @@
         </div> <!-- container -->
 
 
+        <script src="./grids.js"></script>
+
         <script>
 
             // Your code goes here.
+
 
             $(document).ready(function(){
 
@@ -373,6 +376,45 @@
             refresh_map();
 
             });
+
+
+                var grid_change = function(){
+                    // see if a point exists in our grid lookup-key
+                    var lake = $('#lake_name').find(':selected').text().split(" ")[1];
+                    var grid_no = parseInt($('input[name="grid_no"]').val());
+                    var coord;
+                    if (grids[lake]){
+                        coord = grids[lake][grid_no];
+                    }
+
+                    if (coord){
+                        $('input[id="dd_lon_deg"]').val(coord[0]);
+                        $('input[id="dd_lat_deg"]').val(coord[1]);
+                    } else {
+                        $('input[id="dd_lon_deg"]').val('');
+                        $('input[id="dd_lat_deg"]').val('');
+                    }
+
+                    //refresh_map();
+
+
+                };
+
+                $('#lake_name').on('change', function(){
+                    console.log('Lake Changed!')
+                    grid_change();
+                });
+
+
+                $('input[name="grid_no"]').focusout(function(){
+                    grid_change();
+                });
+
+
+
+
+
+
 
 
             var map = L.map('map').setView([45.0,-82.0], 8);
