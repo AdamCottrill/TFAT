@@ -8,7 +8,7 @@ DESCRIPTION:
 this script gets the basic UGLMU encounter information and loads it
 into the tfat database.
 
-Encounter information is compile by an associated ms access database.
+ Encounter information is compile by an associated ms access database.
 
 The first part of the script contains code to get all projects codes
 and database information from project tracker and the list of species
@@ -21,12 +21,27 @@ A. Cottrill
 
 '''
 
+import os
+
+
+#SETTINGS_FILE = 'main.settings.local'
+SETTINGS_FILE = 'main.settings.production'
+
+#SECRET should be set when virtualenv as activated.  Just incase its not
+os.environ['SECRET_KEY'] = "\xb1>\xf3\x10\xd3p\x07\x8fS\x94'\xe3g\xc6cZ4\xb0R"
+
+#taken from manage.py
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", SETTINGS_FILE)
+
+
+
 import django_settings
 import django
 django.setup()
 
 import pyodbc
 import psycopg2
+
 
 from tfat.models import Species, Project, Encounter, Database
 
@@ -37,9 +52,9 @@ PG_PASS = 'django'
 PG_HOST = '142.143.160.56'
 #PG_HOST = '127.0.0.1'
 
-src_db = 'c:/1work/Python/djcode/tfat/utils/TagRecoveries.mdb'
+src_db = ('c:/Users/cottrillad/documents/1work/Python/' +
+          'djcode/tfat/utils/TagRecoveries.mdb')
 constr ="DRIVER={{Microsoft Access Driver (*.mdb)}};DBQ={}"
-
 
 def yr_from_prjcd(prj_cd):
     """
@@ -107,7 +122,6 @@ pgcur.execute(sql)
 
 projects = pgcur.fetchall()
 
-
 #add only new projects:
 for project in projects:
     try:
@@ -120,9 +134,18 @@ for project in projects:
             proj = Project(prj_cd = project[0], prj_nm=project[1],
                            year=yr_from_prjcd(project[0]), dbase=db)
             proj.save()
+            next  #new
         else:
             msg = 'Multiple projects found with prj_cd={}'.format()
             print(msg)
+            next  #new
+    #new - this will update the TFAT name if it does
+    #not match project tracker. NOT RUN YET.
+    if proj.prj_nm != project[1]:
+        proj.prj_nm = project[1]
+        proj.save()
+
+
 print('Done uploading project info.')
 pgcur.close()
 pgconn.close()

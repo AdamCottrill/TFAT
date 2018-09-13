@@ -3,7 +3,6 @@
 c:/1work/Python/djcode/tfat/tfat/utils.py
 Created: 19 Jun 2015 14:54:14
 
-
 DESCRIPTION:
 
 
@@ -266,6 +265,7 @@ def get_omnr_tag_recoveries(project_slug):
     WHERE ap.slug = %s AND
        applied.tagstat = 'A'
     AND recap.tagstat = 'C'
+    AND recap.observation_date >= applied.observation_date
     ORDER BY recap.observation_date"""
 
 #    #using a subquery to get tagids instead of a join
@@ -395,6 +395,7 @@ def get_other_omnr_recoveries(project_slug):
     AND   recap1.tagstat = 'C'
     AND   recap2.tagstat = 'C'
     AND   prj1.slug != prj2.slug
+    and   recap2.observation_date >= recap1.observation_date
     ORDER BY recap2.observation_date
 
     """
