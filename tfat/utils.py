@@ -121,6 +121,9 @@ def get_tagid_detail_data(tagid, encounter_list, partial=False):
     else:
         angler_recaps = Recovery.objects.filter(tagid=tagid)
 
+    angler_recaps = angler_recaps.select_related('report__reported_by',
+                                                 'spc__common_name')
+
     mls = get_multilinestring([encounter_list, angler_recaps])
 
     spc_warn = spc_warning([encounter_list, angler_recaps])
@@ -466,10 +469,21 @@ def get_recoveries_per_year():
 
     omnr_recap_dict = {k:v for k,v in omnr_recaps}
 
-    angler_recoveries = Recovery.objects.filter(recovery_date__isnull=False)\
-                                 .values_list('recovery_date')
+    #get our angler reports - use the report date if the recovery date
+    #is not provided.
+    angler_recoveries = Recovery.objects\
+                                .exclude(report__report_date__isnull=True,
+                                         recovery_date__isnull=True)\
+                                .values_list('report__report_date',
+                                             'recovery_date')
+    #create a list that contain the year of the report:
+    years = []
+    for x in angler_recoveries:
+        if x[1] is None:
+            years.append(x[0].year)
+        else:
+            years.append(x[1].year)
 
-    years = [x[0].year for x in angler_recoveries]
     recovery_dict = dict()
     for yr in years:
         if recovery_dict.get(yr):

@@ -1,11 +1,14 @@
 from django.conf import settings
 from django.core.servers.basehttp import FileWrapper
+from django.db.models import Q, Count
 from django.http import Http404, HttpResponse
 from django.shortcuts import (render_to_response, get_object_or_404,
                               get_list_or_404)
 from django.shortcuts import render, redirect
 from django.template import RequestContext
 from django.views.generic import ListView
+
+
 
 from django.contrib import messages
 
@@ -95,9 +98,11 @@ class AnglerListView(ListFilteredMixin, ListView):
     included in the response.
     '''
 
-
     model = JoePublic
-    queryset = JoePublic.objects.all()
+    queryset = JoePublic.objects.\
+               annotate(reports=Count('Reported_By', distinct=True)).\
+               annotate(tags=Count('Reported_By__Report'))
+
     filter_set = JoePublicFilter
     paginage_by = ANGLER_PAGE_CNT
     template_name = 'tfat/angler_list.html'
@@ -126,7 +131,9 @@ class RecoveryListView(ListView):
 
 class SpatialFollowupListView(ListView):
     model = Recovery
-    queryset = Recovery.objects.filter(spatial_followup=True).order_by('-report__report_date').all()
+    queryset = Recovery.objects.\
+               filter(spatial_followup=True).\
+               order_by('-report__report_date').all()
     paginage_by = MAX_RECORD_CNT
     template_name = 'tfat/spatial_followup_list.html'
 
@@ -160,8 +167,12 @@ class ProjectTagsAppliedListView(ListView):
 
     def get_queryset(self):
         "projects that re-captured at least one tag"
-        projects = Project.objects.filter(Encounters__tagid__isnull=False,
-                                          Encounters__tagstat='A').distinct()
+        projects = Project.objects.\
+                   filter(Q(Encounters__tagid__isnull=False),
+                          Q(Encounters__tagstat='A') |
+                          Q(Encounters__tagstat='A2')).\
+                          distinct().\
+        annotate(tags=Count('Encounters__tagid'))
         return projects
 
 
@@ -173,7 +184,8 @@ class ProjectTagsRecoveredListView(ListView):
     def get_queryset(self):
         "projects that re-captured at least one tag"
         projects = Project.objects.filter(Encounters__tagid__isnull=False,
-                                          Encounters__tagstat='C').distinct()
+                                          Encounters__tagstat='C').distinct()\
+                                  .annotate(tags=Count('Encounters__tagid'))
         return projects
 
 
@@ -185,7 +197,9 @@ def years_with_tags_applied_view(request):
 
     '''
 
-    tags_applied  = Encounter.objects.filter(tagstat='A').\
+
+    tags_applied  = Encounter.objects.filter(Q(tagstat='A') |
+                                             Q(tagstat='A2')).\
                   values_list('project__year').annotate(total=Count('sam')).\
                   order_by('-project__year')
 
@@ -231,7 +245,9 @@ def angler_reports_view(request, angler_id, report_a_tag=False):
 
     recoveries = Recovery.objects.filter(report__reported_by=angler).\
                  order_by('-report__report_date').\
-                 select_related('spc__common_name')
+                 select_related('report',
+                                'report__reported_by',
+                                'spc__common_name')
 
     #the subset of recovery events with both lat and lon (used for plotting)
     recoveries_with_latlon = [x for x in recoveries if x.dd_lat and x.dd_lon]
@@ -257,7 +273,12 @@ def tagid_detail_view(request, tagid):
 
     """
     #encounter_list = get_list_or_404(Encounter, tagid=tagid)
-    encounter_list = Encounter.objects.filter(tagid=tagid).all()
+    encounter_list = Encounter.objects.filter(tagid=tagid)\
+                                      .select_related('project__prj_cd',
+                                                      'project__prj_nm',
+                                                      'project__slug',
+                                                      'spc__common_name').all()
+
 
     detail_data = get_tagid_detail_data(tagid, encounter_list)
 
@@ -360,14 +381,15 @@ def tags_recovered_year(request, year, this_year=False):
 
     encounter_list = encounter_list.select_related('project__prj_cd',
                                               'project__prj_nm',
+                                              'project__slug',
                                               'spc__common_name')
 
     #applied = get_omnr_tag_application(slug)
     #other_recoveries = get_other_omnr_recoveries(slug)
 
-    #angler_recaps = get_angler_tag_recoveries(slug, tagstat='C')
-
-    angler_recaps = Recovery.objects.filter(recovery_date__year=year)
+    angler_recaps = Recovery.objects.filter(recovery_date__year=year)\
+                                    .select_related('report__reported_by',
+                                                    'spc__common_name')
 
     #mls = get_multilinestring([applied.get('queryset'), recovered,
     #                           other_recoveries.get('queryset'),
@@ -412,7 +434,8 @@ def tags_applied_year(request, year):
 
     '''
 
-    applied = Encounter.objects.filter(tagstat='A', project__year=year)
+    applied = Encounter.objects.filter(Q(tagstat='A') | Q(tagstat='A2'),
+                                       project__year=year)
 
     applied = applied.select_related('project__prj_cd', 'project__prj_nm',
                                      'spc__common_name')
@@ -454,8 +477,9 @@ def tags_applied_project(request, slug):
 
     '''
     project = Project.objects.get(slug=slug)
-
-    applied = Encounter.objects.filter(tagstat='A', project=project)
+    applied = Encounter.objects.filter(Q(tagstat='A') |
+                                       Q(tagstat='A2'),
+                                       Q(project=project))
 
     applied = applied.select_related('project__prj_cd', 'project__prj_nm',
                                      'spc__common_name')

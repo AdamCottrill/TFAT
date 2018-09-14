@@ -34,7 +34,7 @@
 
                             <tr>
                                 <td><a href="{% url 'tags_recovered_in_project' item.slug %}">{{ item.prj_cd }}</a> </td>
-                                <td>{{ item.prj_nm }}</td>
+                                <td>{{ item.prj_nm }} (n={{ item.tags }})</td>
                             </tr>
 
                             {% endfor%}

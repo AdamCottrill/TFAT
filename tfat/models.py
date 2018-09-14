@@ -3,6 +3,7 @@ from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
 
 import os
+from textwrap import wrap
 
 import html
 
@@ -381,9 +382,10 @@ class Recovery(models.Model):
             comments += html.escape(self.general_location)
         if self.specific_location:
             comments += html.escape('({})'.format(self.specific_location))
+        comments = "\\n".join(wrap(comments, 40))
         if self.comment:
-            #tmp = self.comment.replace('\n', '<br />')
-            comments += '<br />' + html.escape('{}'.format(self.comment))
+            tmp = "\\n".join(wrap(self.comment, 40))
+            comments += '<br />' + html.escape('{}'.format(tmp))
         comments = comments.replace(os.linesep, '<br />')
 
         return comments
