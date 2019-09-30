@@ -24,6 +24,12 @@ REPORTING_CHOICES = {
 }
 
 
+RECOVERY_LETTER_CHOICES = {
+    ('tfat_template', 'TFAT Template'),
+    ('custom_letter', 'Custom Letter'),
+}
+
+
 SEX_CHOICES = {
     ('1', 'Male'),
     ('2', 'Female'),

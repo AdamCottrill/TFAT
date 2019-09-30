@@ -100,7 +100,7 @@
 
                         <tr>
                             <td><em>Tag ID:</em></td>
-                            {% url 'tagid_detail_view' tagid=encounter.tagid as the_url %}
+                            {% url 'tfat:tagid_detail_view' tagid=encounter.tagid as the_url %}
                             <td><a href="{{ the_url }}">{{ encounter.tagid }}</a> </td>
                         </tr>
 

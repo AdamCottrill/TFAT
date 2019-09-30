@@ -40,7 +40,7 @@
             <h3 class="panel-title">
                 <div class="row" >
                     <div  class="col-md-8" >
-                        <a href="{% url 'angler_reports' object.reported_by.id %}">{{ object.reported_by }}</a> ({{ object.report_date|date:"M d, Y" }})
+                        <a href="{% url 'tfat:angler_reports' object.reported_by.id %}">{{ object.reported_by }}</a> ({{ object.report_date|date:"M d, Y" }})
                     </div>
                     <div class="col-md-2" >
                     {% if object.follow_up %}
@@ -50,7 +50,7 @@
                     <div class="col-md-2" >
 
                         <a class="btn btn-default btn-xs pull-right"
-                           href="{% url 'report_detail' report_id=object.id %}"
+                           href="{% url 'tfat:report_detail' report_id=object.id %}"
                            role="button">Report Detail</a>
 
                     </div>
@@ -77,7 +77,7 @@
 
                 {% for item in object.get_recoveries %}
                 <tr>
-                    <td> <a href="{% url 'tagid_detail_view' tagid=item.tagid %}">{{item.tagid}}</a> </td>
+                    <td> <a href="{% url 'tfat:tagid_detail_view' tagid=item.tagid %}">{{item.tagid}}</a> </td>
                     <td>{{ item.tagdoc }} </td>
                     <td>{{ item.tag_colour }} </td>
                     <td>{{ item.spc.common_name }} </td>

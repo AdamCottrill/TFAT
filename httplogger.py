@@ -53,6 +53,7 @@ class HTTPLogger(_cplogging.LogManager):
             atoms[k] = v.replace('"', '\\"')
 
         try:
-            self.access_log.log(logging.INFO, self.access_log_format % atoms)
+            self.access_log.log(logging.INFO,
+                                self.access_log_format.format(**atoms))
         except:
             self.error(traceback=True)

@@ -67,7 +67,7 @@
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Report A Tag<b class="caret"></b></a>
             <ul class="dropdown-menu">
-              {% url 'report_a_tag_angler_list' as report_a_tag_url %}
+              {% url 'tfat:report_a_tag_angler_list' as report_a_tag_url %}
               <li><a href="{{ report_a_tag_url }}">New Report</a></li>
             </ul>
           </li>
@@ -82,23 +82,23 @@
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Recoveries<b class="caret"></b></a>
             <ul class="dropdown-menu">
-                {% url 'angler_list' as anglers_url%}
+                {% url 'tfat:angler_list' as anglers_url%}
               <li><a href="{{ anglers_url }}">By Reporter</a></li>
-              {% url 'recovery_report_list' as recovery_reports_url %}
+              {% url 'tfat:recovery_report_list' as recovery_reports_url %}
               <li><a href="{{ recovery_reports_url  }}">Recent Reports</a></li>
               <li class="divider"></li>
-              <li><a href="{% url 'yearlist_taggedin' %}">Tagged in an Year</a></li>
-              <li><a href="{% url 'yearlist_recoveredin' %}">Recovered in a Year</a></li>
+              <li><a href="{% url 'tfat:yearlist_taggedin' %}">Tagged in an Year</a></li>
+              <li><a href="{% url 'tfat:yearlist_recoveredin' %}">Recovered in a Year</a></li>
               <li class="divider"></li>
-              {% url 'projectlist_taggedin' as projectlist_taggedin %}
+              {% url 'tfat:projectlist_taggedin' as projectlist_taggedin %}
               <li><a href="{{ projectlist_taggedin }}">Tagged in a Project</a></li>
-              {% url 'projectlist_recoveredin' as projectlist_recoveredin %}
+              {% url 'tfat:projectlist_recoveredin' as projectlist_recoveredin %}
               <li><a href="{{ projectlist_recoveredin }}">Recovered in a Project</a></li>
               <li class="divider"></li>
               <li><a href="#">Tagged in an Area</a></li>
               <li><a href="#">Recovered in a Area</a></li>
               <li class="divider"></li>
-              <li><a href="{% url 'spatial_followup' %}">Spatial Follow-up</a></li>
+              <li><a href="{% url 'tfat:spatial_followup' %}">Spatial Follow-up</a></li>
 
             </ul>
           </li>
@@ -123,7 +123,7 @@
 
 
         <div class="col-sm-3">
-            {% url 'tagid_quicksearch' as quicksearch_url %}
+            {% url 'tfat:tagid_quicksearch' as quicksearch_url %}
             <form class="navbar-form navbar-left" role="search" action={{ quicksearch_url }}>
               <div class="input-group">
                 <input type="text" class="form-control" name="q"

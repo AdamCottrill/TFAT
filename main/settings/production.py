@@ -14,3 +14,6 @@ DATABASES = {
         'PASSWORD': 'django',
     }
 }
+
+
+STATIC_ROOT = root("../static/")

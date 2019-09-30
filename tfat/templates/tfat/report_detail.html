@@ -45,7 +45,7 @@
                 <div class="panel-heading">
                     <h3 class="panel-title">Report Details
                         <a class="btn btn-default btn-xs pull-right"
-                           href="{% url 'edit_report' report_id=report.id %}"
+                           href="{% url 'tfat:edit_report' report_id=report.id %}"
                            role="button">Edit Report</a>
                     </h3>
                 </div>
@@ -54,7 +54,7 @@
 
                         <tr>
                             <td><em>Reported By:</em></td>
-                            {% url 'angler_reports' report.reported_by.id as the_url %}
+                            {% url 'tfat:angler_reports' report.reported_by.id as the_url %}
                             <td><a href="{{ the_url }}">{{ report.reported_by }}</a> </td>
                         </tr>
 
@@ -85,7 +85,7 @@
                         {% if report.associated_file %}
                         <tr>
                             <td><em>Associated File:</em></td>
-                            {% url 'serve_file' filename=report.associated_file as the_url %}
+                            {% url 'tfat:serve_file' filename=report.associated_file as the_url %}
                             <td><a href="{{ the_url }}">
                                 {{ report.associated_file }} </a></td>
                         </tr>
@@ -145,7 +145,7 @@
         </div>
 
         <div class="col-md-3" >
-            <a class="btn btn-danger pull-right" href="{% url 'create_recovery' report_id=report.id  %}" role="button">
+            <a class="btn btn-danger pull-right" href="{% url 'tfat:create_recovery' report_id=report.id  %}" role="button">
                 <span class="glyphicon glyphicon-plus-sign"></span>  Add New Tag</a>
 
         </div>
@@ -171,7 +171,7 @@
 
         {% for item in report.get_recoveries %}
         <tr>
-            <td> <a href="{% url 'tagid_detail_view' tagid=item.tagid %}">{{item.tagid}}</a> </td>
+            <td> <a href="{% url 'tfat:tagid_detail_view' tagid=item.tagid %}">{{item.tagid}}</a> </td>
             <td>{{ item.tagdoc }} </td>
             <td>{{ item.tag_colour }} </td>
             <td>{{ item.spc.common_name }} </td>
@@ -179,7 +179,7 @@
             <td>{{ item.flen }} </td>
             <td>{{ item.recovery_date }} </td>
             <td>{{ item.general_location }} </td>
-            <td> <a class="btn btn-primary pull-right" href="{% url 'recovery_detail' recovery_id=item.id %}" role="button">
+            <td> <a class="btn btn-primary pull-right" href="{% url 'tfat:recovery_detail' recovery_id=item.id %}" role="button">
                 <span class="glyphicon glyphicon-edit"></span>  Details</a></td>
         </tr>
         {% endfor %}

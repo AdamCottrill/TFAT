@@ -38,9 +38,9 @@
         </div>
         <div class="col-md-3" >
             {% if report_a_tag == True %}
-            {% url 'report_a_tag_create_report' angler_id=angler.id as new_report_url %}
+            {% url 'tfat:report_a_tag_create_report' angler_id=angler.id as new_report_url %}
             {% else %}
-            {% url 'create_report' angler_id=angler.id as new_report_url %}
+            {% url 'tfat:create_report' angler_id=angler.id as new_report_url %}
             {% endif %}
 
                         <a class="btn btn-primary"
@@ -57,7 +57,7 @@
                 <div class="panel-heading">
                     <h3 class="panel-title">Angler Details
                         <a class="btn btn-default btn-xs pull-right"
-                           href="{% url 'update_angler' angler_id=angler.id %}"
+                           href="{% url 'tfat:update_angler' angler_id=angler.id %}"
                            role="button">Edit Details</a>
                     </h3>
                 </div>
@@ -144,7 +144,7 @@
                     {% endif %}
                     <div class="col-md-2" >
                         <a class="btn btn-default btn-xs pull-right"
-                           href="{% url 'report_detail' report_id=recovery1.report.id %}"
+                           href="{% url 'tfat:report_detail' report_id=recovery1.report.id %}"
                            role="button">Report Details</a>
                     </div>
                     {% endwith %}
@@ -169,7 +169,7 @@
 
                 {% for item in report.list %}
                 <tr>
-                    <td> <a href="{% url 'tagid_detail_view' tagid=item.tagid %}">{{item.tagid}}</a> </td>
+                    <td> <a href="{% url 'tfat:tagid_detail_view' tagid=item.tagid %}">{{item.tagid}}</a> </td>
                     <td>{{ item.tagdoc }} </td>
                     <td>{{ item.tag_colour }} </td>
                     <td>{{ item.spc.common_name }} </td>

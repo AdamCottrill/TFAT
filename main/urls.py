@@ -16,7 +16,9 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 
+from tfat import urls as tfat_urls
+
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
-    url(r'^tfat/', include('tfat.urls')),
+    url(r"^admin/", admin.site.urls),
+    url(r"^tfat/", include(tfat_urls, namespace="tagging")),
 ]

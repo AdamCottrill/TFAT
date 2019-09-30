@@ -24,11 +24,11 @@ admin/admin
 
 Thanks to Damien Tougas for his help on this recipe.
 """
-PORT = 8181
+PORT = 8111
 #IP_ADDRESS = "192.168.0.103"
 #IP_ADDRESS = "localhost"
 #IP_ADDRESS = "127.0.0.1"
-IP_ADDRESS = "142.143.160.73"
+IP_ADDRESS = "142.143.160.56"
 
 #PROJECT_SETTINGS = "main.settings.local"
 PROJECT_SETTINGS = "main.settings.production"

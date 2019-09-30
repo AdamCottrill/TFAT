@@ -1,4 +1,4 @@
-'''=============================================================
+"""=============================================================
 c:/1work/Python/djcode/tfat/tfat/tests/test_tags_recovered_rawsql.py
 Created: 24 Jun 2015 11:00:11
 
@@ -14,16 +14,20 @@ recovery events by the general public.
 A. Cottrill
 =============================================================
 
-'''
+"""
 
 
 from tfat.tests.factories import *
-from tfat.utils import (get_omnr_tag_application, get_angler_tag_recoveries,
-                        get_other_omnr_recoveries)
+from tfat.utils import (
+    get_omnr_tag_application,
+    get_angler_tag_recoveries,
+    get_other_omnr_recoveries,
+)
 
 import pytest
 
-@pytest.fixture(scope='class')
+
+@pytest.fixture()
 def db_setup():
     """for all of these tests we will need
     a tagging project
@@ -61,79 +65,70 @@ def db_setup():
 
     """
 
-
-    spc = SpeciesFactory(species_code='334', common_name='Walleye')
-    spc2 = SpeciesFactory(species_code='091', common_name='Whitefish')
+    spc = SpeciesFactory(species_code="334", common_name="Walleye")
+    spc2 = SpeciesFactory(species_code="091", common_name="Whitefish")
 
     report = ReportFactory()
 
-    tagging_prj = ProjectFactory(prj_cd='LHA_IA10_111', prj_nm='Tagging',
-                             slug = 'lha_is10_111')
+    tagging_prj = ProjectFactory(
+        prj_cd="LHA_IA10_111", prj_nm="Tagging", slug="lha_is10_111"
+    )
 
-    recovery_prj1 = ProjectFactory(prj_cd='LHA_IA11_999', prj_nm='Recovery1',
-                             slug = 'lha_ia11_999')
+    recovery_prj1 = ProjectFactory(
+        prj_cd="LHA_IA11_999", prj_nm="Recovery1", slug="lha_ia11_999"
+    )
 
-    recovery_prj2 = ProjectFactory(prj_cd='LHA_IA11_888', prj_nm='Recovery2',
-                             slug = 'lha_ia11_888')
+    recovery_prj2 = ProjectFactory(
+        prj_cd="LHA_IA11_888", prj_nm="Recovery2", slug="lha_ia11_888"
+    )
 
-    tagids = ['0', '1', '2', '3', '4', '5', '6', '7']
-    #make the tags and associate them with the tagging project
-    for tagid  in tagids:
-        EncounterFactory(project=tagging_prj, spc = spc,
-                         tagid=tagid, tagstat='A')
+    tagids = ["0", "1", "2", "3", "4", "5", "6", "7"]
+    # make the tags and associate them with the tagging project
+    for tagid in tagids:
+        EncounterFactory(project=tagging_prj, spc=spc, tagid=tagid, tagstat="A")
 
-    #the first four tags were recaptured by the omnr in the Recovery1
+    # the first four tags were recaptured by the omnr in the Recovery1
     for tagid in tagids[:4]:
-        EncounterFactory(project=recovery_prj1, spc = spc,
-                         tagid=tagid, tagstat='C')
+        EncounterFactory(project=recovery_prj1, spc=spc, tagid=tagid, tagstat="C")
 
-    #the tags 3-6 were recaptured by the omnr in the Recovery2
+    # the tags 3-6 were recaptured by the omnr in the Recovery2
     for tagid in tagids[2:6]:
-        EncounterFactory(project=recovery_prj2, spc = spc,
-                         tagid=tagid, tagstat='C')
+        EncounterFactory(project=recovery_prj2, spc=spc, tagid=tagid, tagstat="C")
 
-
-    #the tags 4: were reported by the general public
+    # the tags 4: were reported by the general public
     for tagid in tagids[4:]:
-        RecoveryFactory(report=report, spc = spc,
-                         tagid=tagid)
+        RecoveryFactory(report=report, spc=spc, tagid=tagid)
 
-    #two encounters by mnr (one applied, one recovered) but a different species
-    EncounterFactory(project=tagging_prj, spc = spc,
-                     tagid='8', tagstat='A')
-    EncounterFactory(project=recovery_prj1, spc = spc2,
-                     tagid='8', tagstat='C')
+    # two encounters by mnr (one applied, one recovered) but a different species
+    EncounterFactory(project=tagging_prj, spc=spc, tagid="8", tagstat="A")
+    EncounterFactory(project=recovery_prj1, spc=spc2, tagid="8", tagstat="C")
 
-    #two encounters by mnr (two recoveries) but a different species
-    EncounterFactory(project=recovery_prj1, spc = spc2,
-                     tagid='9', tagstat='C')
-    EncounterFactory(project=recovery_prj2, spc = spc,
-                     tagid='9', tagstat='C')
+    # two encounters by mnr (two recoveries) but a different species
+    EncounterFactory(project=recovery_prj1, spc=spc2, tagid="9", tagstat="C")
+    EncounterFactory(project=recovery_prj2, spc=spc, tagid="9", tagstat="C")
 
-    #one omnr recap, one anlger recap, different species
-    EncounterFactory(project=recovery_prj1, spc = spc2,
-                     tagid='10', tagstat='C')
-    RecoveryFactory(report=report, spc = spc, tagid='10')
+    # one omnr recap, one anlger recap, different species
+    EncounterFactory(project=recovery_prj1, spc=spc2, tagid="10", tagstat="C")
+    RecoveryFactory(report=report, spc=spc, tagid="10")
 
+    # two encounters by mnr (one applied, one recovered) but a different species
+    EncounterFactory(
+        project=tagging_prj, spc=spc, tagdoc="15012", tagid="11", tagstat="A"
+    )
+    EncounterFactory(project=recovery_prj1, spc=spc, tagid="11", tagstat="C")
 
-    #two encounters by mnr (one applied, one recovered) but a different species
-    EncounterFactory(project=tagging_prj, spc = spc, tagdoc='15012',
-                     tagid='11', tagstat='A')
-    EncounterFactory(project=recovery_prj1, spc = spc,
-                     tagid='11', tagstat='C')
+    # two encounters by mnr (two recoveries) but a different species
+    EncounterFactory(
+        project=recovery_prj1, spc=spc, tagdoc="15012", tagid="12", tagstat="C"
+    )
+    EncounterFactory(project=recovery_prj2, spc=spc, tagid="12", tagstat="C")
 
-    #two encounters by mnr (two recoveries) but a different species
-    EncounterFactory(project=recovery_prj1, spc = spc, tagdoc='15012',
-                     tagid='12', tagstat='C')
-    EncounterFactory(project=recovery_prj2, spc = spc,
-                     tagid='12', tagstat='C')
-
-    #one omnr recap, one anlger recap, different species
-    #NOTE use of prj2 - shares early tag recaptures
-    EncounterFactory(project=recovery_prj2, spc = spc, tagdoc='15012',
-                   tagid='13', tagstat='C')
-    RecoveryFactory(report=report, spc = spc, tagid='13')
-
+    # one omnr recap, one anlger recap, different species
+    # NOTE use of prj2 - shares early tag recaptures
+    EncounterFactory(
+        project=recovery_prj2, spc=spc, tagdoc="15012", tagid="13", tagstat="C"
+    )
+    RecoveryFactory(report=report, spc=spc, tagid="13")
 
 
 @pytest.mark.django_db
@@ -145,18 +140,17 @@ def test_get_omnr_tag_application(db_setup):
 
     """
 
-    recovery_slug = 'lha_ia11_999'
+    recovery_slug = "lha_ia11_999"
     recoveries = get_omnr_tag_application(recovery_slug)
-    nobs = recoveries.get('nobs')
+    nobs = recoveries.get("nobs")
     assert nobs == 5
 
-    tagids = [x.tagid for x in recoveries.get('queryset')]
+    tagids = [x.tagid for x in recoveries.get("queryset")]
     tagids.sort()
-    should_be = ['0', '1', '11', '2', '3']
+    should_be = ["0", "1", "11", "2", "3"]
 
     assert tagids == should_be
     assert len(tagids) == nobs
-
 
 
 @pytest.mark.django_db
@@ -166,20 +160,19 @@ def test_get_other_omnr_recoveries(db_setup):
 
     """
 
-    recovery_slug = 'lha_ia11_999'
+    recovery_slug = "lha_ia11_999"
     recoveries = get_other_omnr_recoveries(recovery_slug)
-    nobs = recoveries.get('nobs')
+    nobs = recoveries.get("nobs")
 
-    print('nobs={}'.format(nobs))
+    print("nobs={}".format(nobs))
     assert nobs == 3
 
-    tagids = [x.tagid for x in recoveries.get('queryset')]
+    tagids = [x.tagid for x in recoveries.get("queryset")]
     tagids.sort()
-    should_be = ['12', '2', '3']
+    should_be = ["12", "2", "3"]
 
     assert tagids == should_be
     assert len(tagids) == nobs
-
 
 
 @pytest.mark.django_db
@@ -192,14 +185,14 @@ def test_get_angler_recaps_tagstat_c(db_setup):
     recaps associated with those fish.
     """
 
-    recovery_slug = 'lha_ia11_888'
-    recoveries = get_angler_tag_recoveries(recovery_slug, tagstat='C')
-    nobs = recoveries.get('nobs')
+    recovery_slug = "lha_ia11_888"
+    recoveries = get_angler_tag_recoveries(recovery_slug, tagstat="C")
+    nobs = recoveries.get("nobs")
     assert nobs == 3
 
-    tagids = [x.tagid for x in recoveries.get('queryset')]
+    tagids = [x.tagid for x in recoveries.get("queryset")]
     tagids.sort()
-    should_be = ['13', '4', '5']
+    should_be = ["13", "4", "5"]
 
     assert tagids == should_be
     assert len(tagids) == nobs

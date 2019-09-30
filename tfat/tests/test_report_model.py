@@ -1,4 +1,4 @@
-'''
+"""
 =============================================================
 c:/1work/Python/djcode/tfat/tfat/tests/test_report_model.py
 Created: 18 Jun 2015 12:05:51
@@ -10,7 +10,7 @@ Tests of the methods associated with the tag report model.
 
 A. Cottrill
 =============================================================
-'''
+"""
 
 
 from tfat.models import Recovery
@@ -26,20 +26,20 @@ def test_report_str_complete():
     fist and last name plus the date the report was filed.
     """
 
-    elements = {'first_name':'Homer',
-                'last_name':'Simpson',
-                'obs_date':datetime(2013,10,16),
+    elements = {
+        "first_name": "Homer",
+        "last_name": "Simpson",
+        "obs_date": datetime(2013, 10, 16),
     }
 
-
-    angler = JoePublicFactory(first_name=elements['first_name'],
-                       last_name=elements['last_name'],
+    angler = JoePublicFactory(
+        first_name=elements["first_name"], last_name=elements["last_name"]
     )
 
-    report = Report(reported_by=angler, report_date=elements['obs_date'])
+    report = Report(reported_by=angler, report_date=elements["obs_date"])
 
-    #convert our date the expected string format
-    elements['obs_date'] = elements['obs_date'].strftime('%b-%d-%Y')
+    # convert our date the expected string format
+    elements["obs_date"] = elements["obs_date"].strftime("%b-%d-%Y")
 
     should_be = "{first_name} {last_name} on {obs_date}"
 
@@ -53,22 +53,20 @@ def test_report_str_no_date():
 
     """
 
-    elements = {'first_name':'Homer',
-                'last_name':'Simpson',
-    }
+    elements = {"first_name": "Homer", "last_name": "Simpson"}
 
-
-    angler = JoePublicFactory(first_name=elements['first_name'],
-                       last_name=elements['last_name'],
+    angler = JoePublicFactory(
+        first_name=elements["first_name"], last_name=elements["last_name"]
     )
 
     report = Report(reported_by=angler, report_date=None)
 
-    elements['id'] = report.id
+    elements["id"] = report.id
 
     should_be = "{first_name} {last_name} <Report id={id}>"
 
     assert str(report) == should_be.format(**elements)
+
 
 @pytest.mark.django_db
 def test_report_str_no_date_or_angler():
@@ -79,7 +77,6 @@ def test_report_str_no_date_or_angler():
 
     report = Report(reported_by=None, report_date=None)
     assert str(report) == "<Report id={}>".format(report.id)
-
 
 
 @pytest.mark.django_db
@@ -101,7 +98,6 @@ def test_get_recoveries():
     assert tag3 in tags
 
 
-
 @pytest.mark.django_db
 def test_get_recoveries_with_latlon():
     """the get_recoveries() method of the report object should return a list of
@@ -110,14 +106,10 @@ def test_get_recoveries_with_latlon():
     """
     report = ReportFactory()
     species = SpeciesFactory()
-    tag1 = RecoveryFactory(report=report, spc=species,
-                           dd_lat=45.0, dd_lon=-81.0)
-    tag2 = RecoveryFactory(report=report, spc=species,
-                           dd_lat=45.0, dd_lon=None)
-    tag3 = RecoveryFactory(report=report, spc=species,
-                           dd_lat=None, dd_lon=-81.0)
-    tag4 = RecoveryFactory(report=report, spc=species,
-                           dd_lat=None, dd_lon=None)
+    tag1 = RecoveryFactory(report=report, spc=species, dd_lat=45.0, dd_lon=-81.0)
+    tag2 = RecoveryFactory(report=report, spc=species, dd_lat=45.0, dd_lon=None)
+    tag3 = RecoveryFactory(report=report, spc=species, dd_lat=None, dd_lon=-81.0)
+    tag4 = RecoveryFactory(report=report, spc=species, dd_lat=None, dd_lon=None)
 
     tags = report.get_recoveries_with_latlon()
 

@@ -24,13 +24,13 @@
         </div>
         <div class="col-md-4" >
             <a class="btn btn-default" href="#" role="button" onclick="toggle_visibility('filter');">Filter </a>
-            <a class="btn btn-default" href="{% url 'angler_list' %}" role="button">Reset</a>
+            <a class="btn btn-default" href="{% url 'tfat:angler_list' %}" role="button">Reset</a>
             {% if request.GET %}
 
             {% if report_a_tag %}
-            {% url 'report_a_tag_new_angler' as new_angler_url %}
+            {% url 'tfat:report_a_tag_new_angler' as new_angler_url %}
             {% else %}
-            {% url 'create_angler' as new_angler_url %}
+            {% url 'tfat:create_angler' as new_angler_url %}
             {% endif %}
 
             <a class="btn btn-primary" href="{{ new_angler_url }}" role="button">
@@ -106,9 +106,9 @@
         {% for object in object_list %}
         <tr>
             {% if report_a_tag %}
-            {% url 'report_a_tag_angler_reports' angler_id=object.id as angler_report_url %}
+            {% url 'tfat:report_a_tag_angler_reports' angler_id=object.id as angler_report_url %}
             {% else %}
-            {% url 'angler_reports' angler_id=object.id as angler_report_url %}
+            {% url 'tfat:angler_reports' angler_id=object.id as angler_report_url %}
             {% endif %}
             <td> <a href="{{ angler_report_url }}">
                 {{ object.first_name }} {% if  object.initial  %}{{ object.initial }} {% endif%}{{ object.last_name }}</a>  </td>

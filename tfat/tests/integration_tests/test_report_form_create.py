@@ -1,4 +1,4 @@
-'''=============================================================
+"""=============================================================
 c:/1work/Python/djcode/tfat/tfat/tests/integration_tests/test_report_form.py
 Created: 22 Jul 2015 11:41:41
 
@@ -29,7 +29,7 @@ calculated/derived/default quantities:
 A. Cottrill
 =============================================================
 
-'''
+"""
 
 import pytest
 from django.core.urlresolvers import reverse
@@ -46,12 +46,11 @@ except ImportError:
     from io import StringIO
 
 
-@pytest.fixture(scope='class')
+@pytest.fixture()
 def db_setup():
     """Create some users with easy to remember names.
     """
-    angler = JoePublicFactory.create(first_name='Barney',
-                                      last_name='Gumble')
+    angler = JoePublicFactory.create(first_name="Barney", last_name="Gumble")
 
 
 @pytest.mark.django_db
@@ -60,12 +59,12 @@ def test_create_report_url(client, db_setup):
     correct template.
     """
 
-    angler = JoePublic.objects.get(first_name='Barney')
+    angler = JoePublic.objects.get(first_name="Barney")
 
-    url = reverse('create_report', kwargs={'angler_id':angler.id})
+    url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
     response = client.get(url)
     assert response.status_code == 200
-    assert 'tfat/report_form.html' in [x.name for x in response.templates]
+    assert "tfat/report_form.html" in [x.name for x in response.templates]
 
 
 @pytest.mark.django_db
@@ -75,9 +74,9 @@ def test_create_report_elements(client, db_setup):
     instructional message.
     """
 
-    angler = JoePublic.objects.get(first_name='Barney')
+    angler = JoePublic.objects.get(first_name="Barney")
 
-    url = reverse('create_report', kwargs={'angler_id':angler.id})
+    url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
     response = client.get(url)
 
     content = str(response.content)
@@ -97,7 +96,7 @@ def test_create_report_url_404(client, db_setup):
     """If we try to create a report for an angler who does not exist, we
     should get a 404 error."""
 
-    url = reverse('create_report', kwargs={'angler_id':9999999})
+    url = reverse("tfat:create_report", kwargs={"angler_id": 9999999})
     response = client.get(url)
     assert response.status_code == 404
 
@@ -105,233 +104,220 @@ def test_create_report_url_404(client, db_setup):
 # REPORT CREATION
 @pytest.mark.django_db
 def test_create_report_minimal_data(client, db_setup):
-    '''if we post minimal data, a report should be created for this
+    """if we post minimal data, a report should be created for this
     angler.  Date should be today, date flag should be 'unknown', and
     the other fields should all be empty, and we should be re-directed
     to the report's detail page
-    '''
+    """
 
-    angler = JoePublic.objects.get(first_name='Barney')
-    url = reverse('create_report', kwargs={'angler_id':angler.id})
-    data = {'reported_by':angler.id,}
+    angler = JoePublic.objects.get(first_name="Barney")
+    url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
+    data = {"reported_by": angler.id}
     response = client.post(url, data, follow=True)
 
     assert response.status_code == 200
     templates = [x.name for x in response.templates]
-    assert 'tfat/report_detail.html' in templates
+    assert "tfat/report_detail.html" in templates
 
-    #query the database and make sure the data is how we expect it.
+    # query the database and make sure the data is how we expect it.
     today = datetime.today()
-    report = Report.objects.get(reported_by__first_name='Barney')
+    report = Report.objects.get(reported_by__first_name="Barney")
     assert report.report_date.date() == today.date()
     assert report.date_flag == 0
-    assert report.associated_file.name is ''
+    assert report.associated_file.name is ""
     assert report.dcr is None
     assert report.effort is None
-    assert report.comment is ''
+    assert report.comment is None
     assert report.follow_up is False
 
 
 @pytest.mark.django_db
 def test_create_report_invalid_date(client, db_setup):
-    '''if we post data with a date that does not make sense, an error
-    should be thrown'''
+    """if we post data with a date that does not make sense, an error
+    should be thrown"""
 
-    angler = JoePublic.objects.get(first_name='Barney')
+    angler = JoePublic.objects.get(first_name="Barney")
 
-    data = {'reported_by':angler.id,
-            'report_date':'not a date'}
+    data = {"reported_by": angler.id, "report_date": "not a date"}
 
-    url = reverse('create_report', kwargs={'angler_id':angler.id})
+    url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
     response = client.post(url, data, follow=True)
 
     content = str(response.content)
-    assert 'Enter a valid date/time.' in content
+    assert "Enter a valid date/time." in content
 
 
 @pytest.mark.django_db
 def test_create_report_future_date(client, db_setup):
-    '''if we post data with a date in the future, an error
-    should be thrown'''
+    """if we post data with a date in the future, an error
+    should be thrown"""
 
     next_week = datetime.today() + timedelta(days=7)
 
-    angler = JoePublic.objects.get(first_name='Barney')
+    angler = JoePublic.objects.get(first_name="Barney")
 
-    data = {'reported_by':angler.id,
-            'report_date':next_week}
+    data = {"reported_by": angler.id, "report_date": next_week}
 
-    url = reverse('create_report', kwargs={'angler_id':angler.id})
+    url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
     response = client.post(url, data, follow=True)
 
     content = str(response.content)
-    assert 'Dates in the future are not allowed.' in content
+    assert "Dates in the future are not allowed." in content
 
 
 @pytest.mark.django_db
 def test_create_report_dcr_complete(client, db_setup):
-    '''If we post data with format=dcr, and provide a dcr number and
-    effort number, the report should be created.'''
+    """If we post data with format=dcr, and provide a dcr number and
+    effort number, the report should be created."""
 
-    angler = JoePublic.objects.get(first_name='Barney')
-    url = reverse('create_report', kwargs={'angler_id':angler.id})
+    angler = JoePublic.objects.get(first_name="Barney")
+    url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
 
-    data = {'reported_by':angler.id,
-            'reporting_format':'dcr',
-            'dcr':'DCR1234',
-            'effort':'001'}
+    data = {
+        "reported_by": angler.id,
+        "reporting_format": "dcr",
+        "dcr": "DCR1234",
+        "effort": "001",
+    }
 
     response = client.post(url, data, follow=True)
 
-    report = Report.objects.get(reported_by__first_name='Barney')
-    assert report.reporting_format == 'dcr'
-    assert report.dcr == 'DCR1234'
-    assert report.effort == '001'
+    report = Report.objects.get(reported_by__first_name="Barney")
+    assert report.reporting_format == "dcr"
+    assert report.dcr == "DCR1234"
+    assert report.effort == "001"
+
 
 @pytest.mark.django_db
 def test_create_report_dcr_missing_dcr_number(client, db_setup):
-    '''If we post data with format=dcr, but omit the dcr number, an error
+    """If we post data with format=dcr, but omit the dcr number, an error
     should be thrown.
-    '''
+    """
 
-    angler = JoePublic.objects.get(first_name='Barney')
-    url = reverse('create_report', kwargs={'angler_id':angler.id})
+    angler = JoePublic.objects.get(first_name="Barney")
+    url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
 
-    data = {'reported_by':angler.id,
-            'reporting_format':'dcr',
-            'effort':'001'}
+    data = {"reported_by": angler.id, "reporting_format": "dcr", "effort": "001"}
 
     response = client.post(url, data, follow=True)
 
     content = str(response.content)
-    assert 'DCR number is required if reported by &quot;DCR&quot;.' in content
+    assert "DCR number is required if reported by &quot;DCR&quot;." in content
 
 
 @pytest.mark.django_db
 def test_create_report_dcr_missing_effort_number(client, db_setup):
-    '''If we post data with format=dcr, but omit the effort number, an error
+    """If we post data with format=dcr, but omit the effort number, an error
     should be thrown.
-    '''
+    """
 
-    angler = JoePublic.objects.get(first_name='Barney')
-    url = reverse('create_report', kwargs={'angler_id':angler.id})
+    angler = JoePublic.objects.get(first_name="Barney")
+    url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
 
-    data = {'reported_by':angler.id,
-            'reporting_format':'dcr',
-            'dcr':'DCR1234',}
+    data = {"reported_by": angler.id, "reporting_format": "dcr", "dcr": "DCR1234"}
 
     response = client.post(url, data, follow=True)
 
     content = str(response.content)
-    msg = 'Effort number is required if reported by &quot;DCR&quot;.'
+    msg = "Effort number is required if reported by &quot;DCR&quot;."
     assert msg in content
 
 
 @pytest.mark.django_db
 def test_create_report_not_dcr_with_effort_number(client, db_setup):
-    '''If we post data with format other than dcr, and include an effort
+    """If we post data with format other than dcr, and include an effort
     number, an error should be thrown - effort is not meaningful
     unless reporting format is dcr
 
-    '''
+    """
 
-    angler = JoePublic.objects.get(first_name='Barney')
-    url = reverse('create_report', kwargs={'angler_id':angler.id})
+    angler = JoePublic.objects.get(first_name="Barney")
+    url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
 
-    data = {'reported_by':angler.id,
-            'reporting_format':'verbal',
-            'effort':'001'}
+    data = {"reported_by": angler.id, "reporting_format": "verbal", "effort": "001"}
 
     response = client.post(url, data, follow=True)
 
     content = str(response.content)
-    msg = 'Effort should be empty if Report Format is not &quot;DCR&quot;.'
+    msg = "Effort should be empty if Report Format is not &quot;DCR&quot;."
     assert msg in content
 
 
 @pytest.mark.django_db
 def test_create_report_not_dcr_with_dcr_number(client, db_setup):
-    '''If we post data with format other than dcr, and include an dcr
+    """If we post data with format other than dcr, and include an dcr
     number, an error should be thrown - a dcr number is not meaningful
     unless reporting format is dcr
 
-    '''
+    """
 
-    angler = JoePublic.objects.get(first_name='Barney')
-    url = reverse('create_report', kwargs={'angler_id':angler.id})
+    angler = JoePublic.objects.get(first_name="Barney")
+    url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
 
-    data = {'reported_by':angler.id,
-            'reporting_format':'verbal',
-            'dcr':'DCR1234'}
+    data = {"reported_by": angler.id, "reporting_format": "verbal", "dcr": "DCR1234"}
 
     response = client.post(url, data, follow=True)
 
     content = str(response.content)
-    msg = 'DCR should be empty if Report Format is not &quot;DCR&quot;.'
+    msg = "DCR should be empty if Report Format is not &quot;DCR&quot;."
 
     print(content)
     assert msg in content
 
 
-
 @pytest.mark.django_db
 def test_create_report_with_file(client, db_setup):
-    '''if we post data with an associated file object, the report should
-    be created and have an associated file object.'''
+    """if we post data with an associated file object, the report should
+    be created and have an associated file object."""
 
-    mock_file = StringIO('fake file content.')
+    mock_file = StringIO("fake file content.")
     mock_file.name = "path/to/some/fake/fake_test_file.txt"
 
-    angler = JoePublic.objects.get(first_name='Barney')
-    url = reverse('create_report', kwargs={'angler_id':angler.id})
-    data = {'reported_by':angler.id,
-            'associated_file':mock_file}
+    angler = JoePublic.objects.get(first_name="Barney")
+    url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
+    data = {"reported_by": angler.id, "associated_file": mock_file}
     response = client.post(url, data, follow=True)
 
     content = str(response.content)
-    assert 'Associated File:' in content
-    assert 'reports/fake_test_file' in content
-    assert 'serve_file' in content
+    assert "Associated File:" in content
+    assert "reports/fake_test_file" in content
+    assert "serve_file" in content
 
-    report = Report.objects.get(reported_by__first_name='Barney')
-    assert 'reports/fake_test_file' in report.associated_file.name
-
-
+    report = Report.objects.get(reported_by__first_name="Barney")
+    assert "reports/fake_test_file" in report.associated_file.name
 
 
 @pytest.mark.django_db
 def test_create_report_with_comment(client, db_setup):
-    '''if we post data with a comment, the report should
-    be created and have that comment associated with it.'''
+    """if we post data with a comment, the report should
+    be created and have that comment associated with it."""
 
-    angler = JoePublic.objects.get(first_name='Barney')
-    url = reverse('create_report', kwargs={'angler_id':angler.id})
-    data = {'reported_by':angler.id,
-            'comment':'My Fake Comment'}
+    angler = JoePublic.objects.get(first_name="Barney")
+    url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
+    data = {"reported_by": angler.id, "comment": "My Fake Comment"}
     response = client.post(url, data, follow=True)
 
-    #query the database and make sure the data is how we expect it.
-    report = Report.objects.get(reported_by__first_name='Barney')
-    assert report.comment == 'My Fake Comment'
+    # query the database and make sure the data is how we expect it.
+    report = Report.objects.get(reported_by__first_name="Barney")
+    assert report.comment == "My Fake Comment"
 
 
 @pytest.mark.django_db
 def test_create_report_with_follow_up(client, db_setup):
-    '''if we post data with follow_up=True, the report should
-    be created and its follow_up value should be TRUE.'''
+    """if we post data with follow_up=True, the report should
+    be created and its follow_up value should be TRUE."""
 
-    angler = JoePublic.objects.get(first_name='Barney')
-    url = reverse('create_report', kwargs={'angler_id':angler.id})
-    data = {'reported_by':angler.id,
-            'follow_up':True}
+    angler = JoePublic.objects.get(first_name="Barney")
+    url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
+    data = {"reported_by": angler.id, "follow_up": True}
     response = client.post(url, data, follow=True)
 
-    #query the database and make sure the data is how we expect it.
-    report = Report.objects.get(reported_by__first_name='Barney')
+    # query the database and make sure the data is how we expect it.
+    report = Report.objects.get(reported_by__first_name="Barney")
     assert report.follow_up is True
 
 
-#======================================
+# ======================================
 #         REPORT-A-TAG
 
 
@@ -339,9 +325,9 @@ def test_create_report_with_follow_up(client, db_setup):
 def test_report_at_tag_create_report_url(client, db_setup):
     """Verify that the report-a-tag create report url renders properly"""
 
-    angler = JoePublic.objects.get(first_name='Barney')
+    angler = JoePublic.objects.get(first_name="Barney")
 
-    url = reverse('report_a_tag_create_report', kwargs={'angler_id':angler.id})
+    url = reverse("tfat:report_a_tag_create_report", kwargs={"angler_id": angler.id})
     response = client.get(url)
     assert response.status_code == 200
 
@@ -351,9 +337,9 @@ def test_report_at_tag_create_report_url(client, db_setup):
     """When rendered through the report-a-tag create report url, the
     response should include an instructional message."""
 
-    angler = JoePublic.objects.get(first_name='Barney')
+    angler = JoePublic.objects.get(first_name="Barney")
 
-    url = reverse('report_a_tag_create_report', kwargs={'angler_id':angler.id})
+    url = reverse("tfat:report_a_tag_create_report", kwargs={"angler_id": angler.id})
     response = client.get(url)
     content = str(response.content)
 
@@ -365,6 +351,6 @@ def test_report_a_tag_create_report_url_404(client, db_setup):
     """If we try to create a report for an angler who does not exist, we
     should get a 404 error."""
 
-    url = reverse('report_a_tag_create_report', kwargs={'angler_id':9999999})
+    url = reverse("tfat:report_a_tag_create_report", kwargs={"angler_id": 9999999})
     response = client.get(url)
     assert response.status_code == 404

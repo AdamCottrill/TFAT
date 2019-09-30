@@ -1,4 +1,4 @@
-'''
+"""
 =============================================================
 c:/1work/Python/djcode/tfat/tfat/utils.py
 Created: 19 Jun 2015 14:54:14
@@ -9,7 +9,7 @@ DESCRIPTION:
 
 A. Cottrill
 =============================================================
-'''
+"""
 
 from collections import OrderedDict
 from datetime import datetime
@@ -28,19 +28,19 @@ def connect_the_dots(pts):
     form [[lat1,lon1],[lat2, lon2], ... ]
 
     """
-    if len(pts)>1:
-        #pts = [(x[1], x[0]) for x in pts]
+    if len(pts) > 1:
+        # pts = [(x[1], x[0]) for x in pts]
         pts = [x[1] for x in pts]
         A = pts[:-1]
         B = pts[1:]
 
-        coords = list(zip(A,B))
+        coords = list(zip(A, B))
         return coords
     else:
         return None
 
 
-def get_multilinestring(observation_lists):#, applied=None):
+def get_multilinestring(observation_lists):  # , applied=None):
     """given a list lists of tag encounters, extract the spatial data,
     'normalize' multiple observations, and return a geojson
     MULTILINESTRING string that can be plotted by leaflet.
@@ -56,20 +56,19 @@ def get_multilinestring(observation_lists):#, applied=None):
 
     tag_path_dict = sort_tagdict(tag_path_dict)
 
-    #extract the spatial data
-    #pts_dict = get_points_dict(encounters, applied)
+    # extract the spatial data
+    # pts_dict = get_points_dict(encounters, applied)
     tag_paths = {}
-    for tag,pts in tag_path_dict.items():
+    for tag, pts in tag_path_dict.items():
         tag_paths[tag] = connect_the_dots(pts)
 
-    #create a line string for each tag number
+    # create a line string for each tag number
     mls = []
-    for k,v in tag_paths.items():
+    for k, v in tag_paths.items():
         if v:
             mls.append(MultiLineString(v))
 
     return mls
-
 
 
 def spc_warning(qs_list):
@@ -81,7 +80,7 @@ def spc_warning(qs_list):
     spc_list = []
     for qs in qs_list:
         spc_list.extend([x.spc.species_code for x in qs])
-    ret = False if len(set(spc_list))==1 else True
+    ret = False if len(set(spc_list)) == 1 else True
     return ret
 
 
@@ -94,9 +93,8 @@ def tagdoc_warning(qs_list):
     tagdoc_list = []
     for qs in qs_list:
         tagdoc_list.extend([x.tagdoc for x in qs])
-    ret = False if len(set(tagdoc_list))==1 else True
+    ret = False if len(set(tagdoc_list)) == 1 else True
     return ret
-
 
 
 def get_tagid_detail_data(tagid, encounter_list, partial=False):
@@ -121,8 +119,7 @@ def get_tagid_detail_data(tagid, encounter_list, partial=False):
     else:
         angler_recaps = Recovery.objects.filter(tagid=tagid)
 
-    angler_recaps = angler_recaps.select_related('report__reported_by',
-                                                 'spc__common_name')
+    angler_recaps = angler_recaps.select_related("report", "spc")
 
     mls = get_multilinestring([encounter_list, angler_recaps])
 
@@ -131,11 +128,14 @@ def get_tagid_detail_data(tagid, encounter_list, partial=False):
 
     nobs = len(angler_recaps) + len(encounter_list)
 
-    return {'encounter_list': encounter_list,
-            'angler_recaps':angler_recaps,
-            'spc_warn':spc_warn, 'tagdoc_warn':tagdoc_warn,
-            'mls':mls,
-            'nobs':nobs}
+    return {
+        "encounter_list": encounter_list,
+        "angler_recaps": angler_recaps,
+        "spc_warn": spc_warn,
+        "tagdoc_warn": tagdoc_warn,
+        "mls": mls,
+        "nobs": nobs,
+    }
 
 
 def get_points_dict2(observations):
@@ -156,6 +156,7 @@ def get_points_dict2(observations):
 
     pass
 
+
 def qs_to_tagdict(qs, tag_dict=None):
     """Arguments:
 
@@ -171,7 +172,7 @@ def qs_to_tagdict(qs, tag_dict=None):
         tag_dict = {}
 
     for pt in qs:
-        #obs_point = [pt['observation_date'], (pt['dd_lon'],pt['dd_lat'])]
+        # obs_point = [pt['observation_date'], (pt['dd_lon'],pt['dd_lat'])]
         if isinstance(pt.observation_date, datetime):
             obs_point = [pt.observation_date.date(), (pt.dd_lon, pt.dd_lat)]
         else:
@@ -194,12 +195,11 @@ def sort_tagdict(tag_dict):
 
     """
 
-    for k,v in tag_dict.items():
+    for k, v in tag_dict.items():
         pts = tag_dict[k]
-        pts.sort(key=lambda x:x[0])
+        pts.sort(key=lambda x: x[0])
         tag_dict[k] = pts
     return tag_dict
-
 
 
 def get_points_dict(encounters, applied=None):
@@ -219,14 +219,14 @@ def get_points_dict(encounters, applied=None):
     if applied:
         tags = [[x.tagid, x.dd_lat, x.dd_lon] for x in applied]
 
-    #get the tag and spatial data for our encounter events and turn it
-    #into a list of three element lists
+    # get the tag and spatial data for our encounter events and turn it
+    # into a list of three element lists
     recaps = [[x.tagid, x.dd_lat, x.dd_lon] for x in encounters]
 
     tags.extend(recaps)
 
-    #stack the encounters by tag id - for each tag, add each
-    #additional occurence
+    # stack the encounters by tag id - for each tag, add each
+    # additional occurence
     tag_dict = {}
     for tag in tags:
         if tag_dict.get(tag[0]):
@@ -235,7 +235,6 @@ def get_points_dict(encounters, applied=None):
             tag_dict[tag[0]] = [tag[1:]]
 
     return tag_dict
-
 
 
 def get_omnr_tag_recoveries(project_slug):
@@ -271,25 +270,24 @@ def get_omnr_tag_recoveries(project_slug):
     AND recap.observation_date >= applied.observation_date
     ORDER BY recap.observation_date"""
 
-#    #using a subquery to get tagids instead of a join
-#    sql = '''
-#    SELECT * FROM tfat_encounter recap
-#    WHERE recap.tagstat='C' AND tagid IN (
-#      SELECT tagid FROM tfat_encounter applied
-#      JOIN tfat_project proj ON proj.id=applied.project_id
-#      WHERE proj.slug=%s
-#      AND tagstat='A'
-#    ) ORDER BY observation_date'''
+    #    #using a subquery to get tagids instead of a join
+    #    sql = '''
+    #    SELECT * FROM tfat_encounter recap
+    #    WHERE recap.tagstat='C' AND tagid IN (
+    #      SELECT tagid FROM tfat_encounter applied
+    #      JOIN tfat_project proj ON proj.id=applied.project_id
+    #      WHERE proj.slug=%s
+    #      AND tagstat='A'
+    #    ) ORDER BY observation_date'''
 
-    queryset = Encounter.objects.raw(sql,[project_slug])
+    queryset = Encounter.objects.raw(sql, [project_slug])
 
     nobs = len([x.id for x in queryset])
 
-    return { 'queryset':queryset, 'nobs':nobs }
+    return {"queryset": queryset, "nobs": nobs}
 
 
-
-def get_angler_tag_recoveries(project_slug, tagstat='A'):
+def get_angler_tag_recoveries(project_slug, tagstat="A"):
     """This is a helper function used by tags_applied_project(). It uses
     raw sql to retrieve all of the non-MNR recoveries of tags applied
     in a particular project.  Only recap's with both a lat and lon and
@@ -331,20 +329,19 @@ def get_angler_tag_recoveries(project_slug, tagstat='A'):
 
 
 """
-#    sql = '''
-#    select recovery.* from tfat_recovery recovery where tagid in (
-#    select tagid from tfat_encounter encounter join tfat_project project on project.id=encounter.project_id where slug=%s and tagstat='{tagstat}'
-#    ) order by recovery_date
-#    '''
+    #    sql = '''
+    #    select recovery.* from tfat_recovery recovery where tagid in (
+    #    select tagid from tfat_encounter encounter join tfat_project project on project.id=encounter.project_id where slug=%s and tagstat='{tagstat}'
+    #    ) order by recovery_date
+    #    '''
 
-    sql = sql.format(**{'tagstat':tagstat})
+    sql = sql.format(**{"tagstat": tagstat})
 
-    queryset = Recovery.objects.raw(sql,[project_slug])
+    queryset = Recovery.objects.raw(sql, [project_slug])
 
     nobs = len([x.id for x in queryset])
 
-    return { 'queryset':queryset, 'nobs':nobs }
-
+    return {"queryset": queryset, "nobs": nobs}
 
 
 def get_other_omnr_recoveries(project_slug):
@@ -363,23 +360,23 @@ def get_other_omnr_recoveries(project_slug):
 
     """
 
-#    sql = """
-#    SELECT recap2.*
-#      FROM tfat_encounter recap2
-#         JOIN
-#         tfat_encounter recap1
-#           ON recap1.tagid = recap2.tagid
-#           AND recap1.spc_id = recap2.spc_id
-#         JOIN tfat_project AS prj1 ON prj1.id = recap1.project_id
-#         JOIN tfat_project AS prj2 ON prj2.id = recap2.project_id
-#      WHERE prj1.slug = %s AND
-#         recap1.tagstat = 'C'
-#      AND recap2.tagstat = 'C'
-#      and prj1.slug!=prj2.slug
-#      ORDER BY recap2.observation_date
-#
-#    """
-#
+    #    sql = """
+    #    SELECT recap2.*
+    #      FROM tfat_encounter recap2
+    #         JOIN
+    #         tfat_encounter recap1
+    #           ON recap1.tagid = recap2.tagid
+    #           AND recap1.spc_id = recap2.spc_id
+    #         JOIN tfat_project AS prj1 ON prj1.id = recap1.project_id
+    #         JOIN tfat_project AS prj2 ON prj2.id = recap2.project_id
+    #      WHERE prj1.slug = %s AND
+    #         recap1.tagstat = 'C'
+    #      AND recap2.tagstat = 'C'
+    #      and prj1.slug!=prj2.slug
+    #      ORDER BY recap2.observation_date
+    #
+    #    """
+    #
 
     sql = """
     SELECT prj1.prj_nm AS prj_nm,
@@ -403,13 +400,11 @@ def get_other_omnr_recoveries(project_slug):
 
     """
 
-
-    queryset = Encounter.objects.raw(sql,[project_slug])
+    queryset = Encounter.objects.raw(sql, [project_slug])
 
     nobs = len([x.id for x in queryset])
 
-    return { 'queryset':queryset, 'nobs':nobs }
-
+    return {"queryset": queryset, "nobs": nobs}
 
 
 def get_omnr_tag_application(project_slug):
@@ -447,12 +442,11 @@ def get_omnr_tag_application(project_slug):
            applied.tagstat = 'A'
      ORDER BY applied.tagid """
 
-    queryset = Encounter.objects.raw(sql,[project_slug])
+    queryset = Encounter.objects.raw(sql, [project_slug])
 
     nobs = len([x.id for x in queryset])
 
-    return { 'queryset':queryset, 'nobs':nobs }
-
+    return {"queryset": queryset, "nobs": nobs}
 
 
 def get_recoveries_per_year():
@@ -463,20 +457,21 @@ def get_recoveries_per_year():
     for that year.
 
     """
-    omnr_recaps = Encounter.objects.filter(tagstat='C').\
-                  values_list('project__year').annotate(total=Count('sam')).\
-                  order_by('project__year')
+    omnr_recaps = (
+        Encounter.objects.filter(tagstat="C")
+        .values_list("project__year")
+        .annotate(total=Count("sam"))
+        .order_by("project__year")
+    )
 
-    omnr_recap_dict = {k:v for k,v in omnr_recaps}
+    omnr_recap_dict = {k: v for k, v in omnr_recaps}
 
-    #get our angler reports - use the report date if the recovery date
-    #is not provided.
-    angler_recoveries = Recovery.objects\
-                                .exclude(report__report_date__isnull=True,
-                                         recovery_date__isnull=True)\
-                                .values_list('report__report_date',
-                                             'recovery_date')
-    #create a list that contain the year of the report:
+    # get our angler reports - use the report date if the recovery date
+    # is not provided.
+    angler_recoveries = Recovery.objects.exclude(
+        report__report_date__isnull=True, recovery_date__isnull=True
+    ).values_list("report__report_date", "recovery_date")
+    # create a list that contain the year of the report:
     years = []
     for x in angler_recoveries:
         if x[1] is None:
@@ -491,7 +486,7 @@ def get_recoveries_per_year():
         else:
             recovery_dict[yr] = 1
 
-        #tags_recovered[yr] = dict('encounters':N, 'recoveries':N)
+        # tags_recovered[yr] = dict('encounters':N, 'recoveries':N)
     tags_recovered = OrderedDict()
     yrs = list(set(recovery_dict.keys()).union(set(omnr_recap_dict.keys())))
     yrs.sort(reverse=True)

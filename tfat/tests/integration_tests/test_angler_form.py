@@ -1,4 +1,4 @@
-'''=============================================================
+"""=============================================================
 c:/1work/Python/djcode/tfat/tfat/tests/integration_tests/test_angler_form.py
 Created: 17 Jul 2015 13:28:23
 
@@ -20,7 +20,7 @@ anglers/tag-returnees.
 A. Cottrill
 =============================================================
 
-'''
+"""
 
 import pytest
 from django.core.urlresolvers import reverse
@@ -30,13 +30,12 @@ from tfat.tests.factories import *
 from datetime import datetime
 
 
-@pytest.fixture(scope='class')
+@pytest.fixture()
 def db_setup():
     """Create some users with easy to remember names.
     """
 
-    angler1 = JoePublicFactory.create(first_name='Homer',
-                                      last_name='Simpson')
+    angler1 = JoePublicFactory.create(first_name="Homer", last_name="Simpson")
 
 
 def test_can_create_angler_url(client):
@@ -45,23 +44,23 @@ def test_can_create_angler_url(client):
     instructional messages.
     """
 
-    url = reverse('create_angler')
+    url = reverse("tfat:create_angler")
     response = client.get(url)
     assert response.status_code == 200
     content = str(response.content)
 
-    assert 'Contact Info' in content
-    assert 'Create New Tag Reporter' in content
-    assert 'First name:' in content
-    assert 'Last name:' in content
-    assert 'Town:' in content
-    assert 'Submit' in content
+    assert "Contact Info" in content
+    assert "Create New Tag Reporter" in content
+    assert "First name:" in content
+    assert "Last name:" in content
+    assert "Town:" in content
+    assert "Submit" in content
 
-    assert 'Use Duplicate Name Anyway' not in content
-    assert 'Existing Anglers:' not in content
-    assert 'Edit Details' not in content
+    assert "Use Duplicate Name Anyway" not in content
+    assert "Existing Anglers:" not in content
+    assert "Edit Details" not in content
 
-    assert 'Step 1b - Create the Person or Organization:' not in content
+    assert "Step 1b - Create the Person or Organization:" not in content
 
 
 def test_report_a_tag_new_angler_url(client):
@@ -70,13 +69,12 @@ def test_report_a_tag_new_angler_url(client):
     to do next
     """
 
-    url = reverse('report_a_tag_new_angler')
+    url = reverse("tfat:report_a_tag_new_angler")
     response = client.get(url)
     assert response.status_code == 200
     content = str(response.content)
 
-    assert 'Step 1b - Create the Person or Organization:' in content
-
+    assert "Step 1b - Create the Person or Organization:" in content
 
 
 @pytest.mark.django_db
@@ -88,17 +86,16 @@ def test_can_create_angler(client, db_setup):
     for the report_a_tag stream.
 
     """
-    angler = {'first_name':'Barney', 'last_name':'Gumble', 'same_name':False}
+    angler = {"first_name": "Barney", "last_name": "Gumble", "same_name": False}
 
-    url = reverse('create_angler')
+    url = reverse("tfat:create_angler")
     response = client.post(url, angler, follow=True)
     content = str(response.content)
 
-    assert 'Tag Reports Filed By Barney Gumble' in content
-    assert 'Angler Details' in content
+    assert "Tag Reports Filed By Barney Gumble" in content
+    assert "Angler Details" in content
 
-    msg = ('Step 2 - To create a new report click on the ' +
-           '"Create New Report" button')
+    msg = "Step 2 - To create a new report click on the " + '"Create New Report" button'
     assert msg not in content
 
 
@@ -108,17 +105,16 @@ def test_can_create_angler_report_a_tag(client, db_setup):
     should incude an instructional message regarding the next step in
     the process.
     """
-    angler = {'first_name':'Barney', 'last_name':'Gumble', 'same_name':False}
+    angler = {"first_name": "Barney", "last_name": "Gumble", "same_name": False}
 
-    url = reverse('report_a_tag_new_angler')
+    url = reverse("tfat:report_a_tag_new_angler")
     response = client.post(url, angler, follow=True)
     content = str(response.content)
 
-    msg = ('Step 2 - To create a new report click on the ' +
-           '"Create New Report" button')
+    msg = "Step 2 - To create a new report click on the " + '"Create New Report" button'
     assert msg in content
-    assert 'Tag Reports Filed By Barney Gumble' in content
-    assert 'Angler Details' in content
+    assert "Tag Reports Filed By Barney Gumble" in content
+    assert "Angler Details" in content
 
 
 @pytest.mark.django_db
@@ -130,16 +126,16 @@ def test_create_angler_same_name_warning(client, db_setup):
 
     """
 
-    angler = {'first_name':'Homer', 'last_name':'Simpson', 'same_name':False}
+    angler = {"first_name": "Homer", "last_name": "Simpson", "same_name": False}
 
-    url = reverse('create_angler')
+    url = reverse("tfat:create_angler")
     response = client.post(url, angler)
     content = str(response.content)
 
-    assert 'Homer Simpson already exists.' in content
-    assert 'Existing Anglers:' in content
-    assert 'Use Duplicate Name Anyway' in content
-    assert 'Create New Angler' in content
+    assert "Homer Simpson already exists." in content
+    assert "Existing Anglers:" in content
+    assert "Use Duplicate Name Anyway" in content
+    assert "Create New Angler" in content
 
 
 @pytest.mark.django_db
@@ -149,16 +145,16 @@ def test_create_angler_same_name_without_checkbox(client, db_setup):
     saved and a meaningful error message generated.
 
     """
-    angler = {'first_name':'Homer', 'last_name':'Simpson', 'same_name':False}
+    angler = {"first_name": "Homer", "last_name": "Simpson", "same_name": False}
 
-    url = reverse('create_angler')
+    url = reverse("tfat:create_angler")
     response = client.post(url, angler, follow=True)
     content = str(response.content)
 
-    assert 'Homer Simpson already exists.' in content
-    assert 'Existing Anglers:' in content
-    assert 'Use Duplicate Name Anyway' in content
-    assert 'Create New Angler' in content
+    assert "Homer Simpson already exists." in content
+    assert "Existing Anglers:" in content
+    assert "Use Duplicate Name Anyway" in content
+    assert "Create New Angler" in content
 
 
 @pytest.mark.django_db
@@ -167,15 +163,14 @@ def test_create_angler_same_name_with_checkbox(client, db_setup):
     angler and have 'same_name' checked, the form should be saved and
     the we should be re-directed to the summary page for that angler.
     """
-    angler = {'first_name':'Homer', 'last_name':'Simpson', 'same_name':True}
+    angler = {"first_name": "Homer", "last_name": "Simpson", "same_name": True}
 
-    url = reverse('create_angler')
+    url = reverse("tfat:create_angler")
     response = client.post(url, angler, follow=True)
     content = str(response.content)
 
-    assert 'Tag Reports Filed By Homer Simpson' in content
-    assert 'Angler Details' in content
-
+    assert "Tag Reports Filed By Homer Simpson" in content
+    assert "Angler Details" in content
 
 
 @pytest.mark.django_db
@@ -185,26 +180,26 @@ def test_can_edit_angler_url(client, db_setup):
     expected data for this angler.
 
     """
-    angler = JoePublic.objects.get(first_name='Homer')
-    url = reverse('update_angler', kwargs={'angler_id':angler.id})
+    angler = JoePublic.objects.get(first_name="Homer")
+    url = reverse("tfat:update_angler", kwargs={"angler_id": angler.id})
     response = client.get(url)
     assert response.status_code == 200
     content = str(response.content)
 
-    assert 'Edit Tag Reporter' in content
-    assert 'First name:' in content
-    assert 'Last name:' in content
-    assert 'Town:' in content
-    assert 'Submit' in content
-    #and the data element
-    assert 'Homer' in content
-    assert 'Simpson' in content
-    assert 'Springfield' in content
+    assert "Edit Tag Reporter" in content
+    assert "First name:" in content
+    assert "Last name:" in content
+    assert "Town:" in content
+    assert "Submit" in content
+    # and the data element
+    assert "Homer" in content
+    assert "Simpson" in content
+    assert "Springfield" in content
 
-    #some things in the template that should not be in this response:
-    assert 'Use Duplicate Name Anyway' not in content
-    assert 'Existing Anglers:' not in content
-    assert 'Edit Details' not in content
+    # some things in the template that should not be in this response:
+    assert "Use Duplicate Name Anyway" not in content
+    assert "Existing Anglers:" not in content
+    assert "Edit Details" not in content
 
 
 @pytest.mark.django_db
@@ -212,25 +207,30 @@ def test_can_edit_angler(client, db_setup):
     """verify that we can edit the information associated with a angler
     using the form
     """
-    new_data = {'first_name':'Homer', 'last_name':'Simpson', 'same_name':False,
-                'town':'Vancouver', 'initial':'X', 'address1':'123 Newplace' }
+    new_data = {
+        "first_name": "Homer",
+        "last_name": "Simpson",
+        "same_name": False,
+        "town": "Vancouver",
+        "initial": "X",
+        "address1": "123 Newplace",
+    }
 
-    angler = JoePublic.objects.get(first_name='Homer')
-    url = reverse('update_angler', kwargs={'angler_id':angler.id})
+    angler = JoePublic.objects.get(first_name="Homer")
+    url = reverse("tfat:update_angler", kwargs={"angler_id": angler.id})
     response = client.post(url, new_data, follow=True)
     content = str(response.content)
 
-    assert 'Tag Reports Filed By Homer X. Simpson' in content
-    assert 'Angler Details' in content
-    assert 'Vancouver' in content
-    assert '123 Newplace' in content
+    assert "Tag Reports Filed By Homer X. Simpson" in content
+    assert "Angler Details" in content
+    assert "Vancouver" in content
+    assert "123 Newplace" in content
 
-    #check the angler attributes from the database
-    angler = JoePublic.objects.get(first_name='Homer')
-    assert angler.address1 == '123 Newplace'
-    assert angler.town == 'Vancouver'
-    assert angler.initial == 'X'
-
+    # check the angler attributes from the database
+    angler = JoePublic.objects.get(first_name="Homer")
+    assert angler.address1 == "123 Newplace"
+    assert angler.town == "Vancouver"
+    assert angler.initial == "X"
 
 
 @pytest.mark.django_db
@@ -240,14 +240,13 @@ def test_create_angler_first_name_required(client, db_setup):
     meaningful error message.
 
     """
-    angler = {'last_name':'Gumble', 'same_name':False}
+    angler = {"last_name": "Gumble", "same_name": False}
 
-    url = reverse('create_angler')
+    url = reverse("tfat:create_angler")
     response = client.post(url, angler, follow=True)
     content = str(response.content)
 
-    assert 'This field is required' in content
-
+    assert "This field is required" in content
 
 
 @pytest.mark.django_db
@@ -257,13 +256,13 @@ def test_create_angler_last_name_required(client, db_setup):
     meaningful error message.
 
     """
-    angler = {'first_name':'Barney', 'same_name':False}
+    angler = {"first_name": "Barney", "same_name": False}
 
-    url = reverse('create_angler')
+    url = reverse("tfat:create_angler")
     response = client.post(url, angler, follow=True)
     content = str(response.content)
 
-    assert 'This field is required' in content
+    assert "This field is required" in content
 
 
 @pytest.mark.django_db
@@ -273,14 +272,14 @@ def test_edit_angler_first_name_required(client, db_setup):
     meaningful error message.
 
     """
-    new_data = {'first_name':'', 'last_name':'Simpson', 'same_name':False}
+    new_data = {"first_name": "", "last_name": "Simpson", "same_name": False}
 
-    angler = JoePublic.objects.get(first_name='Homer')
-    url = reverse('update_angler', kwargs={'angler_id':angler.id})
+    angler = JoePublic.objects.get(first_name="Homer")
+    url = reverse("tfat:update_angler", kwargs={"angler_id": angler.id})
     response = client.post(url, new_data, follow=True)
     content = str(response.content)
 
-    assert 'This field is required' in content
+    assert "This field is required" in content
 
 
 @pytest.mark.django_db
@@ -290,14 +289,15 @@ def test_edit_angler_last_name_required(client, db_setup):
     meaningful error message.
 
     """
-    new_data = {'first_name':'Homer', 'last_name':'', 'same_name':False}
+    new_data = {"first_name": "Homer", "last_name": "", "same_name": False}
 
-    angler = JoePublic.objects.get(first_name='Homer')
-    url = reverse('update_angler', kwargs={'angler_id':angler.id})
+    angler = JoePublic.objects.get(first_name="Homer")
+    url = reverse("tfat:update_angler", kwargs={"angler_id": angler.id})
     response = client.post(url, new_data, follow=True)
     content = str(response.content)
 
-    assert 'This field is required' in content
+    assert "This field is required" in content
+
 
 @pytest.mark.django_db
 def test_nonexistant_angler_get_request(client, db_setup):
@@ -306,7 +306,7 @@ def test_nonexistant_angler_get_request(client, db_setup):
 
     """
 
-    url = reverse('update_angler', kwargs={'angler_id':999999})
+    url = reverse("tfat:update_angler", kwargs={"angler_id": 999999})
     response = client.get(url)
     assert response.status_code == 404
 
@@ -317,9 +317,9 @@ def test_nonexistant_angler_post_request(client, db_setup):
     should get a 404.
 
     """
-    new_data = {'first_name':'Montey', 'last_name':'Burns', 'same_name':False}
+    new_data = {"first_name": "Montey", "last_name": "Burns", "same_name": False}
 
-    url = reverse('update_angler', kwargs={'angler_id':999999})
+    url = reverse("tfat:update_angler", kwargs={"angler_id": 999999})
     response = client.post(url, new_data, follow=True)
 
     assert response.status_code == 404

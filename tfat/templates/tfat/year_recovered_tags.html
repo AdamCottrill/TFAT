@@ -19,7 +19,7 @@
         <h2>Tags recovered {% if this_year %}so far {% endif %}in {{ year }} </h2>
     </div>
 
-      <p>A summary of tags applied in {{ year }} can be found <a href= "{% url 'tags_applied_in_year' year %}" >here.</a></p>
+      <p>A summary of tags applied in {{ year }} can be found <a href= "{% url 'tfat:tags_applied_in_year' year %}" >here.</a></p>
 
     <br />
 
@@ -102,7 +102,7 @@
                             <tbody>
                                 {% for object in encounter_list %}
                                 <tr>
-                                    <td> <a href="{% url 'tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
+                                    <td> <a href="{% url 'tfat:tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
                                     <td> {{ object.spc.common_name }} </td>
                                     <td> {{ object.observation_date|date:"M d, Y" }} </td>
                                     <td> {{ object.grid }} </td>
@@ -114,7 +114,7 @@
                                     <td class="imperial"> {{ object.tlen_inches }} </td>
                                     <td class="metric"> {{ object.rwt|intcomma }} </td>
                                     <td class="imperial"> {{ object.pounds }} </td>
-                                    <td><a href="{% url 'tags_recovered_in_project' object.project.slug %}">{{ object.project.prj_cd }}</a> </td>
+                                    <td><a href="{% url 'tfat:tags_recovered_in_project' object.project.slug %}">{{ object.project.prj_cd }}</a> </td>
                                     <td> {{ object.project.prj_nm }} </td
                                 </tr>
                                 {% endfor%}
@@ -167,7 +167,7 @@
                             <tbody>
                                 {% for object in angler_recaps %}
                                 <tr>
-                                    <td> <a href="{% url 'tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
+                                    <td> <a href="{% url 'tfat:tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
                                     <td> {{ object.spc.common_name }} </td>
                                     <td> {{ object.observation_date|date:"M d, Y" }} </td>
                                     <td> {{ object.grid }} </td>
@@ -178,7 +178,7 @@
                                     <td class="imperial"> {{ object.tlen_inches }} </td>
                                     <td class="metric"> {{ object.rwt|intcomma }} </td>
                                     <td class="imperial"> {{ object.pounds }} </td>
-                                    <td> <a href="{% url 'angler_reports' angler_id=object.report.reported_by.id %}">
+                                    <td> <a href="{% url 'tfat:angler_reports' angler_id=object.report.reported_by.id %}">
                                         {{ object.report.reported_by }}</a> </td>
 
                                     <td> {{ object.general_location }} </td>
@@ -232,7 +232,7 @@
                             <tbody>
                                 {% for object in encounter_list %}
                                 <tr>
-                                    <td> <a href="{% url 'tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
+                                    <td> <a href="{% url 'tfat:tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
                                     <td> {{ object.spc.common_name }} </td>
                                     <td> {{ object.observation_date|date:"M d, Y" }} </td>
                                     <td> {{ object.grid }} </td>
@@ -249,7 +249,7 @@
 
                                 {% for object in angler_recaps %}
                                 <tr>
-                                    <td> <a href="{% url 'tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
+                                    <td> <a href="{% url 'tfat:tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
                                     <td> {{ object.spc.common_name }} </td>
                                     <td> {{ object.observation_date|date:"M d, Y" }} </td>
                                     <td> {{ object.grid }} </td>

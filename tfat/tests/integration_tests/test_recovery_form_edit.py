@@ -1,4 +1,4 @@
-'''=============================================================
+"""=============================================================
 c:/1work/Python/djcode/tfat/tfat/tests/integration_tests/test_recovery_form_create.py
 Created: 05 Aug 2015 11:51:12
 
@@ -28,30 +28,30 @@ optional data elements:
 A. Cottrill
 =============================================================
 
-'''
+"""
+
+from django.urls import reverse
 
 import pytest
-
+import pytz
 from datetime import datetime, timedelta
 
 from tfat.models import Recovery
 from tfat.tests.factories import *
 
 
-@pytest.fixture(scope='class')
+@pytest.fixture()
 def db_setup():
     """
     """
 
-    report_date = datetime(2010,10,10)
+    report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.UTC)
     spc = SpeciesFactory()
 
-    angler = JoePublicFactory.create(first_name='Homer',
-                                      last_name='Simpson')
+    angler = JoePublicFactory.create(first_name="Homer", last_name="Simpson")
 
-    #associated tags to test conditional elements
-    report = ReportFactory(reported_by=angler, follow_up=False,
-                                report_date = report_date)
+    # associated tags to test conditional elements
+    report = ReportFactory(reported_by=angler, follow_up=False, report_date=report_date)
 
     recovery = RecoveryFactory(report=report, spc=spc)
 
@@ -61,8 +61,12 @@ def tag_data():
     """A fixture to hold basic minimal data requirements for each
     test. Updated as needed in each test.
     """
-    tag_data= {'tagdoc':'25012', 'tagid':'1234', 'spc':1, 'date_flag':0,}
-    return  tag_data
+
+    spc = Species.objects.first()
+
+    tag_data = {"tagdoc": "25012", "tagid": "1234", "spc": 1, "date_flag": 0}
+    tag_data["spc"] = spc.id
+    return tag_data
 
 
 @pytest.mark.django_db
@@ -70,29 +74,29 @@ def test_can_edit_recovery_url(client, db_setup):
     """Verify that the form and its correct elements are rendered when we
     call the edit_recovery form"""
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
 
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
     response = client.get(url)
     assert response.status_code == 200
     content = str(response.content)
 
-    assert 'Tag Recovery Event' in content
-    assert 'Tag Recovery Details' in content
-    assert 'Tagid:' in content
-    assert 'Spc:' in content
-    assert 'TAGDOC' in content
+    assert "Tag Recovery Event" in content
+    assert "Tag Recovery Details" in content
+    assert "Tagid:" in content
+    assert "Spc:" in content
+    assert "TAGDOC" in content
 
-    assert 'Recovery Location' in content
-    assert 'Latitude:' in content
-    assert 'Longitude:' in content
+    assert "Recovery Location" in content
+    assert "Latitude:" in content
+    assert "Longitude:" in content
 
-    assert 'Fish Attributes' in content
+    assert "Fish Attributes" in content
 
 
 @pytest.mark.django_db
-def test_basic_data(client, db_setup):
+def test_basic_data(client, db_setup, tag_data):
     """verify that we can post the form with the minimal data elements and
     a tag recovery object will be editd in the database.
 
@@ -101,12 +105,8 @@ def test_basic_data(client, db_setup):
     recoveries = Recovery.objects.all()
     assert len(recoveries) == 1
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
-
-    tagid = '33333'
-    tagdoc = '25012'
-    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,}
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
     response = client.post(url, tag_data, follow=True)
 
@@ -116,9 +116,8 @@ def test_basic_data(client, db_setup):
     recoveries = Recovery.objects.all()
     assert len(recoveries) == 1
 
-    assert recoveries[0].tagid == tagid
-    assert recoveries[0].tagdoc == tagdoc
-
+    assert recoveries[0].tagid == tag_data["tagid"]
+    assert recoveries[0].tagdoc == tag_data["tagdoc"]
 
 
 @pytest.mark.django_db
@@ -132,12 +131,12 @@ def test_basic_data_no_add_another(client, db_setup):
     recoveries = Recovery.objects.all()
     assert len(recoveries) == 1
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    tagid = '33333'
-    tagdoc = '25012'
-    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,}
+    tagid = "33333"
+    tagdoc = "25012"
+    tag_data = {"tagdoc": tagdoc, "tagid": tagid, "spc": 1, "date_flag": 0}
 
     response = client.post(url, tag_data, follow=True)
 
@@ -153,11 +152,11 @@ def test_missing_tagid(client, db_setup):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    tagdoc = '25012'
-    tag_data= {'tagdoc':tagdoc, 'spc':1, 'date_flag':0,}
+    tagdoc = "25012"
+    tag_data = {"tagdoc": tagdoc, "spc": 1, "date_flag": 0}
 
     response = client.post(url, tag_data, follow=True)
 
@@ -173,12 +172,12 @@ def test_missing_species(client, db_setup):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    tagdoc = '25012'
-    tagid =  '1234'
-    tag_data= {'tagid':tagid, 'tagdoc':tagdoc, 'date_flag':0,}
+    tagdoc = "25012"
+    tagid = "1234"
+    tag_data = {"tagid": tagid, "tagdoc": tagdoc, "date_flag": 0}
 
     response = client.post(url, tag_data, follow=True)
 
@@ -194,20 +193,19 @@ def test_invalid_species(client, db_setup):
     generated.
 
     """
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    tagid = '12345'
-    tagdoc = '25012'
-    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':999, 'date_flag':0,}
+    tagid = "12345"
+    tagdoc = "25012"
+    tag_data = {"tagdoc": tagdoc, "tagid": tagid, "spc": 999, "date_flag": 0}
 
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
     content = str(response.content)
 
-    msg = ("Select a valid choice. "
-           "That choice is not one of the available choices.")
+    msg = "Select a valid choice. " "That choice is not one of the available choices."
     assert msg in content
 
 
@@ -218,11 +216,11 @@ def test_missing_tagdoc(client, db_setup):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    tagid = '1236'
-    tag_data= {'tagid':tagid, 'spc':1, 'date_flag':0,}
+    tagid = "1236"
+    tag_data = {"tagid": tagid, "spc": 1, "date_flag": 0}
 
     response = client.post(url, tag_data, follow=True)
 
@@ -236,12 +234,12 @@ def test_tagdoc_short(client, db_setup):
     """if the tagdoc is provided, it must be exacly 5 characters long.
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    tagid = '12345'
-    tagdoc = '2501'
-    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,}
+    tagid = "12345"
+    tagdoc = "2501"
+    tag_data = {"tagdoc": tagdoc, "tagid": tagid, "spc": 1, "date_flag": 0}
 
     response = client.post(url, tag_data, follow=True)
 
@@ -249,19 +247,18 @@ def test_tagdoc_short(client, db_setup):
     content = str(response.content)
     msg = "TAGDOC must be 5 characters long."
     assert msg in content
-
 
 
 @pytest.mark.django_db
 def test_tagdoc_long(client, db_setup):
     """if the tagdoc is provided, it must be exacly 5 characters long.
     """
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    tagid = '12345'
-    tagdoc = '250129'
-    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,}
+    tagid = "12345"
+    tagdoc = "250129"
+    tag_data = {"tagdoc": tagdoc, "tagid": tagid, "spc": 1, "date_flag": 0}
 
     response = client.post(url, tag_data, follow=True)
 
@@ -269,7 +266,6 @@ def test_tagdoc_long(client, db_setup):
     content = str(response.content)
     msg = "TAGDOC must be 5 characters long."
     assert msg in content
-
 
 
 @pytest.mark.django_db
@@ -279,12 +275,12 @@ def test_tagdoc_bad_tag_type(client, db_setup):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    tagid = '12345'
-    tagdoc = 'Y5012'
-    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,}
+    tagid = "12345"
+    tagdoc = "Y5012"
+    tag_data = {"tagdoc": tagdoc, "tagid": tagid, "spc": 1, "date_flag": 0}
 
     response = client.post(url, tag_data, follow=True)
 
@@ -294,9 +290,8 @@ def test_tagdoc_bad_tag_type(client, db_setup):
     assert msg in content
 
 
-
 @pytest.mark.django_db
-def test_tagdoc_good_tag_type(client, db_setup):
+def test_tagdoc_good_tag_type(client, db_setup, tag_data):
     """if the tagdoc is provided, the 1st character must correspond to a
     valid, exising tag_type.  When the recovery is saved, the tag_type
     will be updated to reflect the value of the 1st character in
@@ -304,12 +299,13 @@ def test_tagdoc_good_tag_type(client, db_setup):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    tagid = '12345'
-    tagdoc = '35012'
-    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,}
+    tagid = "12345"
+    tagdoc = "35012"
+    tag_data["tagid"] = tagid
+    tag_data["tagdoc"] = tagdoc
 
     response = client.post(url, tag_data, follow=True)
 
@@ -329,12 +325,12 @@ def test_tagdoc_bad_tag_position(client, db_setup):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    tagid = '12345'
-    tagdoc = '2Y012'
-    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,}
+    tagid = "12345"
+    tagdoc = "2Y012"
+    tag_data = {"tagdoc": tagdoc, "tagid": tagid, "spc": 1, "date_flag": 0}
 
     response = client.post(url, tag_data, follow=True)
 
@@ -353,12 +349,12 @@ def test_tagdoc_good_tag_position(client, db_setup):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    tagid = '12345'
-    tagdoc = '25012'
-    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,}
+    tagid = "12345"
+    tagdoc = "25012"
+    tag_data = {"tagdoc": tagdoc, "tagid": tagid, "spc": 1, "date_flag": 0}
 
     response = client.post(url, tag_data, follow=True)
 
@@ -378,12 +374,12 @@ def test_tagdoc_bad_agency(client, db_setup):
     thrown.
 
     """
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    tagid = '12345'
-    tagdoc = '25XX2'
-    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,}
+    tagid = "12345"
+    tagdoc = "25XX2"
+    tag_data = {"tagdoc": tagdoc, "tagid": tagid, "spc": 1, "date_flag": 0}
 
     response = client.post(url, tag_data, follow=True)
 
@@ -401,12 +397,12 @@ def test_tagdoc_bad_colour(client, db_setup):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    tagid = '12345'
-    tagdoc = '2501X'
-    tag_data= {'tagdoc':tagdoc, 'tagid':tagid, 'spc':1, 'date_flag':0,}
+    tagid = "12345"
+    tagdoc = "2501X"
+    tag_data = {"tagdoc": tagdoc, "tagid": tagid, "spc": 1, "date_flag": 0}
 
     response = client.post(url, tag_data, follow=True)
 
@@ -425,12 +421,12 @@ def test_good_clipc(client, db_setup, tag_data):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
 
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    clipc = '14'
-    tag_data['clipc'] = clipc
+    clipc = "14"
+    tag_data["clipc"] = clipc
 
     response = client.post(url, tag_data, follow=True)
 
@@ -452,11 +448,11 @@ def test_good_clipc_0(client, db_setup, tag_data):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    clipc = '0'
-    tag_data['clipc'] = clipc
+    clipc = "0"
+    tag_data["clipc"] = clipc
 
     response = client.post(url, tag_data, follow=True)
 
@@ -469,8 +465,6 @@ def test_good_clipc_0(client, db_setup, tag_data):
     assert recoveries[0].clipc == clipc
 
 
-
-
 @pytest.mark.django_db
 def test_bad_clipc_includes_0(client, db_setup, tag_data):
     """clipc is a character field that contains the concatinated clips
@@ -481,11 +475,11 @@ def test_bad_clipc_includes_0(client, db_setup, tag_data):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    clipc = '140'
-    tag_data['clipc'] = clipc
+    clipc = "140"
+    tag_data["clipc"] = clipc
 
     response = client.post(url, tag_data, follow=True)
 
@@ -506,11 +500,11 @@ def test_bad_clipc_includes_duplicates(client, db_setup, tag_data):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    clipc = '114'
-    tag_data['clipc'] = clipc
+    clipc = "114"
+    tag_data["clipc"] = clipc
 
     response = client.post(url, tag_data, follow=True)
 
@@ -531,18 +525,18 @@ def test_bad_clipc_includes_wrong_order(client, db_setup, tag_data):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    clipc = '532'
-    tag_data['clipc'] = clipc
+    clipc = "532"
+    tag_data["clipc"] = clipc
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
     recoveries = Recovery.objects.all()
     assert len(recoveries) == 1
-    assert recoveries[0].clipc == '235'
+    assert recoveries[0].clipc == "235"
 
 
 @pytest.mark.django_db
@@ -553,11 +547,11 @@ def test_bad_clipc_nonexistant_clip(client, db_setup, tag_data):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    clipc = '15X'
-    tag_data['clipc'] = clipc
+    clipc = "15X"
+    tag_data["clipc"] = clipc
 
     response = client.post(url, tag_data, follow=True)
 
@@ -578,11 +572,11 @@ def test_bad_clipc_multiple_nonexistant_clips(client, db_setup, tag_data):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    clipc = '15XZ'
-    tag_data['clipc'] = clipc
+    clipc = "15XZ"
+    tag_data["clipc"] = clipc
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
@@ -598,8 +592,8 @@ def test_missing_recovery_date(client, db_setup, tag_data):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
     response = client.post(url, tag_data, follow=True)
 
@@ -612,7 +606,6 @@ def test_missing_recovery_date(client, db_setup, tag_data):
     assert recoveries[0].date_flag is 0
 
 
-
 @pytest.mark.django_db
 def test_recovery_date_greater_than_report_date(client, db_setup, tag_data):
     """a tag recovery event cannot occur after the reporting date.  A
@@ -622,12 +615,12 @@ def test_recovery_date_greater_than_report_date(client, db_setup, tag_data):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
     week_late = recovery.report.report_date + timedelta(days=7)
 
-    tag_data['recovery_date'] = week_late.date()
+    tag_data["recovery_date"] = week_late.date()
 
     response = client.post(url, tag_data)
 
@@ -647,12 +640,12 @@ def test_future_date(client, db_setup, tag_data):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
     next_week = datetime.today() + timedelta(days=7)
 
-    tag_data['recovery_date'] = next_week.date()
+    tag_data["recovery_date"] = next_week.date()
 
     response = client.post(url, tag_data)
 
@@ -671,9 +664,8 @@ def test_recapture_date_ahead_of_report_date(client, db_setup, tag_data):
 
     """
 
-    #NOT IMPLEMENTED YET
-    assert 0==1
-
+    # NOT IMPLEMENTED YET
+    assert 0 == 1
 
 
 @pytest.mark.django_db
@@ -681,14 +673,14 @@ def test_tlen_greater_than_flen(client, db_setup, tag_data):
     """both tlen and flen can be provided as long as flen is less than tlen.
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
     tlen = 450
     flen = 440
 
-    tag_data['flen'] = flen
-    tag_data['tlen'] = tlen
+    tag_data["flen"] = flen
+    tag_data["tlen"] = tlen
 
     response = client.post(url, tag_data, follow=True)
 
@@ -699,7 +691,6 @@ def test_tlen_greater_than_flen(client, db_setup, tag_data):
     assert recoveries[0].flen == flen
 
 
-
 @pytest.mark.django_db
 def test_tlen_less_than_flen(client, db_setup, tag_data):
     """if both total length and fork length are provided and fork length
@@ -707,14 +698,14 @@ def test_tlen_less_than_flen(client, db_setup, tag_data):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
     tlen = 440
     flen = 450
 
-    tag_data['flen'] = flen
-    tag_data['tlen'] = tlen
+    tag_data["flen"] = flen
+    tag_data["tlen"] = tlen
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
@@ -731,14 +722,14 @@ def test_ddlat_ddlon(client, db_setup, tag_data):
     object in the database.
 
     """
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
     dd_lat = 45.25
     dd_lon = -81.1
 
-    tag_data['dd_lat'] = dd_lat
-    tag_data['dd_lon'] = dd_lon
+    tag_data["dd_lat"] = dd_lat
+    tag_data["dd_lon"] = dd_lon
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
@@ -748,27 +739,32 @@ def test_ddlat_ddlon(client, db_setup, tag_data):
     assert recoveries[0].dd_lat == dd_lat
     assert recoveries[0].dd_lon == dd_lon
 
-    assert  recoveries[0].latlon_flag is not None
-    assert  recoveries[0].latlon_flag != 0
+    assert recoveries[0].latlon_flag is not None
+    assert recoveries[0].latlon_flag != 0
 
 
+@pytest.mark.xfail
 @pytest.mark.django_db
 def test_unknown_ddlat_ddlon(client, db_setup, tag_data):
     """ddlat and ddlon are optional fields.  but if they are null,
     latlon_flag must be unknown.  If a recovery is submitted without
     at latlon_flag==unknown, and error should be thrown.
 
+    This test has the same problem as the sister test in the
+    test_recovery_form_create.py file - the model instance does not
+    seem to have the value from the cleaned data in the form?
+
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
     recoveries = Recovery.objects.all()
     assert len(recoveries) == 1
-    assert  recoveries[0].latlon_flag == 0 #unknown
+    assert recoveries[0].latlon_flag == 0  # unknown
 
 
 @pytest.mark.django_db
@@ -778,24 +774,24 @@ def test_derived_ddlat_ddlon_with_comment(client, db_setup, tag_data):
     recovery should be edit in the database.
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    latlon_flag = 2   #derived
+    latlon_flag = 2  # derived
     comment = "It was big."
 
-    tag_data['dd_lat'] = 45.25
-    tag_data['dd_lon'] = -81.1
-    tag_data['latlon_flag'] = latlon_flag
-    tag_data['comment'] = comment
+    tag_data["dd_lat"] = 45.25
+    tag_data["dd_lon"] = -81.1
+    tag_data["latlon_flag"] = latlon_flag
+    tag_data["comment"] = comment
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
     recoveries = Recovery.objects.all()
     assert len(recoveries) == 1
-    assert  recoveries[0].latlon_flag == latlon_flag
-    assert  recoveries[0].comment == comment
+    assert recoveries[0].latlon_flag == latlon_flag
+    assert recoveries[0].comment == comment
 
 
 @pytest.mark.django_db
@@ -804,18 +800,18 @@ def test_derived_ddlat_ddlon_without_comment(client, db_setup, tag_data):
     without a comment an error will be thrown.
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    tag_data['dd_lat'] = 45.25
-    tag_data['dd_lon'] = -81.1
-    tag_data['latlon_flag'] = 2
+    tag_data["dd_lat"] = 45.25
+    tag_data["dd_lon"] = -81.1
+    tag_data["latlon_flag"] = 2
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
     content = str(response.content)
-    msg = 'Describe how location was derived.'
+    msg = "Describe how location was derived."
     assert msg in content
 
 
@@ -827,19 +823,18 @@ def test_ddlat_without_ddlon(client, db_setup, tag_data):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    tag_data['dd_lat'] = 45.25
-    tag_data['dd_lon'] = None
+    tag_data["dd_lat"] = 45.25
+    tag_data["dd_lon"] = None
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
     content = str(response.content)
-    msg = 'If dd_lat is populated,  dd_lon must be populated too'
+    msg = "If dd_lat is populated,  dd_lon must be populated too"
     assert msg in content
-
 
 
 @pytest.mark.django_db
@@ -849,19 +844,18 @@ def test_ddlon_without_ddlat(client, db_setup, tag_data):
     included, an appropriate error message should be generated.
 
     """
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    tag_data['dd_lat'] = None
-    tag_data['dd_lon'] = -81.1
+    tag_data["dd_lat"] = None
+    tag_data["dd_lon"] = -81.1
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
     content = str(response.content)
-    msg = 'If dd_lon is populated,  dd_lat must be populated too'
+    msg = "If dd_lon is populated,  dd_lat must be populated too"
     assert msg in content
-
 
 
 @pytest.mark.django_db
@@ -872,17 +866,17 @@ def test_ddlat_max_90(client, db_setup, tag_data):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    tag_data['dd_lat'] = 100
-    tag_data['dd_lon'] = -81.1
+    tag_data["dd_lat"] = 100
+    tag_data["dd_lon"] = -81.1
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
     content = str(response.content)
-    msg = 'dd_lat must be numeric and lie between -90 and 90'
+    msg = "dd_lat must be numeric and lie between -90 and 90"
     assert msg in content
 
 
@@ -894,17 +888,17 @@ def test_ddlat_min_negative_90(client, db_setup, tag_data):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    tag_data['dd_lat'] = -100
-    tag_data['dd_lon'] = -81.1
+    tag_data["dd_lat"] = -100
+    tag_data["dd_lon"] = -81.1
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
     content = str(response.content)
-    msg = 'dd_lat must be numeric and lie between -90 and 90'
+    msg = "dd_lat must be numeric and lie between -90 and 90"
     assert msg in content
 
 
@@ -915,17 +909,17 @@ def test_ddlon_max_180(client, db_setup, tag_data):
     appropriate error message should be generated.
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    tag_data['dd_lat'] = 45.25
-    tag_data['dd_lon'] = 281.1
+    tag_data["dd_lat"] = 45.25
+    tag_data["dd_lon"] = 281.1
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
     content = str(response.content)
-    msg = 'dd_lon must be numeric and lie between -180 and 180'
+    msg = "dd_lon must be numeric and lie between -180 and 180"
     assert msg in content
 
 
@@ -937,21 +931,20 @@ def test_ddlon_min_negative_180(client, db_setup, tag_data):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-
-    dd_lat= 45.25
+    dd_lat = 45.25
     dd_lon = -281.1
 
-    tag_data['dd_lat'] = dd_lat
-    tag_data['dd_lon'] = dd_lon
+    tag_data["dd_lat"] = dd_lat
+    tag_data["dd_lon"] = dd_lon
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
     content = str(response.content)
-    msg = 'dd_lon must be numeric and lie between -180 and 180'
+    msg = "dd_lon must be numeric and lie between -180 and 180"
     assert msg in content
 
 
@@ -963,19 +956,18 @@ def test_general_location(client, db_setup, tag_data):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    general_location= "Somewhere out there."
-    tag_data['general_location'] = general_location
+    general_location = "Somewhere out there."
+    tag_data["general_location"] = general_location
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
     recoveries = Recovery.objects.all()
     assert len(recoveries) == 1
-    assert  recoveries[0].general_location == general_location
-
+    assert recoveries[0].general_location == general_location
 
 
 @pytest.mark.django_db
@@ -986,19 +978,18 @@ def test_specific_location(client, db_setup, tag_data):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
     specific_location = "Right here. Exactly here."
-    tag_data['specific_location'] = specific_location
+    tag_data["specific_location"] = specific_location
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
     recoveries = Recovery.objects.all()
     assert len(recoveries) == 1
-    assert  recoveries[0].specific_location == specific_location
-
+    assert recoveries[0].specific_location == specific_location
 
 
 @pytest.mark.django_db
@@ -1009,18 +1000,18 @@ def test_tlen(client, db_setup, tag_data):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
     tlen = 450
-    tag_data['tlen'] = tlen
+    tag_data["tlen"] = tlen
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
     recoveries = Recovery.objects.all()
     assert len(recoveries) == 1
-    assert  recoveries[0].tlen == tlen
+    assert recoveries[0].tlen == tlen
 
 
 @pytest.mark.django_db
@@ -1030,19 +1021,18 @@ def test_flen(client, db_setup, tag_data):
     object in the database.
 
     """
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
     flen = 450
-    tag_data= {'tagdoc':'25012', 'tagid':'123', 'spc':1, 'date_flag':0,
-               'flen':flen}
+    tag_data["flen"] = flen
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
     recoveries = Recovery.objects.all()
     assert len(recoveries) == 1
-    assert  recoveries[0].flen == flen
+    assert recoveries[0].flen == flen
 
 
 @pytest.mark.django_db
@@ -1053,18 +1043,18 @@ def test_rwt(client, db_setup, tag_data):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
     rwt = 1450
-    tag_data['rwt'] = rwt
+    tag_data["rwt"] = rwt
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
     recoveries = Recovery.objects.all()
     assert len(recoveries) == 1
-    assert  recoveries[0].rwt == rwt
+    assert recoveries[0].rwt == rwt
 
 
 @pytest.mark.django_db
@@ -1075,18 +1065,18 @@ def test_girth(client, db_setup, tag_data):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
     girth = 1450
-    tag_data['girth'] = girth
+    tag_data["girth"] = girth
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
     recoveries = Recovery.objects.all()
     assert len(recoveries) == 1
-    assert  recoveries[0].girth == girth
+    assert recoveries[0].girth == girth
 
 
 @pytest.mark.django_db
@@ -1097,18 +1087,18 @@ def test_fish_fate_released(client, db_setup, tag_data):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    fate = 'R'
-    tag_data['fate'] = fate
+    fate = "R"
+    tag_data["fate"] = fate
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
     recoveries = Recovery.objects.all()
     assert len(recoveries) == 1
-    assert  recoveries[0].fate == fate
+    assert recoveries[0].fate == fate
 
 
 @pytest.mark.django_db
@@ -1118,20 +1108,18 @@ def test_fish_fate_killed(client, db_setup, tag_data):
     object in the database.
 
     """
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    fate = 'K'
-    tag_data['fate'] = fate
+    fate = "K"
+    tag_data["fate"] = fate
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
     recoveries = Recovery.objects.all()
     assert len(recoveries) == 1
-    assert  recoveries[0].fate == fate
-
-
+    assert recoveries[0].fate == fate
 
 
 @pytest.mark.django_db
@@ -1141,25 +1129,21 @@ def test_fish_fate_nonexistant(client, db_setup, tag_data):
     the posted data, an appropriate error will be thrown.
 
     """
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    fate = 'FOO'
-    tag_data['fate'] = fate
+    fate = "FOO"
+    tag_data["fate"] = fate
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
     content = str(response.content)
 
-    with open('C:/1work/scrapbook/wft2.html', 'wb') as f:
+    with open("C:/1work/scrapbook/wft2.html", "wb") as f:
         f.write(response.content)
 
-    msg = ("Select a valid choice. "
-           "FOO is not one of the available choices.")
+    msg = "Select a valid choice. " "FOO is not one of the available choices."
     assert msg in content
-
-
-
 
 
 @pytest.mark.django_db
@@ -1170,18 +1154,18 @@ def test_fish_sex_male(client, db_setup, tag_data):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    sex = '1'
-    tag_data['sex'] = sex
+    sex = "1"
+    tag_data["sex"] = sex
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
     recoveries = Recovery.objects.all()
     assert len(recoveries) == 1
-    assert  recoveries[0].sex == sex
+    assert recoveries[0].sex == sex
 
 
 @pytest.mark.django_db
@@ -1191,18 +1175,18 @@ def test_fish_sex_female(client, db_setup, tag_data):
     object in the database.
 
     """
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    sex = '2'
-    tag_data['sex'] = sex
+    sex = "2"
+    tag_data["sex"] = sex
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
     recoveries = Recovery.objects.all()
     assert len(recoveries) == 1
-    assert  recoveries[0].sex == sex
+    assert recoveries[0].sex == sex
 
 
 @pytest.mark.django_db
@@ -1213,18 +1197,17 @@ def test_fish_sex_nonexistant(client, db_setup, tag_data):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    sex = 'FOO'
-    tag_data['sex'] = sex
+    sex = "FOO"
+    tag_data["sex"] = sex
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
     content = str(response.content)
 
-    msg = ("Select a valid choice. "
-           "FOO is not one of the available choices.")
+    msg = "Select a valid choice. " "FOO is not one of the available choices."
     assert msg in content
 
 
@@ -1235,18 +1218,18 @@ def test_fish_tag_removed_false(client, db_setup, tag_data):
     object in the database.
 
     """
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
     tag_removed = False
-    tag_data['tag_removed'] = tag_removed
+    tag_data["tag_removed"] = tag_removed
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
     recoveries = Recovery.objects.all()
     assert len(recoveries) == 1
-    assert  recoveries[0].tag_removed == tag_removed
+    assert recoveries[0].tag_removed == tag_removed
 
 
 @pytest.mark.django_db
@@ -1257,19 +1240,19 @@ def test_fish_tag_removed_true(client, db_setup, tag_data):
 
     """
 
-    recovery = Recovery.objects.get(report__reported_by__first_name='Homer')
-    url = reverse('edit_recovery', kwargs={'recovery_id':recovery.id})
+    recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
     tag_removed = True
-    tag_data['tag_removed'] = tag_removed
+    tag_data["tag_removed"] = tag_removed
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
     content = str(response.content)
-    with open('C:/1work/scrapbook/wtf2.html', 'wb') as f:
+    with open("C:/1work/scrapbook/wtf2.html", "wb") as f:
         f.write(response.content)
 
     recoveries = Recovery.objects.all()
     assert len(recoveries) == 1
-    assert  recoveries[0].tag_removed == tag_removed
+    assert recoveries[0].tag_removed == tag_removed

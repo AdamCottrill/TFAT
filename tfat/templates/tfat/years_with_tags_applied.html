@@ -19,7 +19,7 @@
       <table class="table">
         {% for yr, cnt in tags_applied.items %}
         <tr>
-            <td><a href="{% url 'tags_applied_in_year' yr %}">{{ yr }}</a> </td>
+            <td><a href="{% url 'tfat:tags_applied_in_year' yr %}">{{ yr }}</a> </td>
             <td>(N = {{ cnt }})</td>
         </tr>
         {% endfor%}
