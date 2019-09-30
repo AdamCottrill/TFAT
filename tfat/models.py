@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models import Q
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.template.defaultfilters import slugify
 
 import os
@@ -139,7 +139,11 @@ class Report(models.Model):
     """
 
     reported_by = models.ForeignKey(
-        JoePublic, related_name="Reported_By", blank=True, null=True
+        JoePublic,
+        related_name="Reported_By",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
     )
     report_date = models.DateTimeField("Report Date", blank=True, null=True)
     date_flag = models.IntegerField("Date Flag", choices=DATE_FLAG_CHOICES, default=0)
@@ -155,6 +159,7 @@ class Report(models.Model):
     follow_up = models.BooleanField(default=False)
 
     class Meta:
+
         ordering = ["-report_date"]
         verbose_name_plural = "JoePublic"
 
@@ -207,8 +212,8 @@ class Recovery(models.Model):
 
     """
 
-    report = models.ForeignKey(Report, related_name="Report")
-    spc = models.ForeignKey(Species, related_name="Species")
+    report = models.ForeignKey(Report, related_name="Report", on_delete=models.CASCADE)
+    spc = models.ForeignKey(Species, related_name="Species", on_delete=models.CASCADE)
 
     recovery_date = models.DateField(blank=True, null=True)
     date_flag = models.IntegerField("Date Flag", choices=DATE_FLAG_CHOICES, default=1)
@@ -560,7 +565,9 @@ class RecoveryLetter(models.Model):
     """A table to hold the response letter(s) associted with a tag
     recovery event."""
 
-    recovery = models.ForeignKey(Recovery, related_name="recovery_letters")
+    recovery = models.ForeignKey(
+        Recovery, related_name="recovery_letters", on_delete=models.CASCADE
+    )
     # file will be uploaded to MEDIA_ROOT/uploads
     letter = models.FileField(upload_to="tag_return_letters/")
 
@@ -599,7 +606,7 @@ class Project(models.Model):
     """A model to hold basic information about the project in which tags
     were deployed or recovered"""
 
-    dbase = models.ForeignKey(Database)
+    dbase = models.ForeignKey(Database, on_delete=models.CASCADE)
     year = models.IntegerField(db_index=True)
     prj_cd = models.CharField(db_index=True, max_length=12)
     prj_nm = models.CharField(max_length=100)
@@ -649,8 +656,10 @@ class Encounter(models.Model):
 
     """
 
-    project = models.ForeignKey(Project, related_name="Encounters")
-    spc = models.ForeignKey(Species)
+    project = models.ForeignKey(
+        Project, related_name="Encounters", on_delete=models.CASCADE
+    )
+    spc = models.ForeignKey(Species, on_delete=models.CASCADE)
     sam = models.CharField(max_length=5)
     eff = models.CharField(max_length=3)
     grp = models.CharField(max_length=3)

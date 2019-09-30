@@ -827,7 +827,7 @@ def test_ddlat_without_ddlon(client, db_setup, tag_data):
     url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
     tag_data["dd_lat"] = 45.25
-    tag_data["dd_lon"] = None
+    tag_data["dd_lon"] = ""
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
@@ -847,7 +847,7 @@ def test_ddlon_without_ddlat(client, db_setup, tag_data):
     recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
     url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    tag_data["dd_lat"] = None
+    tag_data["dd_lat"] = ""
     tag_data["dd_lon"] = -81.1
 
     response = client.post(url, tag_data, follow=True)

@@ -19,6 +19,8 @@ from django.db.models.fields import BLANK_CHOICE_DASH
 from tfat.models import JoePublic, Report, Recovery
 
 from datetime import datetime
+import pytz
+
 
 from .constants import (
     REPORTING_CHOICES,
@@ -237,7 +239,9 @@ class ReportForm(ModelForm):
 
         if not report_date:
             cleaned_data["date_flag"] = 0  # unknown
-            cleaned_data["report_date"] = datetime.today().date()
+            cleaned_data["report_date"] = datetime.now().replace(tzinfo=pytz.UTC).date()
+        else:
+            cleaned_data["report_date"] = report_date.replace(tzinfo=pytz.UTC)
 
         return cleaned_data
 
@@ -496,8 +500,9 @@ class RecoveryForm(ModelForm):
 
         #  RECOVERY DATE vs DATE_FLAG
         # if no date is provided, date_flag cannot be reported:
-        recovery_date = cleaned_data.get("recovery_date")
+        recovery_date = cleaned_data.get("recovery_date", "")
         date_flag = cleaned_data["date_flag"]
+
         if (recovery_date is None or recovery_date == "") and date_flag != 0:
             err_msg = 'Date flag must be "Unknown" if no date is provided.'
             raise forms.ValidationError(err_msg)

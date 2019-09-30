@@ -100,9 +100,11 @@ class AnglerListView(ListFilteredMixin, ListView):
     """
 
     model = JoePublic
-    queryset = JoePublic.objects.annotate(
-        reports=Count("Reported_By", distinct=True)
-    ).annotate(tags=Count("Reported_By__Report"))
+    queryset = (
+        JoePublic.objects.order_by("last_name", "first_name")
+        .annotate(reports=Count("Reported_By", distinct=True))
+        .annotate(tags=Count("Reported_By__Report"))
+    )
 
     filter_set = JoePublicFilter
     paginage_by = ANGLER_PAGE_CNT

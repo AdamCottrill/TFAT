@@ -14,7 +14,7 @@ A. Cottrill
 
 import pytest
 import pytz
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from tfat.tests.factories import *
 

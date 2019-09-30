@@ -658,7 +658,7 @@ def test_no_date_and_dateflag_is_reported(client, db_setup, tag_data):
     report = Report.objects.get(reported_by__first_name="Homer")
     url = reverse("tfat:create_recovery", kwargs={"report_id": report.id})
 
-    tag_data["recovery_date"] = None
+    tag_data["recovery_date"] = ""
     tag_data["date_flag"] = 1  # reported
 
     response = client.post(url, tag_data, follow=True)
@@ -666,13 +666,7 @@ def test_no_date_and_dateflag_is_reported(client, db_setup, tag_data):
     assert response.status_code == 200
     content = str(response.content)
 
-    with open("C:/1work/scrapbook/wtf2.html", "wb") as f:
-        f.write(response.content)
-
     msg = "Date flag must be &quot;Unknown&quot; if no date is provided."
-    assert msg in content
-
-    msg = "Enter a valid date."
     assert msg in content
 
 
@@ -835,7 +829,7 @@ def test_ddlat_without_ddlon(client, db_setup, tag_data):
     url = reverse("tfat:create_recovery", kwargs={"report_id": report.id})
 
     tag_data["dd_lat"] = 45.25
-    tag_data["dd_lon"] = None
+    tag_data["dd_lon"] = ""
 
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
@@ -855,7 +849,7 @@ def test_ddlon_without_ddlat(client, db_setup, tag_data):
     report = Report.objects.get(reported_by__first_name="Homer")
     url = reverse("tfat:create_recovery", kwargs={"report_id": report.id})
 
-    tag_data["dd_lat"] = None
+    tag_data["dd_lat"] = ""
     tag_data["dd_lon"] = -81.1
 
     response = client.post(url, tag_data, follow=True)

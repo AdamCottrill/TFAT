@@ -20,8 +20,12 @@ optional data elements:
 
 
 calculated/derived/default quantities:
-- if report date is null when submitted, it should be set to current date and the date flag set to 'derived'
+
+- if report date is null when submitted, it should be set to current
+  date and the date flag set to 'derived'
+
 - if report format is dcr, we need effort and dcr number
+
 - if report format is not dcr, effort and dcr number should be empty
 
 - after succesfully creating a new report, or editing and existing
@@ -35,7 +39,7 @@ A. Cottrill
 import pytest
 import pytz
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.core.files import File
 
 from tfat.models import JoePublic, Report
@@ -286,9 +290,10 @@ def test_edit_report_change_format_from_dcr_with_dcr(client, db_setup):
     the form and included in the response
     """
     report = Report.objects.get(reported_by__first_name="Homer")
+
     url = reverse("tfat:edit_report", kwargs={"report_id": report.id})
 
-    data = {"reporting_format": "verbal", "dcr": "DCR1234", "effort": None}
+    data = {"reporting_format": "verbal", "dcr": "DCR1234", "effort": ""}
 
     response = client.post(url, data)
 
