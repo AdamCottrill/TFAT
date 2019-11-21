@@ -424,7 +424,7 @@ def get_omnr_tag_application(project_slug):
     """
 
     sql = """
-    SELECT
+    SELECT DISTINCT
     cp.prj_nm AS prj_nm,
            cp.prj_cd AS prj_cd,
            cp.slug AS slug,
