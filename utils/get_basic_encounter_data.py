@@ -16,13 +16,31 @@ from the look-up table master.  This part of the script has been
 commented out because it should only be necessary for a complete
 rebuild - not a routine refresh.
 
+USAGE:
+
+- to rebuild everything, leave FIRST_YEAR and LAST_YEAR set to
+  None. To get specific years, specify a two element array containing
+  first and last years to refresh or replace.
+
+- if only FIRST_YEAR is defined, all years >= FIRST_YEAR will be updated.
+
+- if only LAST_YEAR is defined, all years <= FIRST_YEAR will be updated.
+
+- if both FIRST_YEAR and LAST_YEAR are defined, all years >= FIRST_YEAR
+  and <= LAST_YEAR will be updated.
+
+
+TODOs:
+    - add source array
+
+
 A. Cottrill
 =============================================================
 
 """
 
 import os
-from datatime import datetime
+from datetime import datetime
 
 # SETTINGS_FILE = 'main.settings.local'
 SETTINGS_FILE = "main.settings.production"
@@ -42,8 +60,14 @@ django.setup()
 import pyodbc
 import psycopg2
 
+from utils.tfat_helpers import get_db_years, build_years_array, get_encounters
 
 from tfat.models import Species, Project, Encounter, Database
+
+# year or None
+FIRST_YEAR = 2018
+LAST_YEAR = None
+
 
 PG_USER = "adam"
 PG_DB = "pjtk2"
@@ -163,73 +187,79 @@ pgconn.close()
 # create the django objects, we will have to get the corresponding spc
 # and project object too.
 
-# clear out existing encounter objects:
-foo = Encounter.objects.all().delete()
-
-sql = "exec Get_All_Encounters"
-
-con = pyodbc.connect(constr.format(src_db))
-cursor = con.cursor()
-cursor.execute(sql)
-encounters = cursor.fetchall()
 
 # a couple of elements to help when we trip over un-documented projects
 wtf = []
 missing_db = Database.objects.get(master_database="Not Applicable")
 
-for row in encounters:
-    try:
-        prj = Project.objects.get(prj_cd=row.PRJ_CD)
-    except Project.DoesNotExist:
-        wtf.append(row.PRJ_CD)
-        prj_cd = row.PRJ_CD
-        prj = Project(
-            prj_cd=prj_cd,
-            year=yr_from_prjcd(prj_cd),
-            prj_nm="Missing from Project Tracker!",
-            dbase=missing_db,
-        )
-        prj.save()
-    spc = Species.objects.filter(species_code=row.Spc).first()
+project_lookup = {x.prj_cd: x for x in Project.objects.all()}
+species_lookup = {"{:03d}".format(x.species_code): x for x in Species.objects.all()}
 
-    observation_date = datetime.strptime(row.obs_date, "%Y/%m/%d")
+# create a cursor that will be used to connect to our source database:
+years = get_db_years(src_db)
+years = build_years_array(years, FIRST_YEAR, LAST_YEAR)
 
-    if row.GRID and row.DD_LAT and row.DD_LON:
-        comment = row.COMMENT5
-        grid = row.GRID
-        dd_lat = row.DD_LAT
-        dd_lon = row.DD_LON
-    else:
-        tmp = "" if row.COMMENT5 is None else row.COMMENT5
-        comment = "NOTE:Actual recap location missing or compromized.\n" + tmp
-        grid = row.GRID if row.GRID else 1638
-        dd_lat = row.DD_LAT if row.DD_LAT else 45.01
-        dd_lon = row.DD_LON if row.DD_LON else -81.01
+for year in years:
+    Encounter.objects.filter(project__year=year).delete()
+    encounters = get_encounters(src_db, year)
+    print("Found {} encounters in {}.".format(len(encounters), year))
+    objects = []
 
-    if prj and spc:
-        encounter = Encounter(
-            project=prj,
-            spc=spc,
-            observation_date=observation_date,
-            sam=row.SAM,
-            eff=row.EFF,
-            grp=row.GRP,
-            fish=row.FISH,
-            grid=grid,
-            dd_lat=dd_lat,
-            dd_lon=dd_lon,
-            flen=row.FLEN,
-            tlen=row.TLEN,
-            rwt=row.RWT,
-            age=row.AGE,
-            sex=row.SEX,
-            clipc=row.CLIPC,
-            tagid=row.TAGID,
-            tagdoc=row.TAGDOC,
-            tagstat=row.TAGSTAT,
-            fate=row.FATE,
-            comment=comment,
-        )
-        encounter.save()
+    for row in encounters:
+
+        prj = project_lookup.get(row["PRJ_CD"])
+        if prj is None:
+            wtf.append(row["PRJ_CD"])
+            prj_cd = row["PRJ_CD"]
+            prj = Project(
+                prj_cd=prj_cd,
+                year=yr_from_prjcd(prj_cd),
+                prj_nm="Missing from Project Tracker!",
+                dbase=missing_db,
+            )
+            prj.save()
+
+        observation_date = datetime.strptime(row["OBS_DATE"], "%Y/%m/%d")
+
+        if row["GRID"] and row["DD_LAT"] and row["DD_LON"]:
+            comment = row["COMMENT5"]
+            grid = row["GRID"]
+            dd_lat = row["DD_LAT"]
+            dd_lon = row["DD_LON"]
+        else:
+            tmp = "" if row["COMMENT5"] is None else row["COMMENT5"]
+            comment = "NOTE:Actual recap location missing or compromized.\n" + tmp
+            grid = row["GRID"] if row["GRID"] else 1638
+            dd_lat = row["DD_LAT"] if row["DD_LAT"] else 45.01
+            dd_lon = row["DD_LON"] if row["DD_LON"] else -81.01
+
+        if prj and spc:
+            encounter = Encounter(
+                project=prj,
+                spc=species_lookup[row["SPC"]],
+                observation_date=observation_date,
+                sam=row["SAM"],
+                eff=row["EFF"],
+                grp=row["GRP"],
+                fish=row["FISH"],
+                grid=grid,
+                dd_lat=dd_lat,
+                dd_lon=dd_lon,
+                flen=row["FLEN"],
+                tlen=row["TLEN"],
+                rwt=row["RWT"],
+                age=row["AGE"],
+                sex=row["SEX"],
+                clipc=row["CLIPC"],
+                tagid=row["TAGID"],
+                tagdoc=row["TAGDOC"],
+                tagstat=row["TAGSTAT"],
+                fate=row["FATE"],
+                comment=comment,
+            )
+            objects.append(encounter)
+    Encounter.objects.bulk_create(objects)
+
+
 print("There where {} issues.".format(len(wtf)))
 print("Done uploading UGLMU tag encounters.")
