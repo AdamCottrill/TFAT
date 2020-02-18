@@ -65,8 +65,8 @@ from utils.tfat_helpers import get_db_years, build_years_array, get_encounters
 from tfat.models import Species, Project, Encounter, Database
 
 # year or None
-FIRST_YEAR = 2018
-LAST_YEAR = None
+FIRST_YEAR = 2000
+LAST_YEAR = 2004
 
 
 PG_USER = "adam"
@@ -220,6 +220,10 @@ for year in years:
             prj.save()
 
         observation_date = datetime.strptime(row["OBS_DATE"], "%Y/%m/%d")
+
+        spc = species_lookup.get(row["SPC"])
+        if spc is None:
+            print("found unknown species code: '{}'".format(row["SPC"]))
 
         if row["GRID"] and row["DD_LAT"] and row["DD_LON"]:
             comment = row["COMMENT5"]
