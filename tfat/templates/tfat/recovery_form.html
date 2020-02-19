@@ -236,6 +236,16 @@
                         <div id="location_row" class="row" >
                             <div class="col-md-6" >
 
+                                <div class="form-group {% if form.lake.errors %}has-error{% endif %}">
+                                    {{ form.lake.label_tag }}
+                                    {{ form.lake }}
+                                    {% if form.lake.errors %}
+                                        {% for error in form.lake.errors %}
+                                            <div class="has-error help-block text-danger">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                
 
                                 <div class="form-group {% if form.general_location.errors %}has-error{% endif %}">
                                     {{ form.general_location.label_tag }}

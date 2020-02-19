@@ -475,7 +475,7 @@ def tags_applied_year(request, year):
 
     applied = applied.select_related(
         "project",
-        "spc"
+        "spc",
         # "project__prj_cd", "project__prj_nm", "spc__common_name"
     )
 

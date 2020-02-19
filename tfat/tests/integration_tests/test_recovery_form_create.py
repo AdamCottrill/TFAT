@@ -48,8 +48,6 @@ def db_setup():
 
     report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.UTC)
 
-    spc = SpeciesFactory()
-
     angler = JoePublicFactory.create(first_name="Homer", last_name="Simpson")
 
     # associated tags to test conditional elements
@@ -61,10 +59,17 @@ def tag_data():
     """A fixture to hold basic minimal data requirements for each
     test. Updated as needed in each test.
     """
-    spc = Species.objects.first()
+    spc = SpeciesFactory()
+    lake = LakeFactory()
 
-    tag_data = {"tagdoc": "25012", "tagid": "1234", "spc": 1, "date_flag": 0}
-    tag_data["spc"] = spc.id
+    tag_data = {
+        "tagdoc": "25012",
+        "tagid": "1234",
+        "spc": spc.id,
+        "date_flag": 0,
+        "lake": lake.id,
+    }
+    # tag_data["spc"] = spc.id
     return tag_data
 
 

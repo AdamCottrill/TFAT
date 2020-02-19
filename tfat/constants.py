@@ -14,6 +14,8 @@ A. Cottrill
 
 """
 
+LAKE_CHOICES = {("HU", "Lake Huron"), ("SU", "Lake Superior")}
+
 
 REPORTING_CHOICES = {
     ("verbal", "verbal"),

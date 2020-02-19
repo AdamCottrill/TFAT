@@ -47,6 +47,7 @@ THIRDPARTY_APPS = (
     #    'djgeojson',
     "leaflet",
     "django_filters",
+    "common",
 )
 
 

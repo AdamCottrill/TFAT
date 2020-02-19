@@ -8,6 +8,8 @@ from textwrap import wrap
 
 import html
 
+from common.models import Lake
+
 from .constants import (
     REPORTING_CHOICES,
     SEX_CHOICES,
@@ -213,7 +215,13 @@ class Recovery(models.Model):
     """
 
     report = models.ForeignKey(Report, related_name="Report", on_delete=models.CASCADE)
-    spc = models.ForeignKey(Species, related_name="Species", on_delete=models.CASCADE)
+    spc = models.ForeignKey(
+        Species, related_name="recoveries", on_delete=models.CASCADE
+    )
+
+    lake = models.ForeignKey(
+        Lake, related_name="recoveries", on_delete=models.CASCADE, default=1
+    )
 
     recovery_date = models.DateField(blank=True, null=True)
     date_flag = models.IntegerField("Date Flag", choices=DATE_FLAG_CHOICES, default=1)
@@ -243,7 +251,7 @@ class Recovery(models.Model):
     # multi-checkbox widget (ie - check all that apply - then calculate
     # clipc from that.)
     clipc = models.CharField("Clip Code", max_length=5, blank=True, null=True)
-    tagid = models.CharField(max_length=10, db_index=True)
+    tagid = models.CharField(max_length=20, db_index=True)
     _tag_origin = models.CharField(
         "Tag Origin",
         max_length=3,
@@ -606,6 +614,9 @@ class Project(models.Model):
     """A model to hold basic information about the project in which tags
     were deployed or recovered"""
 
+    lake = models.ForeignKey(
+        Lake, related_name="Projects", on_delete=models.CASCADE, default=1
+    )
     dbase = models.ForeignKey(Database, on_delete=models.CASCADE)
     year = models.IntegerField(db_index=True)
     prj_cd = models.CharField(db_index=True, max_length=12)
@@ -678,7 +689,7 @@ class Encounter(models.Model):
         "Sex", max_length=3, choices=SEX_CHOICES, default="9", null=True, blank=True
     )
     clipc = models.CharField(max_length=5, null=True, blank=True)
-    tagid = models.CharField(db_index=True, max_length=10)
+    tagid = models.CharField(db_index=True, max_length=20)
     tagdoc = models.CharField(db_index=True, max_length=6, null=True, blank=True)
     tagstat = models.CharField(
         db_index=True,

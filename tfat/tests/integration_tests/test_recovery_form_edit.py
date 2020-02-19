@@ -46,14 +46,14 @@ def db_setup():
     """
 
     report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.UTC)
-    spc = SpeciesFactory()
 
     angler = JoePublicFactory.create(first_name="Homer", last_name="Simpson")
-
+    spc = SpeciesFactory()
+    lake = LakeFactory()
     # associated tags to test conditional elements
     report = ReportFactory(reported_by=angler, follow_up=False, report_date=report_date)
 
-    recovery = RecoveryFactory(report=report, spc=spc)
+    recovery = RecoveryFactory(report=report, spc=spc, lake=lake)
 
 
 @pytest.fixture()
@@ -63,9 +63,16 @@ def tag_data():
     """
 
     spc = Species.objects.first()
+    lake = Lake.objects.first()
 
-    tag_data = {"tagdoc": "25012", "tagid": "1234", "spc": 1, "date_flag": 0}
-    tag_data["spc"] = spc.id
+    tag_data = {
+        "tagdoc": "25012",
+        "tagid": "1234",
+        "spc": spc.id,
+        "lake": lake.id,
+        "date_flag": 0,
+    }
+
     return tag_data
 
 

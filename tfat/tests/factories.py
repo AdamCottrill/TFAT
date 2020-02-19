@@ -2,6 +2,7 @@ import factory
 import pytz
 from datetime import datetime
 
+from common.models import Lake
 
 from tfat.models import (
     Species,
@@ -14,10 +15,20 @@ from tfat.models import (
 )
 
 
+class LakeFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = Lake
+        django_get_or_create = ("abbrev",)
+
+    abbrev = "HU"
+    lake_name = "Lake Huron"
+
+
 class SpeciesFactory(factory.DjangoModelFactory):
     # FACTORY_FOR = Species
     class Meta:
         model = Species
+        django_get_or_create = ("species_code",)
 
     species_code = "091"
     common_name = "Lake Whitefish"
@@ -57,6 +68,7 @@ class RecoveryFactory(factory.DjangoModelFactory):
 
     report = factory.SubFactory(ReportFactory)
     spc = factory.SubFactory(SpeciesFactory)
+    lake = factory.SubFactory(LakeFactory)
 
     recovery_date = datetime(2013, 10, 10).replace(tzinfo=pytz.UTC)
     general_location = "Off my dock"
@@ -93,6 +105,7 @@ class ProjectFactory(factory.DjangoModelFactory):
     prj_cd = "LHA_IS12_123"
     prj_nm = "My Fake Project"
     dbase = factory.SubFactory(DatabaseFactory)
+    lake = factory.SubFactory(LakeFactory)
 
     # slug = factory.LazyAttribute(lambda o: o.prj_cd.lower())
 

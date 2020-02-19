@@ -272,6 +272,7 @@ class RecoveryForm(ModelForm):
             "spc",
             "recovery_date",
             "date_flag",
+            "lake",
             "general_location",
             "specific_location",
             "dd_lat",
@@ -300,6 +301,7 @@ class RecoveryForm(ModelForm):
             "tagdoc": forms.TextInput(
                 attrs={"class": "form-control", "placeholder": "25012"}
             ),
+            "lake": forms.Select(attrs={"class": "form-control"}),
             "specific_location": forms.TextInput(attrs={"class": "form-control"}),
             "general_location": forms.TextInput(attrs={"class": "form-control"}),
             "dd_lat": forms.TextInput(attrs={"class": "form-control"}),
