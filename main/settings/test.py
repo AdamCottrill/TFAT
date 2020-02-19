@@ -6,6 +6,9 @@ import os
 
 from main.settings.base import *
 
+# eliminates naive error dates - not sure were the
+USE_TZ = False
+
 
 PASSWORD_HASHERS = ("django.contrib.auth.hashers.MD5PasswordHasher",)
 

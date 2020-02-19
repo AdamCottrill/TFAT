@@ -40,7 +40,7 @@
           </thead>
         {% for yr, counts in tags_recovered.items %}
         <tr>
-            <td><a href="{% url 'tags_recovered_in_year' yr %}">{{ yr }}</a> </td>
+            <td><a href="{% url 'tfat:tags_recovered_in_year' yr %}">{{ yr }}</a> </td>
             <td>{{ counts.omnr }}</td>
             <td>{{ counts.anglers }}</td>
         </tr>

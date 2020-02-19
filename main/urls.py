@@ -20,5 +20,5 @@ from tfat import urls as tfat_urls
 
 urlpatterns = [
     url(r"^admin/", admin.site.urls),
-    url(r"^tfat/", include(tfat_urls, namespace="tagging")),
+    url(r"^tfat/", include(tfat_urls, namespace="tfat")),
 ]

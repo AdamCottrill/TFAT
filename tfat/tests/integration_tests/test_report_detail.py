@@ -59,7 +59,7 @@ except ImportError:
 @pytest.fixture()
 def db_setup():
 
-    report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.UTC)
+    report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.timezone("Canada/Eastern"))
     spc = SpeciesFactory()
 
     angler1 = JoePublicFactory.create(first_name="Homer", last_name="Simpson")

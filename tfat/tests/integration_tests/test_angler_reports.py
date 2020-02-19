@@ -24,7 +24,8 @@ from datetime import datetime
 @pytest.fixture()
 def db_setup():
 
-    report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.UTC)
+    report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.timezone("Canada/Eastern"))
+
     spc = SpeciesFactory()
 
     angler1 = JoePublicFactory.create(
@@ -114,7 +115,7 @@ def test_report_date_in_anlger_reports(client, db_setup):
     """The data each report was filed on should appear on the angler reports
     page."""
 
-    report_date = datetime(2010, 10, 10)
+    report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.timezone("Canada/Eastern"))
 
     angler = JoePublic.objects.get(first_name="Homer")
     response = client.get(

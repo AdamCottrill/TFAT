@@ -58,7 +58,7 @@ def angler():
 
 @pytest.fixture()
 def report_date():
-    return datetime(2010, 10, 10).replace(tzinfo=pytz.UTC)
+    return datetime(2010, 10, 10).replace(tzinfo=pytz.timezone("Canada/Eastern"))
 
 
 @pytest.fixture()
@@ -146,7 +146,7 @@ def test_recovery_detail_dates(client, report, species, report_date):
     """Verify that we have links to the report's page, the report details
     page, and the form to edit the recovery information."""
 
-    recovery_date = datetime(2010, 9, 9)
+    recovery_date = datetime(2010, 9, 9).replace(tzinfo=pytz.timezone("Canada/Eastern"))
 
     recovery = RecoveryFactory(
         report=report, spc=species, recovery_date=recovery_date, date_flag=0

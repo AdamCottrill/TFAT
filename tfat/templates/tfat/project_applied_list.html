@@ -32,7 +32,7 @@
                         <table class="table">
                             {% for item in yr.list %}
                             <tr>
-                                <td><a href="{% url 'tags_applied_in_project' item.slug %}">{{ item.prj_cd }}</a> </td>
+                                <td><a href="{% url 'tfat:tags_applied_in_project' item.slug %}">{{ item.prj_cd }}</a> </td>
                                 <td>{{ item.prj_nm }} (n={{ item.tags }})</td>
 
                             </tr>

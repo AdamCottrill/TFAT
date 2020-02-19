@@ -8,20 +8,27 @@ output: word_document
 
 `r format(Sys.time(), '%B %d, %Y')`
 
-
 ```{r general info, echo=FALSE, include=FALSE}
+
 
 #load the required packages
 library(RPostgreSQL)
 library(sp)
-library(ggplot2)
-library(ggmap)
+library(leaflet)
+library(htmlwidgets)
+library(webshot)
+#library(ggplot2)
+#library(ggmap)
 
-ZOOM <- params$ZOOM
+
+#set image size for map (higher the numbers the wider area the image will cover)
+MAPWIDTH <- params$MAPWIDTH
+MAPHEIGHT <- params$MAPHEIGHT
 RECOVERY_EVENT <- params$RECOVERY_EVENT
 
 
-
+map.namehtml <- file.path(getwd(), sprintf("_Map-%s.html", RECOVERY_EVENT))
+map.namepng <- file.path(getwd(), sprintf("_Map-%s.png", RECOVERY_EVENT))
 
 #set up a connection to the database
 pg = dbDriver("PostgreSQL")
@@ -173,8 +180,8 @@ Tag #`r tagid`, Gender: `r sex`
 
 This `r species_name` was initially tagged on
 `r format(tagging_event$observation_date, "%B %d, %Y")`, at
-`r sprintf("%.3f", tagging_event$dd_lat) `°N
-`r sprintf("%.3f", tagging_event$dd_lon) `°W, about
+`r sprintf("%.3f", tagging_event$dd_lat) `Â°N
+`r sprintf("%.3f", tagging_event$dd_lon) `Â°W, about
 `r delta_km ` km from the reported recapture location. At that time, this
 `r species_name` had a total length of `r tagging_event$tlen` mm, and
 weighed `r tagging_event$rwt` g. This `r species_name` had been at large
@@ -197,40 +204,25 @@ Sincerely,
 
 center_pt <- (start + finish)/2
 
-#create map from Google Maps
-mapImageData1 <- get_map(location = c(lon = center_pt[1],
-                                      lat = center_pt[2]),
-                         zoom = ZOOM,
-                         source = "google",
-                         maptype = "roadmap",
-                         scale = 2)
+icon.tag <- makeAwesomeIcon(icon = "tag", markerColor = "red")
 
-map <- ggmap(mapImageData1,
-             extent = "device",
-             ylab = "Latitude",
-             xlab = "Longitude",
-             legend = "topright")
+map <- leaflet()
+map <- addTiles(map)
+map <- addProviderTiles(map, "OpenStreetMap.Mapnik")
+#tagging event
+map <- addAwesomeMarkers(map, lng=tagging_event$dd_lon,
+  lat=tagging_event$dd_lat, icon = icon.tag)
+#recovery event
+map <- addCircleMarkers(map, lng=tag_report$dd_lon, lat=tag_report$dd_lat,
+  opacity=1, color = "purple")
 
-map <- map + geom_point(data = tagging_event,
-                        aes(x = dd_lon, y = dd_lat),
-                        color = "purple", shape = 16, size = 3) +
-  geom_point(data = tag_report,
-             aes(x = dd_lon, y = dd_lat), color = "red",
-             shape = 17,  size = 3)
-
-map <- ggplot_build(map)
+saveWidget(map, map.namehtml , selfcontained = TRUE)
+webshot(map.namehtml, file=map.namepng, vwidth = MAPWIDTH, vheight = MAPHEIGHT)
 
 ```
 
-```{r create_map, echo = FALSE, results ='hide', include = FALSE}
-
-png(filename = "./_maps/foobar.png", width = 480, height = 480, units = "px",
-    pointsize = 12, bg = "white", res = NA, restoreConsole = TRUE)
-print(map, justify = "centered")
-
-dev.off()
-
+```{r print map, echo=FALSE,include=TRUE, fig.class= 'center'}
+pic <- png::readPNG(map.namepng, native=TRUE, info=TRUE)
+grid::grid.raster(pic, just = "centre")
 ```
-
-![Figure 1: Map indicating the original tag location (purple circle),
-and the recapture location (red triangle).](./_maps/foobar.png)
+Figure 1: Map indicating the original tag location (red tag marker), and the recapture location (purple circle).

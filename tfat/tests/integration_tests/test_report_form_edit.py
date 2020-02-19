@@ -59,7 +59,7 @@ def db_setup():
     """Create some users with easy to remember names.
     """
 
-    report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.UTC)
+    report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.timezone("Canada/Eastern"))
 
     spc = SpeciesFactory()
 

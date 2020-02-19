@@ -21,7 +21,7 @@
         <h2>Tags applied in {{ year }}  (N = {{ applied|length }})</h2>
     </div>
 
-      <p>A summary of tags recovered in {{ year }} can be found <a href= "{% url 'tags_recovered_in_year' year %}" >here.</a></p>
+      <p>A summary of tags recovered in {{ year }} can be found <a href= "{% url 'tfat:tags_recovered_in_year' year %}" >here.</a></p>
 
 
     {% if applied %}
@@ -78,7 +78,7 @@
                 <tbody>
                     {% for object in applied %}
                     <tr>
-                        <td> <a href="{% url 'tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
+                        <td> <a href="{% url 'tfat:tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
                         <td> {{ object.spc.common_name }} </td>
                         <td> {{ object.observation_date }} </td>
                         <td> {{ object.grid }} </td>
@@ -90,7 +90,7 @@
                         <td class="imperial"> {{ object.tlen_inches }} </td>
                         <td class="metric"> {{ object.rwt|intcomma }} </td>
                         <td class="imperial"> {{ object.pounds }} </td>
-                        <td><a href="{% url 'tags_applied_in_project' object.project.slug %}">{{ object.project.prj_cd }}</a> </td>
+                        <td><a href="{% url 'tfat:tags_applied_in_project' object.project.slug %}">{{ object.project.prj_cd }}</a> </td>
 
                         <td> {{ object.project.prj_nm }} </td
 
