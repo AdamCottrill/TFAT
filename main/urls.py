@@ -21,6 +21,7 @@ from tfat import urls as tfat_urls
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("users/", include("myusers.urls")),
     path("tfat/", include(tfat_urls, namespace="tfat")),
 ]
 

@@ -1,7 +1,11 @@
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
+from django.utils import timezone
 from django.template.defaultfilters import slugify
+
+from django.conf import settings
+
 
 import os
 from textwrap import wrap
@@ -198,6 +202,51 @@ class Report(models.Model):
         tags = self.Report.select_related()
         tags = [x for x in tags if x.dd_lat and x.dd_lon]
         return tags
+
+    def follow_up_status(self):
+        """Get the the most recent follow up object.
+
+        Arguments:
+        - `self`:
+        """
+        return self.follups.order_by("-status").first()
+
+
+class ReportFollowUp(models.Model):
+    """A table to hold the response letter(s) associted with a tag
+    recovery event."""
+
+    report = models.ForeignKey(
+        Report, related_name="followups", on_delete=models.CASCADE
+    )
+
+    comment = models.TextField(blank=True, null=True)
+    create_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField()
+
+    STATUS_CHOICES = [
+        (0, "Not Requested"),
+        (10, "Requested"),
+        (20, "Intialized"),
+        (30, "Completed"),
+    ]
+
+    status = models.PositiveIntegerField(
+        "Tag Origin", db_index=True, choices=STATUS_CHOICES, default=0
+    )
+
+    class Meta:
+        unique_together = ["id", "status"]
+
+    def save(self, *args, **kwargs):
+        """ On save, update timestamps """
+        self.timestamp = timezone.now()
+        return super(ReportFollowUp, self).save(*args, **kwargs)
+
+    def __str__(self):
+        """return the complete file name as the string repr"""
+
+        return "ReportFollowup_{}-{}".format(self.report.id, self.get_status_display)
 
 
 class Recovery(models.Model):

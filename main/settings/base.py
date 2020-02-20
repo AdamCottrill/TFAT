@@ -47,6 +47,7 @@ THIRDPARTY_APPS = (
     #    'djgeojson',
     "leaflet",
     "django_filters",
+    "myusers",
     "common",
 )
 
@@ -98,6 +99,16 @@ USE_L10N = True
 
 USE_TZ = True
 TIME_ZONE = "Canada/Eastern"
+
+AUTH_USER_MODEL = "myusers.CustomUser"
+
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "home"
+LOGOUT_REDIRECT_URL = "home"
+
+# EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+# EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_mails')
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
