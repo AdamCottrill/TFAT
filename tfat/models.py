@@ -186,7 +186,7 @@ class Report(models.Model):
         Arguments:
         - `self`:
         """
-        tags = self.Report.select_related("spc")
+        tags = self.recoveries.select_related("spc")
         return tags
 
     def get_recoveries_with_latlon(self):
@@ -199,17 +199,19 @@ class Report(models.Model):
 
         """
 
-        tags = self.Report.select_related()
+        tags = self.recoveries.select_related()
         tags = [x for x in tags if x.dd_lat and x.dd_lon]
         return tags
 
+    @property
     def follow_up_status(self):
         """Get the the most recent follow up object.
 
         Arguments:
         - `self`:
         """
-        return self.follups.order_by("-status").first()
+
+        return self.followups.order_by("status").first()
 
 
 class ReportFollowUp(models.Model):
@@ -221,22 +223,31 @@ class ReportFollowUp(models.Model):
     )
 
     comment = models.TextField(blank=True, null=True)
-    create_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     timestamp = models.DateTimeField()
 
     STATUS_CHOICES = [
-        (0, "Not Requested"),
-        (10, "Requested"),
-        (20, "Intialized"),
-        (30, "Completed"),
+        # (0, "Not Requested"),
+        ("requested", "Requested"),
+        ("initialized", "Initialized"),
+        ("completed", "Completed"),
     ]
 
-    status = models.PositiveIntegerField(
-        "Tag Origin", db_index=True, choices=STATUS_CHOICES, default=0
+    status = models.CharField(
+        "Follow Up Status",
+        max_length=12,
+        db_index=True,
+        choices=STATUS_CHOICES,
+        default="requested",
     )
 
     class Meta:
-        unique_together = ["id", "status"]
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=["report", "status"], name="unique report_status"
+            )
+        ]
 
     def save(self, *args, **kwargs):
         """ On save, update timestamps """
@@ -246,7 +257,7 @@ class ReportFollowUp(models.Model):
     def __str__(self):
         """return the complete file name as the string repr"""
 
-        return "ReportFollowup_{}-{}".format(self.report.id, self.get_status_display)
+        return "ReportFollowup_{}-{}".format(self.report.id, self.get_status_display())
 
 
 class Recovery(models.Model):
@@ -263,7 +274,9 @@ class Recovery(models.Model):
 
     """
 
-    report = models.ForeignKey(Report, related_name="Report", on_delete=models.CASCADE)
+    report = models.ForeignKey(
+        Report, related_name="recoveries", on_delete=models.CASCADE
+    )
     spc = models.ForeignKey(
         Species, related_name="recoveries", on_delete=models.CASCADE
     )

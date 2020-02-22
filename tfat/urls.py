@@ -17,6 +17,8 @@ from tfat.views import (
     tagid_quicksearch_view,
     encounter_detail_view,
     create_report,
+    create_report_followup,
+    report_follow_ups,
     edit_report,
     report_detail_view,
     create_recovery,
@@ -140,6 +142,12 @@ urlpatterns = [
     url(
         regex=r"^edit_report/(?P<report_id>\d+)/$", view=edit_report, name="edit_report"
     ),
+    url(
+        regex=r"^report_followup/(?P<report_id>\d+)/$",
+        view=create_report_followup,
+        name="create_report_followup",
+    ),
+    url(regex=r"^report_followups/$", view=report_follow_ups, name="report_follow_ups"),
     # TAG RECOVERIES
     url(
         regex=r"^create_recovery/(?P<report_id>\d+)/$",

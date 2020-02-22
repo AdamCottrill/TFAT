@@ -2,17 +2,31 @@ import factory
 import pytz
 from datetime import datetime
 
+from myusers.models import CustomUser as User
 from common.models import Lake
 
 from tfat.models import (
     Species,
     JoePublic,
     Report,
+    ReportFollowUp,
     Recovery,
     Encounter,
     Database,
     Project,
 )
+
+
+class UserFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = User
+        django_get_or_create = ("email",)
+
+    first_name = "Micky"
+    last_name = "Mouse"
+    username = "mmouse"
+    email = "micky@disney.com"
+    password = "Abcd1234"
 
 
 class LakeFactory(factory.DjangoModelFactory):
@@ -60,6 +74,16 @@ class ReportFactory(factory.DjangoModelFactory):
     reported_by = factory.SubFactory(JoePublicFactory)
     report_date = datetime(2013, 11, 11).replace(tzinfo=pytz.UTC)
     reporting_format = "e-mail"
+
+
+class ReportFollowUpFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = ReportFollowUp
+
+    report = factory.SubFactory(JoePublicFactory)
+    created_by = factory.SubFactory(UserFactory)
+    status = 10
+    comment = "This is a followup comment."
 
 
 class RecoveryFactory(factory.DjangoModelFactory):

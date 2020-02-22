@@ -80,6 +80,7 @@ def test_can_create_recovery_url(client, db_setup):
 
     report = Report.objects.get(reported_by__first_name="Homer")
     url = reverse("tfat:create_recovery", kwargs={"report_id": report.id})
+
     response = client.get(url)
     assert response.status_code == 200
     content = str(response.content)

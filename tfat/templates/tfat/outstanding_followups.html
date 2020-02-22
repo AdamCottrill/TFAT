@@ -1,0 +1,106 @@
+{% extends "tfat/tfat_base.html" %}
+
+{% block content %}
+    <div class="container">
+
+        <div class="row">
+            <h1>Outstanding Report Follow-ups{% if  lake %} for {{ lake }}{% endif %} </h2>
+        </div>
+
+        <br />
+
+        <h2>Tag Recoveries Requiring Spatial Follow-up</h2>
+
+
+        <div class="panel panel-default">
+            <div class="panel-body">
+       
+        
+        <div class="alert alert-info" role="alert">
+            <p>Tag recoveries on this panel have good spatial descriptions but lack coordinates.
+                Do you know where any of these places are? If so, please update the recovery records.</p>
+        </div>
+
+        {% if spatial %}
+
+            <div class="row">
+                <div class="col-md-12">
+                    <table id="myTable" class="table tablesorter">
+                        <thead><tr>
+                            <td>Tag Number</td>
+                            <td>Species</td>
+                            <td>Recovery Date</td>
+                            <td>General Location</td>
+                            <td>Specific Location</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {% for object  in spatial %}
+                                <tr class="{% cycle 'row1' 'row2' %}">
+                                    <td> <a href="{% url 'tfat:recovery_detail'  object.id  %}">{{ object.tagid }}</a> </td>
+                                    <td> {{ object.spc.common_name | title }} </td>
+                                    <td> {{ object.recovery_date }} </td>
+                                    <td> {{ object.general_location }} </td>
+                                    <td> {{ object.specific_location }} </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+        {% else %}
+            <div class="alert alert-success" role="alert">
+                <p>There are currently no tags requiring spatial follow-up. Congratulations!</p>
+            </div>
+            <br />
+        {% endif %}
+
+
+            </div>
+        </div>
+
+        <br/>
+        
+        <h2>Initiated Report Follow-ups</h2>
+
+        <div class="alert alert-warning" role="alert">
+            <p>Tag recovery reports in this list have an outstand follow-up that needs to be complete.
+                Please review the report detail to see progress to date.
+            </p>
+        </div>
+        
+        {% if initiated %}
+
+            {% for object in initiated %}
+                {% include "tfat/_report_panel.html" with object=object %}
+            {% endfor %}
+            
+        {% else  %}
+
+            <h4>Congratulations!  There are currently no reports with follow-ups
+                that have been initiated and need to be completed.</h4>           
+        {% endif %}
+        
+        <br/>
+        
+        <h2>Uninitiated Report Follow-ups</h2>
+
+        <div class="alert alert-danger" role="alert">
+            <p>Tag recovery reports in this list have an outstand follow-up request that needs to be addressed.</p>
+        </div>
+        
+        {% if requested %}
+
+            {% for object in requested %}
+                {% include "tfat/_report_panel.html" with object=object %}
+            {% endfor %}
+
+            {% else  %}
+            <h4>Congratulations!  There are currently no reports with incomplete or unintiated follow-ups.</h4>           
+        {% endif %}
+
+    </div>
+
+
+{% endblock %}

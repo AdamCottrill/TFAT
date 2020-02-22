@@ -16,7 +16,7 @@ from django import forms
 from django.forms import ModelForm
 from django.forms.widgets import HiddenInput
 from django.db.models.fields import BLANK_CHOICE_DASH
-from tfat.models import JoePublic, Report, Recovery
+from tfat.models import JoePublic, Report, Recovery, ReportFollowUp
 
 from datetime import datetime
 import pytz
@@ -109,6 +109,36 @@ class CreateJoePublicForm(JoePublicForm):
             )
             raise forms.ValidationError(msg.format(first_name, last_name))
         return cleaned_data
+
+
+class ReportFollowUpForm(ModelForm):
+    """A form to capture information about the status of a report follow-up"""
+
+    class Meta:
+        model = ReportFollowUp
+        fields = [
+            "status",
+            "comment",
+            # hidden fields:
+            # "report",
+            # "submitted_by",
+        ]
+
+        widgets = {
+            "status": forms.Select(attrs={"class": "form-control"}),
+            "comment": forms.Textarea(attrs={"class": "form-control", "rows": 10}),
+        }
+
+        # def __init__(self, *args, **kwargs):
+        #     # we need to instantiate the form with a user and a report
+        #     self.report_id = kwargs.pop("report_id")
+        #     super(ReportFollowUpForm, self).__init__(*args, **kwargs)
+
+        # def save(self, report, *args, **kwargs):
+        #     followup = super(ReportFollowUpForm, self).save(commit=False)
+        #     followup.report = report
+        #     followup.save()
+        #     return followup
 
 
 class ReportForm(ModelForm):

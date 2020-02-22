@@ -1,4 +1,4 @@
-'''
+"""
 =============================================================
 c:/1work/Python/djcode/tfat/tfat/templatetags/tfat_tags.py
 Created: 25 Aug 2015 15:19:00
@@ -10,7 +10,7 @@ DESCRIPTION:
 
 A. Cottrill
 =============================================================
-'''
+"""
 
 
 from django import template
@@ -18,11 +18,12 @@ from django.utils.safestring import mark_safe
 
 register = template.Library()
 
+
 def dd2ddm(x):
-    '''A little helper function that takes a coordinate in decimal
+    """A little helper function that takes a coordinate in decimal
     degrees and splits it into degrees, decimal minutes.  Values are
     returned as a dictionary that can then be used in string
-    formatting'''
+    formatting"""
 
     from math import floor
 
@@ -33,7 +34,7 @@ def dd2ddm(x):
     minutes = (x - degrees) * 60
     degrees = degrees * negative
 
-    return({'degrees':degrees, 'minutes':minutes})
+    return {"degrees": degrees, "minutes": minutes}
 
 
 @register.filter(is_safe=True)
@@ -56,3 +57,32 @@ def ddm(x, digits=3):
         return mark_safe(base_string.format(**ddm_dict))
     except TypeError:
         return x
+
+
+@register.filter(is_safe=True)
+def status_button_class(x):
+    """A little helper function that takes a status value and returns a
+    bootstrap button class so that report follow up are displayed
+    consistently across the site.
+
+    Options here reflect status choices in tfat.models:
+
+    STATUS_CHOICES = [
+        # (0, "Not Requested"),
+        ("requested", "Requested"),
+        ("initialized", "Initialized"),
+        ("completed", "Completed"),
+    ]
+
+    """
+
+    if x == "requested":
+        btnClass = "btn-danger"
+    elif x == "initialized":
+        btnClass = "btn-warning"
+    elif x == "completed":
+        btnClass = "btn-success"
+    else:
+        btnClass = "btn-default"
+
+    return btnClass

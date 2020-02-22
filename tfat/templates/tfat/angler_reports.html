@@ -41,7 +41,7 @@
             {% url 'tfat:report_a_tag_create_report' angler_id=angler.id as new_report_url %}
             {% else %}
             {% url 'tfat:create_report' angler_id=angler.id as new_report_url %}
-            {% endif %}
+           {% endif %}
 
                         <a class="btn btn-primary"
                            href="{{ new_report_url }}"
@@ -137,11 +137,22 @@
                         {{ report.grouper|date:"M d, Y" }}
                     </div>
                     {% with report.list|first as recovery1 %}
-                    {% if recovery1.report.follow_up %}
-                    <div class="col-md-2" >
-                        <button type="button" class="btn btn-danger btn-xs pull-right">Follow-up Required</button>
-                    </div>
-                    {% endif %}
+
+                        
+                        {% if recovery1.report.follow_up_status %}
+                            <div class="col-md-2" >
+                                {% if recovery1.report.follow_up_status.status == 'requested' or recovery1.report.follow_up_status.status == 'initiated' %}
+                            
+                            <a class="btn btn-danger  btn-xs"
+                               href="{% url 'tfat:create_report_followup' report_id=recovery1.report.id %}"
+                               role="button">Follow-up Required</a>
+
+                        {% else %}
+                            <button class="btn btn-success  btn-xs pull-right" role="button">Follow-up Complete</button>
+                                {% endif %}
+                            </div>
+                    {% endif %}                            
+                    
                     <div class="col-md-2" >
                         <a class="btn btn-default btn-xs pull-right"
                            href="{% url 'tfat:report_detail' report_id=recovery1.report.id %}"

@@ -18,11 +18,14 @@ from django.urls import include, path
 from django.contrib import admin
 
 from tfat import urls as tfat_urls
+from tfat.views import tags_recovered_this_year
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("users/", include("myusers.urls")),
+    path("accounts/", include("django.contrib.auth.urls")),
     path("tfat/", include(tfat_urls, namespace="tfat")),
+    path("", tags_recovered_this_year, name="home"),
 ]
 
 if settings.DEBUG:

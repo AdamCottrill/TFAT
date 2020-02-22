@@ -29,6 +29,8 @@ def db_setup():
     - `db`:
     """
 
+    user = UserFactory()
+
     report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.UTC)
 
     spc = SpeciesFactory()
@@ -41,12 +43,15 @@ def db_setup():
 
     # report filed by Homer
     report = ReportFactory(reported_by=angler1, report_date=report_date)
+
     tagids = ["111111", "222222", "333333"]
     for tag in tagids:
         recovery = RecoveryFactory(report=report, spc=spc, tagid=tag)
 
     # a report filed by Monty Burns
     report = ReportFactory(reported_by=angler2, follow_up=True, report_date=report_date)
+
+    followup = ReportFollowUpFactory(report=report, created_by=user, status="requested")
 
     tagids = ["4444", "5555", "6666"]
     for tag in tagids:
@@ -98,6 +103,7 @@ def test_follow_up_in_tag_report_list(client, db_setup):
 
     response = client.get(reverse("tfat:recovery_report_list"))
     content = str(response.content)
+
     assert "Follow-up Required" in content
 
 
@@ -109,8 +115,10 @@ def test_follow_up_not_in_tag_report_list(client, db_setup):
 
     # get the only report with a follow required and update it
     report = Report.objects.get(reported_by__last_name="Burns")
-    report.follow_up = False
-    report.save()
+
+    user = UserFactory()
+    followup = ReportFollowUpFactory(report=report, created_by=user, status="completed")
+    followup.save()
 
     # verify that follow-up required is not in the list now:
     response = client.get(reverse("tfat:recovery_report_list"))

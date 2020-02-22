@@ -11,3 +11,4 @@ htmlcov/*
 static/*
 media/*
 docs/*
+tfat/tests/integration_tests/htmlcov

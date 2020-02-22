@@ -85,12 +85,34 @@ def db_setup():
 
 
 @pytest.mark.django_db
+def test_report_edit_requires_login(client, db_setup):
+    """If an unauthorized user tries to access the edit report url, he or
+    she should be redirected to the login page.
+
+    Arguments:
+    - `client`:
+    - `dbsetup`:
+
+"""
+
+    report = Report.objects.get(reported_by__first_name="Homer")
+    url = reverse("tfat:edit_report", kwargs={"report_id": report.id})
+
+    response = client.get(url)
+    assert response.status_code == 302
+
+
+@pytest.mark.django_db
 def test_edit_report_url(client, db_setup):
     """Verify that the form and its correct elements are rendered when we
     call the edit_report form and all of the appropriate elements are there"""
 
     report = Report.objects.get(reported_by__first_name="Homer")
     url = reverse("tfat:edit_report", kwargs={"report_id": report.id})
+
+    user = UserFactory()
+    client.force_login(user)
+
     response = client.get(url)
     assert response.status_code == 200
     assert "tfat/report_form.html" in [x.name for x in response.templates]
@@ -111,6 +133,9 @@ def test_edit_report_url_404(client, db_setup):
     should get a 404 error."""
 
     url = reverse("tfat:edit_report", kwargs={"report_id": 9999999})
+
+    user = UserFactory()
+    client.force_login(user)
     response = client.get(url)
     assert response.status_code == 404
 
@@ -125,6 +150,9 @@ def test_edit_report_post_url(client, db_setup):
     url = reverse("tfat:edit_report", kwargs={"report_id": report.id})
 
     data = {}
+
+    user = UserFactory()
+    client.force_login(user)
 
     response = client.post(url, data, follow=True)
 
@@ -146,6 +174,9 @@ def test_edit_report_change_date(client, db_setup):
 
     data = {"report_date": last_week}
 
+    user = UserFactory()
+    client.force_login(user)
+
     response = client.post(url, data, follow=True)
 
     report = Report.objects.get(reported_by__first_name="Homer")
@@ -161,6 +192,9 @@ def test_edit_report_change_invalid_date(client, db_setup):
     url = reverse("tfat:edit_report", kwargs={"report_id": report.id})
 
     data = {"report_date": "not a date"}
+
+    user = UserFactory()
+    client.force_login(user)
 
     response = client.post(url, data)
 
@@ -178,6 +212,9 @@ def test_edit_report_change_future_date(client, db_setup):
     url = reverse("tfat:edit_report", kwargs={"report_id": report.id})
 
     data = {"report_date": next_week}
+
+    user = UserFactory()
+    client.force_login(user)
 
     response = client.post(url, data, follow=True)
 
@@ -202,6 +239,9 @@ def test_edit_report_change_date_flag(client, db_setup):
 
     data = {"date_flag": should_be}
 
+    user = UserFactory()
+    client.force_login(user)
+
     response = client.post(url, data, follow=True)
 
     # check the report in the database:
@@ -219,6 +259,9 @@ def test_edit_report_change_format_to_dcr_without_dcr_number(client, db_setup):
 
     data = {"reporting_format": "dcr"}
 
+    user = UserFactory()
+    client.force_login(user)
+
     response = client.post(url, data)
 
     content = str(response.content)
@@ -234,6 +277,9 @@ def test_edit_report_change_format_to_dcr_without_eff_number(client, db_setup):
     url = reverse("tfat:edit_report", kwargs={"report_id": report.id})
 
     data = {"reporting_format": "dcr", "dcr": "DCR1234"}
+
+    user = UserFactory()
+    client.force_login(user)
 
     response = client.post(url, data)
 
@@ -255,6 +301,9 @@ def test_edit_report_change_format_to_dcr_with_dcr_eff(client, db_setup):
 
     data = {"reporting_format": "dcr", "dcr": dcr, "effort": effort}
 
+    user = UserFactory()
+    client.force_login(user)
+
     response = client.post(url, data, follow=True)
 
     # check the report in the database:
@@ -274,6 +323,9 @@ def test_edit_report_change_format_from_dcr_with_eff(client, db_setup):
     url = reverse("tfat:edit_report", kwargs={"report_id": report.id})
 
     data = {"reporting_format": "verbal", "dcr": "", "effort": "001"}
+
+    user = UserFactory()
+    client.force_login(user)
 
     response = client.post(url, data)
 
@@ -295,6 +347,9 @@ def test_edit_report_change_format_from_dcr_with_dcr(client, db_setup):
 
     data = {"reporting_format": "verbal", "dcr": "DCR1234", "effort": ""}
 
+    user = UserFactory()
+    client.force_login(user)
+
     response = client.post(url, data)
 
     content = str(response.content)
@@ -314,7 +369,8 @@ def test_edit_report_change_format_from_dcr(client, db_setup):
     url = reverse("tfat:edit_report", kwargs={"report_id": report.id})
 
     data = {"reporting_format": "verbal", "dcr": "", "effort": ""}
-
+    user = UserFactory()
+    client.force_login(user)
     response = client.post(url, data)
 
     # check the report in the database:
@@ -336,6 +392,9 @@ def test_edit_report_change_comment(client, db_setup):
 
     data = {"comment": after}
 
+    user = UserFactory()
+    client.force_login(user)
+
     response = client.post(url, data)
 
     report = Report.objects.get(reported_by__first_name="Homer")
@@ -356,6 +415,9 @@ def test_edit_report_change_follow_up(client, db_setup):
 
     data = {"follow_up": True}
 
+    user = UserFactory()
+    client.force_login(user)
+
     response = client.post(url, data)
 
     report = Report.objects.get(reported_by__first_name="Homer")
@@ -375,6 +437,9 @@ def test_edit_report_add_file(client, db_setup):
 
     report = Report.objects.get(reported_by__first_name="Montgomery")
     assert report.associated_file.name == ""
+
+    user = UserFactory()
+    client.force_login(user)
 
     url = reverse("tfat:edit_report", kwargs={"report_id": report.id})
     response = client.post(url, data, follow=True)

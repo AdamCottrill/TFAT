@@ -24,6 +24,8 @@ from datetime import datetime
 @pytest.fixture()
 def db_setup():
 
+    user = UserFactory()
+
     report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.timezone("Canada/Eastern"))
 
     spc = SpeciesFactory()
@@ -50,6 +52,8 @@ def db_setup():
 
     # a report filed by Monty Burns
     report = ReportFactory(reported_by=angler2, follow_up=True, report_date=report_date)
+
+    followup = ReportFollowUpFactory(report=report, created_by=user, status="requested")
 
     tagids = ["4444", "5555", "6666"]
     for tag in tagids:
@@ -176,6 +180,7 @@ def test_report_follow_up_in_response(client, db_setup):
         reverse("tfat:angler_reports", kwargs={"angler_id": angler.id})
     )
     content = str(response.content)
+
     assert "Follow-up Required" in content
 
 

@@ -54,6 +54,24 @@ def db_setup():
 
 
 @pytest.mark.django_db
+def test_report_create_requires_login(client, db_setup):
+    """If an unauthorized user tries to access the edit report url, he or
+    she should be redirected to the login page.
+
+    Arguments:
+    - `client`:
+    - `dbsetup`:
+
+"""
+
+    angler = JoePublic.objects.get(first_name="Barney")
+    url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
+
+    response = client.get(url)
+    assert response.status_code == 302
+
+
+@pytest.mark.django_db
 def test_create_report_url(client, db_setup):
     """Verify that the form rendered with status code 200 and uses teh
     correct template.
@@ -61,7 +79,11 @@ def test_create_report_url(client, db_setup):
 
     angler = JoePublic.objects.get(first_name="Barney")
 
+    user = UserFactory()
+    client.force_login(user)
+
     url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
+
     response = client.get(url)
     assert response.status_code == 200
     assert "tfat/report_form.html" in [x.name for x in response.templates]
@@ -77,6 +99,10 @@ def test_create_report_elements(client, db_setup):
     angler = JoePublic.objects.get(first_name="Barney")
 
     url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
+
+    user = UserFactory()
+    client.force_login(user)
+
     response = client.get(url)
 
     content = str(response.content)
@@ -97,6 +123,10 @@ def test_create_report_url_404(client, db_setup):
     should get a 404 error."""
 
     url = reverse("tfat:create_report", kwargs={"angler_id": 9999999})
+
+    user = UserFactory()
+    client.force_login(user)
+
     response = client.get(url)
     assert response.status_code == 404
 
@@ -113,6 +143,10 @@ def test_create_report_minimal_data(client, db_setup):
     angler = JoePublic.objects.get(first_name="Barney")
     url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
     data = {"reported_by": angler.id}
+
+    user = UserFactory()
+    client.force_login(user)
+
     response = client.post(url, data, follow=True)
 
     assert response.status_code == 200
@@ -141,6 +175,10 @@ def test_create_report_invalid_date(client, db_setup):
     data = {"reported_by": angler.id, "report_date": "not a date"}
 
     url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
+
+    user = UserFactory()
+    client.force_login(user)
+
     response = client.post(url, data, follow=True)
 
     content = str(response.content)
@@ -159,6 +197,10 @@ def test_create_report_future_date(client, db_setup):
     data = {"reported_by": angler.id, "report_date": next_week}
 
     url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
+
+    user = UserFactory()
+    client.force_login(user)
+
     response = client.post(url, data, follow=True)
 
     content = str(response.content)
@@ -180,6 +222,9 @@ def test_create_report_dcr_complete(client, db_setup):
         "effort": "001",
     }
 
+    user = UserFactory()
+    client.force_login(user)
+
     response = client.post(url, data, follow=True)
 
     report = Report.objects.get(reported_by__first_name="Barney")
@@ -199,6 +244,9 @@ def test_create_report_dcr_missing_dcr_number(client, db_setup):
 
     data = {"reported_by": angler.id, "reporting_format": "dcr", "effort": "001"}
 
+    user = UserFactory()
+    client.force_login(user)
+
     response = client.post(url, data, follow=True)
 
     content = str(response.content)
@@ -215,6 +263,9 @@ def test_create_report_dcr_missing_effort_number(client, db_setup):
     url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
 
     data = {"reported_by": angler.id, "reporting_format": "dcr", "dcr": "DCR1234"}
+
+    user = UserFactory()
+    client.force_login(user)
 
     response = client.post(url, data, follow=True)
 
@@ -236,6 +287,9 @@ def test_create_report_not_dcr_with_effort_number(client, db_setup):
 
     data = {"reported_by": angler.id, "reporting_format": "verbal", "effort": "001"}
 
+    user = UserFactory()
+    client.force_login(user)
+
     response = client.post(url, data, follow=True)
 
     content = str(response.content)
@@ -255,6 +309,9 @@ def test_create_report_not_dcr_with_dcr_number(client, db_setup):
     url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
 
     data = {"reported_by": angler.id, "reporting_format": "verbal", "dcr": "DCR1234"}
+
+    user = UserFactory()
+    client.force_login(user)
 
     response = client.post(url, data, follow=True)
 
@@ -276,6 +333,10 @@ def test_create_report_with_file(client, db_setup):
     angler = JoePublic.objects.get(first_name="Barney")
     url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
     data = {"reported_by": angler.id, "associated_file": mock_file}
+
+    user = UserFactory()
+    client.force_login(user)
+
     response = client.post(url, data, follow=True)
 
     content = str(response.content)
@@ -295,6 +356,10 @@ def test_create_report_with_comment(client, db_setup):
     angler = JoePublic.objects.get(first_name="Barney")
     url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
     data = {"reported_by": angler.id, "comment": "My Fake Comment"}
+
+    user = UserFactory()
+    client.force_login(user)
+
     response = client.post(url, data, follow=True)
 
     # query the database and make sure the data is how we expect it.
@@ -310,6 +375,10 @@ def test_create_report_with_follow_up(client, db_setup):
     angler = JoePublic.objects.get(first_name="Barney")
     url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
     data = {"reported_by": angler.id, "follow_up": True}
+
+    user = UserFactory()
+    client.force_login(user)
+
     response = client.post(url, data, follow=True)
 
     # query the database and make sure the data is how we expect it.
@@ -328,6 +397,10 @@ def test_report_at_tag_create_report_url(client, db_setup):
     angler = JoePublic.objects.get(first_name="Barney")
 
     url = reverse("tfat:report_a_tag_create_report", kwargs={"angler_id": angler.id})
+
+    user = UserFactory()
+    client.force_login(user)
+
     response = client.get(url)
     assert response.status_code == 200
 
@@ -340,6 +413,10 @@ def test_report_at_tag_create_report_url(client, db_setup):
     angler = JoePublic.objects.get(first_name="Barney")
 
     url = reverse("tfat:report_a_tag_create_report", kwargs={"angler_id": angler.id})
+
+    user = UserFactory()
+    client.force_login(user)
+
     response = client.get(url)
     content = str(response.content)
 
@@ -352,5 +429,9 @@ def test_report_a_tag_create_report_url_404(client, db_setup):
     should get a 404 error."""
 
     url = reverse("tfat:report_a_tag_create_report", kwargs={"angler_id": 9999999})
+
+    user = UserFactory()
+    client.force_login(user)
+
     response = client.get(url)
     assert response.status_code == 404

@@ -2,8 +2,9 @@ from django.conf import settings
 
 # from django.core.servers.basehttp import FileWrapper
 from wsgiref.util import FileWrapper
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Subquery
 from django.http import Http404, HttpResponse
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, get_list_or_404
 from django.shortcuts import render, redirect
 from django.template import RequestContext
@@ -21,9 +22,23 @@ from datetime import datetime
 from geojson import MultiLineString
 
 from tfat.constants import CLIP_CODE_CHOICES
-from tfat.models import Species, JoePublic, Report, Recovery, Encounter, Project
+from tfat.models import (
+    Species,
+    JoePublic,
+    Report,
+    Recovery,
+    Encounter,
+    Project,
+    ReportFollowUp,
+)
 from tfat.filters import JoePublicFilter
-from tfat.forms import JoePublicForm, CreateJoePublicForm, ReportForm, RecoveryForm
+from tfat.forms import (
+    JoePublicForm,
+    CreateJoePublicForm,
+    ReportForm,
+    RecoveryForm,
+    ReportFollowUpForm,
+)
 
 from tfat.utils import *
 
@@ -103,7 +118,7 @@ class AnglerListView(ListFilteredMixin, ListView):
     queryset = (
         JoePublic.objects.order_by("last_name", "first_name")
         .annotate(reports=Count("Reported_By", distinct=True))
-        .annotate(tags=Count("Reported_By__Report"))
+        .annotate(tags=Count("Reported_By__recoveries"))
     )
 
     filter_set = JoePublicFilter
@@ -145,6 +160,64 @@ class SpatialFollowupListView(ListView):
 
 
 spatial_followup = SpatialFollowupListView.as_view()
+
+
+def report_follow_ups(request):
+    """This View will return three tables with all of the outstanding
+    followups - one for recoveries that do not have coordinates, one
+    that a follow has been requested, but not started, and one of
+    reports that have had some initial contact, but the final letter
+    has not been sent.
+
+    """
+
+    lake = request.GET.get("lake")
+
+    spatial = (
+        Recovery.objects.filter(spatial_followup=True)
+        .select_related("spc")
+        .order_by("-report__report_date")
+        .all()
+    )
+
+    requested = ReportFollowUp.objects.filter(status="requested")
+    started = ReportFollowUp.objects.filter(status="initialized")
+    complete = ReportFollowUp.objects.filter(status="completed")
+
+    requested = (
+        Report.objects.filter(pk__in=Subquery(requested.values("report_id")))
+        .exclude(
+            Q(pk__in=Subquery(started.values("report_id")))
+            | Q(pk__in=Subquery(complete.values("report_id")))
+        )
+        .select_related("reported_by")
+        .prefetch_related("recoveries", "recoveries__spc", "recoveries__lake")
+        .order_by("-report_date")
+    )
+
+    initiated = (
+        Report.objects.filter(pk__in=Subquery(started.values("report_id")))
+        .exclude(pk__in=Subquery(complete.values("report_id")))
+        .order_by("-report_date")
+        .select_related("reported_by")
+        .prefetch_related("recoveries", "recoveries__spc", "recoveries__lake")
+    )
+
+    if lake:
+        spatial = spatial.filter(lake__abbrev=lake.upper())
+        requested = requested.filter(Report__lake__abbrev=lake.upper())
+        initiated = initiated.filter(Report__lake__abbrev=lake.upper())
+
+    return render(
+        request,
+        "tfat/outstanding_followups.html",
+        {
+            "spatial": spatial,
+            "requested": requested[:25],
+            "initiated": initiated[:25],
+            "lake": lake,
+        },
+    )
 
 
 class EncounterListView(ListView):
@@ -669,6 +742,7 @@ def create_angler(request, report_a_tag=False):
     )
 
 
+@login_required
 def create_report(request, angler_id, report_a_tag=False):
     """This view is used to create a new tag report.
     """
@@ -682,6 +756,11 @@ def create_report(request, angler_id, report_a_tag=False):
             report.associated_file = request.FILES.get("associated_file")
             report.reported_by = angler
             report.save()
+            if report.follow_up and report.follow_up_status is None:
+                ReportFollowUp(
+                    report=report, created_by=request.user, status="requested"
+                ).save()
+
             # redirect to report details:
             if report_a_tag:
                 return redirect("tfat:report_a_tag_report_detail", report_id=report.id)
@@ -702,6 +781,7 @@ def create_report(request, angler_id, report_a_tag=False):
     )
 
 
+@login_required
 def edit_report(request, report_id):
     """This view is used to edit an existing tag report.
     """
@@ -714,6 +794,11 @@ def edit_report(request, report_id):
             report = form.save(commit=False)
             report.reported_by = angler
             report.save()
+            if report.follow_up and report.follow_up_status is None:
+                ReportFollowUp(
+                    report=report, created_by=request.user, status="requested"
+                ).save()
+
             return redirect("tfat:report_detail", report_id=report.id)
     else:
         form = ReportForm(instance=report)
@@ -722,6 +807,34 @@ def edit_report(request, report_id):
         request,
         "tfat/report_form.html",
         {"form": form, "angler": angler, "action": "Edit"},
+    )
+
+
+@login_required
+def create_report_followup(request, report_id):
+    """This view is used to create a report follow up if one is required.
+
+    """
+
+    report = get_object_or_404(Report, id=report_id)
+    user = request.user
+
+    if request.method == "POST" and report:
+
+        form = ReportFollowUpForm(request.POST, request.FILES)
+        if form.is_valid():
+            followup = form.save(commit=False)
+            followup.report = report
+            followup.created_by = user
+            followup.save()
+            return redirect("tfat:report_detail", report_id=report.id)
+    else:
+        form = ReportFollowUpForm(
+            initial={"submitted_by": user, "report_id": report.id}
+        )
+
+    return render(
+        request, "tfat/report_followup_form.html", {"form": form, "report": report}
     )
 
 

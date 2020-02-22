@@ -1,0 +1,79 @@
+{% load tfat_tags %}
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <div class="row" >
+                <div  class="col-md-8" >
+                    <a href="{% url 'tfat:angler_reports' object.reported_by.id %}">{{ object.reported_by }}</a> ({{ object.report_date|date:"M d, Y" }})
+                </div>
+                <div class="col-md-2" >
+
+
+                    {% with object.follow_up_status.status as status %}
+                        {% if status %}
+                            {% if status == 'requested' or status == 'initialized' %}
+                                
+                                <a class="btn {{ status|status_button_class  }}  btn-xs pull-right"
+                                   href="{% url 'tfat:create_report_followup' report_id=object.id %}"
+                                   role="button">Follow-up Required</a>
+
+                            {% else %}
+                                <button class="btn  {{ status|status_button_class }}   btn-xs pull-right" role="button">
+                                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 
+                                    Follow-up Complete
+                                </button>
+                            {% endif %}
+                        {% endif %}
+                    {% endwith %}
+
+                    
+                </div>
+                <div class="col-md-2" >
+
+                    <a class="btn btn-default btn-xs pull-right"
+                       href="{% url 'tfat:report_detail' report_id=object.id %}"
+                       role="button">Report Detail</a>
+
+                </div>
+            </div>
+        </h3>
+    </div>
+    <div class="panel-body">
+        {% if object.comment %}
+            <p><em>Comment: </em>{{object.comment}}</p>
+        {% endif%}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>TagID </th>
+                    <th>TagDoc </th>
+                    <th>Colour </th>
+                    <th>Species</th>
+                    <th>Tlen</th>
+                    <th>Flen</th>
+                    <th>Date </th>
+                    <th>Lake </th>                        
+                    <th>Location</th>
+                </tr>
+            </thead>
+
+            {% for item in object.get_recoveries %}
+                <tr>
+                    <td> <a href="{% url 'tfat:tagid_detail_view' tagid=item.tagid %}">{{item.tagid}}</a> </td>
+                    <td>{{ item.tagdoc }} </td>
+                    <td>{{ item.tag_colour }} </td>
+                    <td>{{ item.spc.common_name }} </td>
+                    <td>{{ item.tlen }} </td>
+                    <td>{{ item.flen }} </td>
+                    <td>{{ item.recovery_date }} </td>
+                    <td>{{ item.lake }} </td>                    
+                    <td>{{ item.general_location }} </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+
+

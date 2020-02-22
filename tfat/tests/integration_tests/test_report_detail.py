@@ -59,6 +59,8 @@ except ImportError:
 @pytest.fixture()
 def db_setup():
 
+    user = UserFactory()
+
     report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.timezone("Canada/Eastern"))
     spc = SpeciesFactory()
 
@@ -82,6 +84,8 @@ def db_setup():
     tagids = ["111111", "222222", "333333"]
     for tag in tagids:
         recovery = RecoveryFactory(report=report, spc=spc, tagid=tag)
+
+    followup = ReportFollowUpFactory(report=report, created_by=user, status="requested")
 
     # a minimal report filed by Monty Burns without any options or
     # associated tags to test conditional elements
