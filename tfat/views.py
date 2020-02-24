@@ -680,6 +680,7 @@ def tags_recovered_project(request, slug):
     )
 
 
+@login_required
 def update_angler(request, angler_id):
     """This view is used to update or edit an existing tag reporter / angler.
 
@@ -696,6 +697,7 @@ def update_angler(request, angler_id):
         )
 
 
+@login_required
 def create_angler(request, report_a_tag=False):
     """This view is used to create a new tag reporter / angler.
 
@@ -865,6 +867,7 @@ def create_report_followup(request, report_id):
     )
 
 
+@login_required
 def create_recovery(request, report_id):
     """This view is used to create a new tag recovery.
     """
@@ -896,6 +899,7 @@ def create_recovery(request, report_id):
     )
 
 
+@login_required
 def edit_recovery(request, recovery_id):
     """This view is used to edit/update existing tag recoveries.
     """

@@ -46,6 +46,10 @@ def db_setup():
     """
     """
 
+    user = UserFactory(email="mickey@disney.com")
+    user.set_password("Abcd1234")
+    user.save()
+
     report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.UTC)
 
     angler = JoePublicFactory.create(first_name="Homer", last_name="Simpson")
@@ -59,6 +63,7 @@ def tag_data():
     """A fixture to hold basic minimal data requirements for each
     test. Updated as needed in each test.
     """
+
     spc = SpeciesFactory()
     lake = LakeFactory()
 
@@ -74,6 +79,21 @@ def tag_data():
 
 
 @pytest.mark.django_db
+def test_create_recovery_form_requires_login(client, db_setup):
+    """The create recovery form should be unaccessible to unauthorized users. If
+    an unathenticated user tries to access the url, they should be
+    rediected to the login page.
+
+    """
+
+    report = Report.objects.get(reported_by__first_name="Homer")
+    url = reverse("tfat:create_recovery", kwargs={"report_id": report.id})
+
+    response = client.get(url)
+    assert response.status_code == 302
+
+
+@pytest.mark.django_db
 def test_can_create_recovery_url(client, db_setup):
     """Verify that the form and its correct elements are rendered when we
     call the create_recovery form"""
@@ -81,6 +101,7 @@ def test_can_create_recovery_url(client, db_setup):
     report = Report.objects.get(reported_by__first_name="Homer")
     url = reverse("tfat:create_recovery", kwargs={"report_id": report.id})
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.get(url)
     assert response.status_code == 200
     content = str(response.content)
@@ -116,6 +137,7 @@ def test_basic_data(client, db_setup, tag_data):
     tag_data["tagid"] = tagid
     tag_data["tagdoc"] = tagdoc
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -147,6 +169,7 @@ def test_basic_data_add_another(client, db_setup, tag_data):
     tag_data["tagid"] = tagid
     tag_data["tagdoc"] = tagdoc
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     content = str(response.content)
@@ -165,6 +188,7 @@ def test_missing_tagid(client, db_setup, tag_data):
 
     foo = tag_data.pop("tagid")
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     content = str(response.content)
@@ -184,6 +208,7 @@ def test_missing_species(client, db_setup, tag_data):
 
     foo = tag_data.pop("spc")
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     content = str(response.content)
@@ -203,6 +228,7 @@ def test_invalid_species(client, db_setup, tag_data):
 
     tag_data["spc"] = 999
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -224,6 +250,7 @@ def test_missing_tagdoc(client, db_setup, tag_data):
 
     foo = tag_data.pop("tagdoc")
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     content = str(response.content)
@@ -240,6 +267,7 @@ def test_tagdoc_short(client, db_setup, tag_data):
     url = reverse("tfat:create_recovery", kwargs={"report_id": report.id})
 
     tag_data["tagdoc"] = "2501"
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -256,6 +284,7 @@ def test_tagdoc_long(client, db_setup, tag_data):
     url = reverse("tfat:create_recovery", kwargs={"report_id": report.id})
 
     tag_data["tagdoc"] = "250129"
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -275,6 +304,7 @@ def test_tagdoc_bad_tag_type(client, db_setup, tag_data):
     url = reverse("tfat:create_recovery", kwargs={"report_id": report.id})
 
     tag_data["tagdoc"] = "Y5012"
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -298,6 +328,7 @@ def test_tagdoc_good_tag_type(client, db_setup, tag_data):
     tagdoc = "35012"
     tag_data["tagdoc"] = tagdoc
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -320,6 +351,7 @@ def test_tagdoc_bad_tag_position(client, db_setup, tag_data):
     url = reverse("tfat:create_recovery", kwargs={"report_id": report.id})
 
     tag_data["tagdoc"] = "2Y012"
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -343,6 +375,7 @@ def test_tagdoc_good_tag_position(client, db_setup, tag_data):
     tagdoc = "25012"
     tag_data["tagdoc"] = tagdoc
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -366,6 +399,7 @@ def test_tagdoc_bad_agency(client, db_setup, tag_data):
 
     tag_data["tagdoc"] = "25XX2"
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -388,6 +422,7 @@ def test_tagdoc_bad_colour(client, db_setup, tag_data):
     tagdoc = "2501X"
     tag_data["tagdoc"] = tagdoc
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -411,6 +446,7 @@ def test_good_clipc(client, db_setup, tag_data):
     clipc = "14"
     tag_data["clipc"] = clipc
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -437,6 +473,7 @@ def test_good_clipc_0(client, db_setup, tag_data):
     clipc = "0"
     tag_data["clipc"] = clipc
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -464,6 +501,7 @@ def test_bad_clipc_includes_0(client, db_setup, tag_data):
     clipc = "140"
     tag_data["clipc"] = clipc
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -489,6 +527,7 @@ def test_bad_clipc_includes_duplicates(client, db_setup, tag_data):
     clipc = "114"
     tag_data["clipc"] = clipc
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -514,6 +553,7 @@ def test_bad_clipc_includes_wrong_order(client, db_setup, tag_data):
     clipc = "532"
     tag_data["clipc"] = clipc
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -536,6 +576,7 @@ def test_bad_clipc_nonexistant_clip(client, db_setup, tag_data):
     clipc = "15X"
     tag_data["clipc"] = clipc
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -561,6 +602,7 @@ def test_bad_clipc_multiple_nonexistant_clips(client, db_setup, tag_data):
     clipc = "15XZ"
     tag_data["clipc"] = clipc
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
     content = str(response.content)
@@ -578,6 +620,7 @@ def test_missing_recovery_date(client, db_setup, tag_data):
     report = Report.objects.get(reported_by__first_name="Homer")
     url = reverse("tfat:create_recovery", kwargs={"report_id": report.id})
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -605,6 +648,7 @@ def test_future_date(client, db_setup, tag_data):
 
     tag_data["recovery_date"] = next_week.date()
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data)
 
     assert response.status_code == 200
@@ -634,6 +678,7 @@ def test_recovery_date_greater_than_report_date(client, db_setup, tag_data):
 
     tag_data["recovery_date"] = week_late.date()
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data)
 
     assert response.status_code == 200
@@ -667,6 +712,7 @@ def test_no_date_and_dateflag_is_reported(client, db_setup, tag_data):
     tag_data["recovery_date"] = ""
     tag_data["date_flag"] = 1  # reported
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -690,6 +736,7 @@ def test_tlen_greater_than_flen(client, db_setup, tag_data):
     tag_data["flen"] = flen
     tag_data["tlen"] = tlen
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -715,6 +762,7 @@ def test_tlen_less_than_flen(client, db_setup, tag_data):
     tag_data["flen"] = flen
     tag_data["tlen"] = tlen
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
     content = str(response.content)
@@ -739,6 +787,7 @@ def test_ddlat_ddlon(client, db_setup, tag_data):
     tag_data["dd_lat"] = dd_lat
     tag_data["dd_lon"] = dd_lon
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -765,6 +814,7 @@ def test_unknown_ddlat_ddlon(client, db_setup, tag_data):
     report = Report.objects.get(reported_by__first_name="Homer")
     url = reverse("tfat:create_recovery", kwargs={"report_id": report.id})
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -793,6 +843,7 @@ def test_derived_ddlat_ddlon_with_comment(client, db_setup, tag_data):
     tag_data["latlon_flag"] = latlon_flag
     tag_data["comment"] = comment
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -815,6 +866,7 @@ def test_derived_ddlat_ddlon_without_comment(client, db_setup, tag_data):
     tag_data["dd_lon"] = -81.1
     tag_data["latlon_flag"] = 2
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -837,6 +889,7 @@ def test_ddlat_without_ddlon(client, db_setup, tag_data):
     tag_data["dd_lat"] = 45.25
     tag_data["dd_lon"] = ""
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -858,6 +911,7 @@ def test_ddlon_without_ddlat(client, db_setup, tag_data):
     tag_data["dd_lat"] = ""
     tag_data["dd_lon"] = -81.1
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -880,6 +934,7 @@ def test_ddlat_max_90(client, db_setup, tag_data):
     tag_data["dd_lat"] = 100
     tag_data["dd_lon"] = -81.1
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -902,6 +957,7 @@ def test_ddlat_min_negative_90(client, db_setup, tag_data):
     tag_data["dd_lat"] = -100
     tag_data["dd_lon"] = -81.1
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -923,6 +979,7 @@ def test_ddlon_max_180(client, db_setup, tag_data):
     tag_data["dd_lat"] = 45.25
     tag_data["dd_lon"] = 281.1
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -948,6 +1005,7 @@ def test_ddlon_min_negative_180(client, db_setup, tag_data):
     tag_data["dd_lat"] = dd_lat
     tag_data["dd_lon"] = dd_lon
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -970,6 +1028,7 @@ def test_general_location(client, db_setup, tag_data):
     general_location = "Somewhere out there."
     tag_data["general_location"] = general_location
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -992,6 +1051,7 @@ def test_specific_location(client, db_setup, tag_data):
     specific_location = "Right here. Exactly here."
     tag_data["specific_location"] = specific_location
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -1014,6 +1074,7 @@ def test_tlen(client, db_setup, tag_data):
     tlen = 450
     tag_data["tlen"] = tlen
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -1035,6 +1096,7 @@ def test_flen(client, db_setup, tag_data):
     flen = 450
     tag_data["flen"] = flen
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -1057,6 +1119,7 @@ def test_rwt(client, db_setup, tag_data):
     rwt = 1450
     tag_data["rwt"] = rwt
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -1079,6 +1142,7 @@ def test_girth(client, db_setup, tag_data):
     girth = 1450
     tag_data["girth"] = girth
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -1101,6 +1165,7 @@ def test_fish_fate_released(client, db_setup, tag_data):
     fate = "R"
     tag_data["fate"] = fate
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -1122,6 +1187,7 @@ def test_fish_fate_killed(client, db_setup, tag_data):
     fate = "K"
     tag_data["fate"] = fate
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -1143,6 +1209,7 @@ def test_fish_fate_nonexistant(client, db_setup, tag_data):
     fate = "FOO"
     tag_data["fate"] = fate
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
     content = str(response.content)
@@ -1168,6 +1235,7 @@ def test_fish_sex_male(client, db_setup, tag_data):
     sex = "1"
     tag_data["sex"] = sex
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -1189,6 +1257,7 @@ def test_fish_sex_female(client, db_setup, tag_data):
     sex = "2"
     tag_data["sex"] = sex
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -1211,6 +1280,7 @@ def test_fish_sex_nonexistant(client, db_setup, tag_data):
     sex = "FOO"
     tag_data["sex"] = sex
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
     content = str(response.content)
@@ -1232,6 +1302,7 @@ def test_fish_tag_removed_false(client, db_setup, tag_data):
     tag_removed = False
     tag_data["tag_removed"] = tag_removed
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -1254,6 +1325,7 @@ def test_fish_tag_removed_true(client, db_setup, tag_data):
     tag_removed = True
     tag_data["tag_removed"] = tag_removed
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 

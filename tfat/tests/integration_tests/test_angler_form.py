@@ -35,14 +35,48 @@ def db_setup():
     """Create some users with easy to remember names.
     """
 
+    user = UserFactory(email="mickey@disney.com")
+    user.set_password("Abcd1234")
+    user.save()
+
     angler1 = JoePublicFactory.create(first_name="Homer", last_name="Simpson")
 
 
-def test_can_create_angler_url(client):
+@pytest.mark.django_db
+def test_angler_form_requires_login(client):
+    """The create angler form should be unaccessible to unauthorized users. If
+    an unathenticated user tries to access the url, they should be
+    rediected to the login page.
+
+    """
+    url = reverse("tfat:create_angler")
+
+    response = client.get(url)
+    assert response.status_code == 302
+
+
+@pytest.mark.django_db
+def test_angler_form_requires_login(client, db_setup):
+    """The update angler form should be unaccessible to unauthorized users. If
+    an unathenticated user tries to access the url, they should be
+    rediected to the login page.
+    """
+
+    angler = JoePublic.objects.get(first_name="Homer")
+    url = reverse("tfat:update_angler", kwargs={"angler_id": angler.id})
+
+    response = client.get(url)
+    assert response.status_code == 302
+
+
+@pytest.mark.django_db
+def test_can_create_angler_url(client, db_setup):
     """Verify that the form and its correct elements are rendered when we
     call the create_angler form.  The default url will not contain any
     instructional messages.
     """
+
+    client.login(username="mickey@disney.com", password="Abcd1234")
 
     url = reverse("tfat:create_angler")
     response = client.get(url)
@@ -63,11 +97,14 @@ def test_can_create_angler_url(client):
     assert "Step 1b - Create the Person or Organization:" not in content
 
 
-def test_report_a_tag_new_angler_url(client):
+@pytest.mark.django_db
+def test_report_a_tag_new_angler_url(client, db_setup):
     """If this form is rendered through the 'report-a-tag' url, the status
     code will still be 200 and it should include instructions on what
     to do next
     """
+
+    client.login(username="mickey@disney.com", password="Abcd1234")
 
     url = reverse("tfat:report_a_tag_new_angler")
     response = client.get(url)
@@ -86,6 +123,9 @@ def test_can_create_angler(client, db_setup):
     for the report_a_tag stream.
 
     """
+
+    client.login(username="mickey@disney.com", password="Abcd1234")
+
     angler = {"first_name": "Barney", "last_name": "Gumble", "same_name": False}
 
     url = reverse("tfat:create_angler")
@@ -105,6 +145,9 @@ def test_can_create_angler_report_a_tag(client, db_setup):
     should incude an instructional message regarding the next step in
     the process.
     """
+
+    client.login(username="mickey@disney.com", password="Abcd1234")
+
     angler = {"first_name": "Barney", "last_name": "Gumble", "same_name": False}
 
     url = reverse("tfat:report_a_tag_new_angler")
@@ -126,6 +169,8 @@ def test_create_angler_same_name_warning(client, db_setup):
 
     """
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
+
     angler = {"first_name": "Homer", "last_name": "Simpson", "same_name": False}
 
     url = reverse("tfat:create_angler")
@@ -145,6 +190,9 @@ def test_create_angler_same_name_without_checkbox(client, db_setup):
     saved and a meaningful error message generated.
 
     """
+
+    client.login(username="mickey@disney.com", password="Abcd1234")
+
     angler = {"first_name": "Homer", "last_name": "Simpson", "same_name": False}
 
     url = reverse("tfat:create_angler")
@@ -163,6 +211,9 @@ def test_create_angler_same_name_with_checkbox(client, db_setup):
     angler and have 'same_name' checked, the form should be saved and
     the we should be re-directed to the summary page for that angler.
     """
+
+    client.login(username="mickey@disney.com", password="Abcd1234")
+
     angler = {"first_name": "Homer", "last_name": "Simpson", "same_name": True}
 
     url = reverse("tfat:create_angler")
@@ -180,6 +231,9 @@ def test_can_edit_angler_url(client, db_setup):
     expected data for this angler.
 
     """
+
+    client.login(username="mickey@disney.com", password="Abcd1234")
+
     angler = JoePublic.objects.get(first_name="Homer")
     url = reverse("tfat:update_angler", kwargs={"angler_id": angler.id})
     response = client.get(url)
@@ -216,6 +270,8 @@ def test_can_edit_angler(client, db_setup):
         "address1": "123 Newplace",
     }
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
+
     angler = JoePublic.objects.get(first_name="Homer")
     url = reverse("tfat:update_angler", kwargs={"angler_id": angler.id})
     response = client.post(url, new_data, follow=True)
@@ -242,6 +298,8 @@ def test_create_angler_first_name_required(client, db_setup):
     """
     angler = {"last_name": "Gumble", "same_name": False}
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
+
     url = reverse("tfat:create_angler")
     response = client.post(url, angler, follow=True)
     content = str(response.content)
@@ -258,6 +316,8 @@ def test_create_angler_last_name_required(client, db_setup):
     """
     angler = {"first_name": "Barney", "same_name": False}
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
+
     url = reverse("tfat:create_angler")
     response = client.post(url, angler, follow=True)
     content = str(response.content)
@@ -273,6 +333,8 @@ def test_edit_angler_first_name_required(client, db_setup):
 
     """
     new_data = {"first_name": "", "last_name": "Simpson", "same_name": False}
+
+    client.login(username="mickey@disney.com", password="Abcd1234")
 
     angler = JoePublic.objects.get(first_name="Homer")
     url = reverse("tfat:update_angler", kwargs={"angler_id": angler.id})
@@ -291,6 +353,8 @@ def test_edit_angler_last_name_required(client, db_setup):
     """
     new_data = {"first_name": "Homer", "last_name": "", "same_name": False}
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
+
     angler = JoePublic.objects.get(first_name="Homer")
     url = reverse("tfat:update_angler", kwargs={"angler_id": angler.id})
     response = client.post(url, new_data, follow=True)
@@ -306,6 +370,8 @@ def test_nonexistant_angler_get_request(client, db_setup):
 
     """
 
+    client.login(username="mickey@disney.com", password="Abcd1234")
+
     url = reverse("tfat:update_angler", kwargs={"angler_id": 999999})
     response = client.get(url)
     assert response.status_code == 404
@@ -318,6 +384,8 @@ def test_nonexistant_angler_post_request(client, db_setup):
 
     """
     new_data = {"first_name": "Montey", "last_name": "Burns", "same_name": False}
+
+    client.login(username="mickey@disney.com", password="Abcd1234")
 
     url = reverse("tfat:update_angler", kwargs={"angler_id": 999999})
     response = client.post(url, new_data, follow=True)
