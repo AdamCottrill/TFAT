@@ -16,6 +16,7 @@ from common.models import Lake
 
 from .constants import (
     REPORTING_CHOICES,
+    FOLLOW_UP_STATUS_CHOICES,
     SEX_CHOICES,
     TAG_TYPE_CHOICES,
     TAG_POSITION_CHOICES,
@@ -226,18 +227,11 @@ class ReportFollowUp(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     timestamp = models.DateTimeField()
 
-    STATUS_CHOICES = [
-        # (0, "Not Requested"),
-        ("requested", "Requested"),
-        ("initialized", "Initialized"),
-        ("completed", "Completed"),
-    ]
-
     status = models.CharField(
         "Follow Up Status",
         max_length=12,
         db_index=True,
-        choices=STATUS_CHOICES,
+        choices=FOLLOW_UP_STATUS_CHOICES,
         default="requested",
     )
 

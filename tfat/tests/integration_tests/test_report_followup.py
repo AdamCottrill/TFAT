@@ -11,9 +11,9 @@ is submitted without a choice.
 + the comment widget is optional
 
 + the select widget has two options if the status is 'requested'.  THe
-options should be 'initiated' and 'completed'
+options should be 'initialized' and 'completed'
 
-+ the select widget has one option if the status is 'initiated'.  THe
++ the select widget has one option if the status is 'initialized'.  THe
 options should 'completed' and is a required field.
 
 + the cancel and submit buttons return us to the report detail page or the report
@@ -32,7 +32,12 @@ import pytz
 from django.test import TestCase
 from django.urls import reverse
 
-from tfat.tests.factories import UserFactory, JoePublicFactory, ReportFactory
+from tfat.tests.factories import (
+    UserFactory,
+    JoePublicFactory,
+    ReportFactory,
+    ReportFollowUpFactory,
+)
 
 # from datetime import datetime
 
@@ -42,9 +47,13 @@ class ReportFollowUpTestCase(TestCase):
 
         self.password = "Abcd1234"
         self.email = "micky@disney.com"
-        self.user = UserFactory(email=self.email, password=self.password)
+        self.user = UserFactory(email=self.email)
+        self.user.set_password(self.password)
+        self.user.save()
+
         self.joe = JoePublicFactory()
         self.report = ReportFactory(reported_by=self.joe)
+        ReportFollowUpFactory(report=self.report, created_by=self.user)
 
     @pytest.mark.django_db
     def test_followup_form_requires_login(self):
@@ -73,7 +82,9 @@ class ReportFollowUpTestCase(TestCase):
             "tfat:create_report_followup", kwargs={"report_id": self.report.id}
         )
 
-        self.client.force_login(self.user)
+        logged_in = self.client.login(username=self.email, password=self.password)
+        assert logged_in is True
+
         response = self.client.get(url)
         assert response.status_code == 200
 
@@ -99,7 +110,9 @@ class ReportFollowUpTestCase(TestCase):
 
         data = {"comment": "Something pithy"}
 
-        self.client.force_login(self.user)
+        logged_in = self.client.login(username=self.email, password=self.password)
+        assert logged_in is True
+
         response = self.client.post(url)
         assert response.status_code == 200
 
@@ -117,67 +130,81 @@ class ReportFollowUpTestCase(TestCase):
 
         data = {"comment": "Something pithy"}
 
-        self.client.force_login(self.user)
-        response = self.client.post(url)
+        logged_in = self.client.login(username=self.email, password=self.password)
+        assert logged_in is True
+
+        response = self.client.post(url, data)
         assert response.status_code == 200
+
+        self.assertTemplateUsed("tfat/report_followup_form.html")
 
         content = str(response.content)
         assert "This field is required" in content
 
-    # def test_followup_form_comment_optional(client, db_setup):
-    #     """the comment widget is optional, the form should still submit if the
-    #     comment box is empty.
-    #     """
-    #     assert 0 == 1
+    def test_followup_form_comment_optional(self):
+        """the comment widget is optional, the form should still submit if the
+        comment box is empty and we shoul be redirected to the report
+        detail page.
 
-    # def test_followup_form_status_requested(client, db_setup):
-    #     """ the select widget has two options if the status is 'requested'.  THe
-    #     options should be 'initiated' and 'completed'
-    #     """
-    #     assert 0 == 1
+        """
 
-    # def test_followup_form_status_initiated_complete(client, db_setup):
-    #     """the select widget has one option if the status is 'initiated'.  THe
-    #     options should 'completed' and is a required field.
-    #     """
-    #     assert 0 == 1
+        url = reverse(
+            "tfat:create_report_followup", kwargs={"report_id": self.report.id}
+        )
 
-    # def test_followup_form_duplicate_status(client, db_setup):
-    #     """- this might be better as a unit test rather than a integration
-    #     test - we might not be able to sumbit a duplicate here ("Not a
-    #     valid selection".)
+        data = {"status": "completed"}
 
-    #     """
-    #     assert 0 == 1
+        logged_in = self.client.login(username=self.email, password=self.password)
+        assert logged_in is True
 
-    # def test_followup_form_cancel_redirects_to_report_detail(client, db_setup):
-    #     """If we access the followup form from the report detail - we should
-    #     be redirected back there if we click cancel.  The status of the
-    #     report followup should not change and follow up details should NOT
-    #     included in the response
+        response = self.client.post(url, data, follow=True)
+        assert response.status_code == 200
 
-    #     """
-    #     assert 0 == 1
+        self.assertTemplateUsed("tfat/report_detail.html")
+        content = str(response.content)
+        assert "Follow Up Actions to Date" in content
 
-    # def test_followup_form_cancel_redirects_to_report_list(client, db_setup):
-    #     """If we access the followup form from the report list - we should be
-    #     redirected back there if we click cancel.  The status of the report
-    #     followup should not change.
+    def test_followup_form_status_requested(self):
+        """ the select widget has two options if the status is 'requested'.  THe
+        options should be 'initialized' and 'completed'
+        """
 
-    #     """
-    #     assert 0 == 1
+        url = reverse(
+            "tfat:create_report_followup", kwargs={"report_id": self.report.id}
+        )
 
-    # def test_followup_form_submit_redirects_to_report_detail(client, db_setup):
-    #     """If we access the followup form from the report detail - we should
-    #     be redirected back there if we click submit.  The status of the
-    #     report followup should have changed and the follow up details should
-    #     be included in the response
-    #     """
-    #     assert 0 == 1
+        logged_in = self.client.login(username=self.email, password=self.password)
+        assert logged_in is True
 
-    # def test_followup_form_submit_redirects_to_report_list(client, db_setup):
-    #     """If we access the followup form from the report list - we should be
-    #     redirected back there if we click submit.  The status of the report
-    #     followup should not change.
-    #     """
-    #     assert 0 == 1
+        response = self.client.get(url)
+        assert response.status_code == 200
+
+        content = str(response.content)
+        assert '<option value="initialized">Initialized</option>' in content
+        assert '<option value="completed">Completed</option>' in content
+
+    def test_followup_form_status_initialized_complete(self):
+        """the select widget has one option if the status is 'initialized'.  THe
+        options should 'completed' and is a required field.
+        """
+
+        # add an itialized follow to our report:
+        ReportFollowUpFactory(
+            report=self.report, created_by=self.user, status="initialized"
+        )
+
+        url = reverse(
+            "tfat:create_report_followup", kwargs={"report_id": self.report.id}
+        )
+
+        logged_in = self.client.login(username=self.email, password=self.password)
+        assert logged_in is True
+
+        response = self.client.get(url)
+        assert response.status_code == 200
+
+        content = str(response.content)
+        #  **NOT** in response
+
+        assert '<option value="initialized">Initialized</option>' not in content
+        assert '<option value="completed">Completed</option>' in content

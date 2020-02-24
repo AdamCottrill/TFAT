@@ -16,7 +16,7 @@
                             {% if status == 'requested' or status == 'initialized' %}
                                 
                                 <a class="btn {{ status|status_button_class  }}  btn-xs pull-right"
-                                   href="{% url 'tfat:create_report_followup' report_id=object.id %}"
+                                   href="{% url 'tfat:create_report_followup' report_id=object.id %}?next={{request.path}}"
                                    role="button">Follow-up Required</a>
 
                             {% else %}

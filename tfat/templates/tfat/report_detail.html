@@ -5,256 +5,256 @@
 
 {% block extrahead %}
 
-{% leaflet_js %}
-{% leaflet_css %}
+    {% leaflet_js %}
+    {% leaflet_css %}
 
 
-<script src="/static/Leaflet.MakiMarkers.js"></script>
+    <script src="/static/Leaflet.MakiMarkers.js"></script>
 
 
-<style>
+    <style>
 
- #mymap {  /* all maps */
-     width:  700px;
-     height: 600px;
- }
+     #mymap {  /* all maps */
+         width:  700px;
+         height: 600px;
+     }
 
- .comment-panel {
-     display: none
- }
- 
-</style>
+     .comment-panel {
+         display: none
+     }
+     
+    </style>
 
 
 {% endblock %}
 
 
 {% block content %}
-<div class="container">
+    <div class="container">
 
-    {% if report_a_tag == True %}
-    <div class="alert alert-info" role="alert">
-        <h3>Step 3 - Add tags as necessary to complete report</h3>
-    </div>
-    {% endif %}
+        {% if report_a_tag == True %}
+            <div class="alert alert-info" role="alert">
+                <h3>Step 3 - Add tags as necessary to complete report</h3>
+            </div>
+        {% endif %}
 
-    <div class="row">
-        <h2>Tag Report {{ report.id }}</h2>
-    </div>
+        <div class="row">
+            <h2>Tag Report {{ report.id }}</h2>
+        </div>
 
-    <hr />
-    
-    <div class="row">
-        <div class="col-md-4" >
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Report Details
-                        <a class="btn btn-default btn-xs pull-right"
-                           href="{% url 'tfat:edit_report' report_id=report.id %}"
-                           role="button">Edit Report</a>
-                    </h3>
-                </div>
-                <div class="panel-body">
-                    <table>
+        <hr />
+        
+        <div class="row">
+            <div class="col-md-4" >
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Report Details
+                            <a class="btn btn-default btn-xs pull-right"
+                               href="{% url 'tfat:edit_report' report_id=report.id %}"
+                               role="button">Edit Report</a>
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        <table>
 
-                        <tr>
-                            <td><em>Reported By:</em></td>
-                            {% url 'tfat:angler_reports' report.reported_by.id as the_url %}
-                            <td><a href="{{ the_url }}">{{ report.reported_by }}</a> </td>
-                        </tr>
-
-
-                        <tr>
-                            <td><em>Report Date:</em></td>
-                            <td>{{ report.report_date|date:"M d, Y" }} ({{ report.get_date_flag_display }})</td>
-                        </tr>
-
-                        <tr>
-                            <td><em>Format:</em></td>
-                            <td>{{ report.reporting_format }}</td>
-                        </tr>
-
-                        {% if report.dcr %}
                             <tr>
-                                <td><em>DCR:</em></td>
-                                <td>{{ report.dcr }}</td>
+                                <td><em>Reported By:</em></td>
+                                {% url 'tfat:angler_reports' report.reported_by.id as the_url %}
+                                <td><a href="{{ the_url }}">{{ report.reported_by }}</a> </td>
+                            </tr>
+
+
+                            <tr>
+                                <td><em>Report Date:</em></td>
+                                <td>{{ report.report_date|date:"M d, Y" }} ({{ report.get_date_flag_display }})</td>
                             </tr>
 
                             <tr>
-                                <td><em>Effort:</em></td>
-                                <td>{{ report.effort }}</td>
+                                <td><em>Format:</em></td>
+                                <td>{{ report.reporting_format }}</td>
                             </tr>
 
-                        {% endif %}
+                            {% if report.dcr %}
+                                <tr>
+                                    <td><em>DCR:</em></td>
+                                    <td>{{ report.dcr }}</td>
+                                </tr>
 
-                        {% if report.associated_file %}
-                            <tr>
-                                <td><em>Associated File:</em></td>
-                                {% url 'tfat:serve_file' filename=report.associated_file as the_url %}
-                                <td><a href="{{ the_url }}">
-                                    {{ report.associated_file }} </a></td>
-                            </tr>
-                        {% endif %}
+                                <tr>
+                                    <td><em>Effort:</em></td>
+                                    <td>{{ report.effort }}</td>
+                                </tr>
 
-                    </table>
-
-                    {% if report.comment %}
-                        <br />
-                        <p><em>Comments:</em></p>
-                        <div class="panel panel-default">
-                            <div class="panel-body">
-                                {{ report.comment }}
-
-                            </div>
-                        </div>
-                    {% endif %}
-
-
-                    {% with report.follow_up_status.status as status %}
-                        {% if status %}
-                            {% if status == 'requested' or status == 'initialized' %}
-                                
-                                <a class="btn {{ status|status_button_class  }}  btn-xs pull-right"
-                                   href="{% url 'tfat:create_report_followup' report_id=report.id %}"
-                                   role="button">Follow-up Required</a>
-
-                            {% else %}
-                                <button class="btn  {{ status|status_button_class }}   btn-xs pull-right" role="button">
-                                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 
-                                    Follow-up Complete
-                                </button>
                             {% endif %}
-                        {% endif %}
-                    {% endwith %}
 
-                    
+                            {% if report.associated_file %}
+                                <tr>
+                                    <td><em>Associated File:</em></td>
+                                    {% url 'tfat:serve_file' filename=report.associated_file as the_url %}
+                                    <td><a href="{{ the_url }}">
+                                        {{ report.associated_file }} </a></td>
+                                </tr>
+                            {% endif %}
+
+                        </table>
+
+                        {% if report.comment %}
+                            <br />
+                            <p><em>Comments:</em></p>
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                    {{ report.comment }}
+
+                                </div>
+                            </div>
+                        {% endif %}
+
+
+                        {% with report.follow_up_status.status as status %}
+                            {% if status %}
+                                {% if status == 'requested' or status == 'initialized' %}
+                                    
+                                    <a class="btn {{ status|status_button_class  }}  btn-xs pull-right"
+                                       href="{% url 'tfat:create_report_followup' report_id=report.id %}?next={{request.path}}"
+                                       role="button">Follow-up Required</a>
+
+                                       {% else %}
+                                    <button class="btn  {{ status|status_button_class }}   btn-xs pull-right" role="button">
+                                        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 
+                                        Follow-up Complete
+                                    </button>
+                                       {% endif %}
+                                {% endif %}
+                        {% endwith %}
+
+                        
+                    </div>
                 </div>
+
+
+                {% if report.followups.all %}
+
+                    <h4>Follow Up Actions to Date:</h4>
+
+                    <ul>
+                        {% for item in report.followups.all %}
+                            <li>{{item.get_status_display}} by {{item.created_by}} on {{item.timestamp|date:"M d, Y"}}
+
+                                {% if item.comment %}
+                                    <span class="chevron_toggleable glyphicon glyphicon-chevron-down"></span>
+                                    <div class="comment-panel panel panel-default">
+                                        <div class="panel-body">
+                                            {{item.comment}}
+                                        </div>
+                                    </div>
+                                    
+
+                                {% endif %}
+                                
+                            </li>
+                        {% endfor %}                    
+                    </ul>
+                    
+                {% endif %}
+                
+
+                
             </div>
 
+            <div class="col-md-8" >
 
-            {% if report.followups.all %}
+                {% if report.get_recoveries %}
+                    <script type="text/javascript">
+                     function map_init_basic (map, options) {
+                         map.setZoom(7)
 
-                <h4>Follow Up Actions to Date:</h4>
+                         {% for object in report.get_recoveries_with_latlon %}
 
-                <ul>
-                    {% for item in report.followups.all %}
-                        <li>{{item.get_status_display}} by {{item.created_by}} on {{item.timestamp|date:"M d, Y"}}
+                         {% if object.dd_lat and object.dd_lon %}
+                         L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}]).addTo(map).bindPopup('{{ object.popup_text|safe }}');
+                         {% endif %}
 
-                            {% if item.comment %}
-                                <span class="chevron_toggleable glyphicon glyphicon-chevron-down"></span>
-                                <div class="comment-panel panel panel-default">
-                                    <div class="panel-body">
-                                        {{item.comment}}
-                                    </div>
-                                </div>
-                                
+                         {% endfor %}
 
-                            {% endif %}
-                            
-                        </li>
-                    {% endfor %}                    
-                </ul>
-                
-            {% endif %}
-            
+                     }
+                    </script>
+                {% endif %}
 
-            
+                {% leaflet_map "mymap" callback="window.map_init_basic" %}
+                <br>
+            </div>
         </div>
 
-        <div class="col-md-8" >
+        <hr />
 
-            {% if report.get_recoveries %}
-                <script type="text/javascript">
-                 function map_init_basic (map, options) {
-                     map.setZoom(7)
 
-                     {% for object in report.get_recoveries_with_latlon %}
+        <div  class="row" >
+            <div class="col-md-9" >
+                <h2>Tag Recoveries</h2>
+            </div>
 
-                     {% if object.dd_lat and object.dd_lon %}
-                     L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}]).addTo(map).bindPopup('{{ object.popup_text|safe }}');
-                     {% endif %}
+            <div class="col-md-3" >
+                <a class="btn btn-danger pull-right" href="{% url 'tfat:create_recovery' report_id=report.id  %}" role="button">
+                    <span class="glyphicon glyphicon-plus-sign"></span>  Add New Tag</a>
 
-                     {% endfor %}
-
-                 }
-                </script>
-            {% endif %}
-
-            {% leaflet_map "mymap" callback="window.map_init_basic" %}
-            <br>
+            </div>
         </div>
+        <br />
+
+        {% if report.get_recoveries %}
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>TagID </th>
+                        <th>TagDoc </th>
+                        <th>Colour </th>
+                        <th>Species</th>
+                        <th>Tlen</th>
+                        <th>Flen</th>
+                        <th>Date </th>
+                        <th>Location</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                {% for item in report.get_recoveries %}
+                    <tr>
+                        <td> <a href="{% url 'tfat:tagid_detail_view' tagid=item.tagid %}">{{item.tagid}}</a> </td>
+                        <td>{{ item.tagdoc }} </td>
+                        <td>{{ item.tag_colour }} </td>
+                        <td>{{ item.spc.common_name }} </td>
+                        <td>{{ item.tlen }} </td>
+                        <td>{{ item.flen }} </td>
+                        <td>{{ item.recovery_date }} </td>
+                        <td>{{ item.general_location }} </td>
+                        <td> <a class="btn btn-primary pull-right" href="{% url 'tfat:recovery_detail' recovery_id=item.id %}" role="button">
+                            <span class="glyphicon glyphicon-edit"></span>  Details</a></td>
+                    </tr>
+                {% endfor %}
+            </table>
+
+        {% else %}
+
+            <div class="alert alert-warning">
+                <h3>Oops!</h3>
+                <p> There don't seem to be any tags associated with this report.</p>
+            </div>
+
+        {% endif %}
+
+        <hr />
+
     </div>
 
-    <hr />
 
+    <script>
 
-    <div  class="row" >
-        <div class="col-md-9" >
-            <h2>Tag Recoveries</h2>
-        </div>
-
-        <div class="col-md-3" >
-            <a class="btn btn-danger pull-right" href="{% url 'tfat:create_recovery' report_id=report.id  %}" role="button">
-                <span class="glyphicon glyphicon-plus-sign"></span>  Add New Tag</a>
-
-        </div>
-    </div>
-    <br />
-
-    {% if report.get_recoveries %}
-
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>TagID </th>
-                    <th>TagDoc </th>
-                    <th>Colour </th>
-                    <th>Species</th>
-                    <th>Tlen</th>
-                    <th>Flen</th>
-                    <th>Date </th>
-                    <th>Location</th>
-                    <th></th>
-                </tr>
-            </thead>
-
-            {% for item in report.get_recoveries %}
-                <tr>
-                    <td> <a href="{% url 'tfat:tagid_detail_view' tagid=item.tagid %}">{{item.tagid}}</a> </td>
-                    <td>{{ item.tagdoc }} </td>
-                    <td>{{ item.tag_colour }} </td>
-                    <td>{{ item.spc.common_name }} </td>
-                    <td>{{ item.tlen }} </td>
-                    <td>{{ item.flen }} </td>
-                    <td>{{ item.recovery_date }} </td>
-                    <td>{{ item.general_location }} </td>
-                    <td> <a class="btn btn-primary pull-right" href="{% url 'tfat:recovery_detail' recovery_id=item.id %}" role="button">
-                        <span class="glyphicon glyphicon-edit"></span>  Details</a></td>
-                </tr>
-            {% endfor %}
-        </table>
-
-    {% else %}
-
-        <div class="alert alert-warning">
-            <h3>Oops!</h3>
-            <p> There don't seem to be any tags associated with this report.</p>
-        </div>
-
-    {% endif %}
-
-    <hr />
-
-</div>
-
-
-<script>
-
- $('.chevron_toggleable').on('click', function() {
-     $(this).toggleClass('glyphicon-chevron-down glyphicon-chevron-up');
-     $(this).siblings(".panel").toggle();
- });
-</script>
+     $('.chevron_toggleable').on('click', function() {
+         $(this).toggleClass('glyphicon-chevron-down glyphicon-chevron-up');
+         $(this).siblings(".panel").toggle();
+     });
+    </script>
 
 
 

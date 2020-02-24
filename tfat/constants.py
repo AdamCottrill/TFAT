@@ -32,6 +32,14 @@ RECOVERY_LETTER_CHOICES = {
 }
 
 
+FOLLOW_UP_STATUS_CHOICES = [
+    # (0, "Not Requested"),
+    ("requested", "Requested"),
+    ("initialized", "Initialized"),
+    ("completed", "Completed"),
+]
+
+
 SEX_CHOICES = {("1", "Male"), ("2", "Female"), ("3", "Hermaphrodite"), ("9", "Unknown")}
 
 

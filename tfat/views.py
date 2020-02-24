@@ -21,7 +21,7 @@ from datetime import datetime
 
 from geojson import MultiLineString
 
-from tfat.constants import CLIP_CODE_CHOICES
+from tfat.constants import CLIP_CODE_CHOICES, FOLLOW_UP_STATUS_CHOICES
 from tfat.models import (
     Species,
     JoePublic,
@@ -819,22 +819,33 @@ def create_report_followup(request, report_id):
     report = get_object_or_404(Report, id=report_id)
     user = request.user
 
-    if request.method == "POST" and report:
+    next_url = request.GET.get("next")
 
+    # remove the required option and trailing d from labels:
+    status_choices = [x for x in FOLLOW_UP_STATUS_CHOICES if x[0] != "requested"]
+
+    # if the follow up is already intialized, don't offer that option again.
+    if report.follow_up_status.status == "initialized":
+        status_choices = [x for x in status_choices if x[0] != "initialized"]
+
+    if request.method == "POST" and report:
         form = ReportFollowUpForm(request.POST, request.FILES)
         if form.is_valid():
             followup = form.save(commit=False)
             followup.report = report
             followup.created_by = user
             followup.save()
-            return redirect("tfat:report_detail", report_id=report.id)
+            if next_url is not None:
+                return redirect(next_url)
+            else:
+                return redirect("tfat:report_detail", report_id=report.id)
     else:
-        form = ReportFollowUpForm(
-            initial={"submitted_by": user, "report_id": report.id}
-        )
+        form = ReportFollowUpForm(status_choices=status_choices)
 
     return render(
-        request, "tfat/report_followup_form.html", {"form": form, "report": report}
+        request,
+        "tfat/report_followup_form.html",
+        {"form": form, "next_url": next_url, "report": report},
     )
 
 

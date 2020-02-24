@@ -24,6 +24,7 @@ import pytz
 
 from .constants import (
     REPORTING_CHOICES,
+    FOLLOW_UP_STATUS_CHOICES,
     SEX_CHOICES,
     TAG_TYPE_CHOICES,
     TAG_POSITION_CHOICES,
@@ -114,31 +115,23 @@ class CreateJoePublicForm(JoePublicForm):
 class ReportFollowUpForm(ModelForm):
     """A form to capture information about the status of a report follow-up"""
 
+    comment = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),
+    )
+
     class Meta:
         model = ReportFollowUp
-        fields = [
-            "status",
-            "comment",
-            # hidden fields:
-            # "report",
-            # "submitted_by",
-        ]
+        fields = ["status", "comment"]
 
-        widgets = {
-            "status": forms.Select(attrs={"class": "form-control"}),
-            "comment": forms.Textarea(attrs={"class": "form-control", "rows": 10}),
-        }
+        widgets = {"status": forms.Select(attrs={"class": "form-control"})}
 
-        # def __init__(self, *args, **kwargs):
-        #     # we need to instantiate the form with a user and a report
-        #     self.report_id = kwargs.pop("report_id")
-        #     super(ReportFollowUpForm, self).__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
 
-        # def save(self, report, *args, **kwargs):
-        #     followup = super(ReportFollowUpForm, self).save(commit=False)
-        #     followup.report = report
-        #     followup.save()
-        #     return followup
+        status_choices = kwargs.pop("status_choices", FOLLOW_UP_STATUS_CHOICES)
+        super(ReportFollowUpForm, self).__init__(*args, **kwargs)
+        self.fields["status"].choices = status_choices
+        self.fields["status"].label = "Report Follow Up has been:"
 
 
 class ReportForm(ModelForm):

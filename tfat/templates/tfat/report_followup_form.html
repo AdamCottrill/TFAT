@@ -8,7 +8,7 @@
         <h2>Report from {{ report.reported_by }} on {{ report.report_date|date:"M d, Y" }}</h2>
 
         
-        <form method="post" action="{{ request.path }}">
+        <form method="post" action="{{ request.path }}{% if next_url %}?next={{next_url}}{%endif%}">
             {% csrf_token %}
             {% if form.errors %}
                 <div class="alert alert-danger">
@@ -60,7 +60,7 @@
                                 <div class="col-md-1 col-md-offset-1">
 
                                     <a class="btn btn-danger pull-left"
-                                       href="{% url 'tfat:report_detail' report_id=report.id %}"
+                                       href="{{  next_url }}"
                                        role="button">Cancel</a>
                                     
                                 </div>

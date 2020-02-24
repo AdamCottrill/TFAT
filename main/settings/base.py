@@ -103,13 +103,10 @@ TIME_ZONE = "Canada/Eastern"
 AUTH_USER_MODEL = "myusers.CustomUser"
 
 LOGIN_URL = "login"
-LOGIN_REDIRECT_URL = "accounts/login"
+LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "accounts/login"
 
-AUTHENTICATION_BACKENDS = (
-    "django.contrib.auth.backends.ModelBackend",
-    "main.backends.EmailBackend",
-)
+AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
 
 
 # EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'

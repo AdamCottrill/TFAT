@@ -82,7 +82,7 @@ class ReportFollowUpFactory(factory.DjangoModelFactory):
 
     report = factory.SubFactory(JoePublicFactory)
     created_by = factory.SubFactory(UserFactory)
-    status = 10
+    status = "requested"
     comment = "This is a followup comment."
 
 
