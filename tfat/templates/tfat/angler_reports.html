@@ -141,7 +141,7 @@
                         
                         {% if recovery1.report.follow_up_status %}
                             <div class="col-md-2" >
-                                {% if recovery1.report.follow_up_status.status == 'requested' or recovery1.report.follow_up_status.status == 'initiated' %}
+                                {% if recovery1.report.follow_up_status == 'requested' or recovery1.report.follow_up_status == 'initiated' %}
                             
                             <a class="btn btn-danger  btn-xs"
                                href="{% url 'tfat:create_report_followup' report_id=recovery1.report.id %}?next={{request.path}}"

@@ -384,6 +384,7 @@ def test_create_report_with_follow_up(client, db_setup):
     # query the database and make sure the data is how we expect it.
     report = Report.objects.get(reported_by__first_name="Barney")
     assert report.follow_up is True
+    assert report.follow_up_status == "requested"
 
 
 # ======================================

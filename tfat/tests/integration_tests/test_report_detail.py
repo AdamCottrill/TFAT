@@ -77,6 +77,7 @@ def db_setup():
         reporting_format="dcr",
         dcr="dcr123",
         effort="eff001",
+        follow_up_status="requested",
         associated_file=File(mock_file),
         comment="A fake comment.",
         follow_up=True,

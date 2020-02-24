@@ -74,6 +74,7 @@ class ReportFactory(factory.DjangoModelFactory):
     reported_by = factory.SubFactory(JoePublicFactory)
     report_date = datetime(2013, 11, 11).replace(tzinfo=pytz.UTC)
     reporting_format = "e-mail"
+    follow_up_status = None
 
 
 class ReportFollowUpFactory(factory.DjangoModelFactory):

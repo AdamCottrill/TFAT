@@ -110,7 +110,7 @@
                         {% endif %}
 
 
-                        {% with report.follow_up_status.status as status %}
+                        {% with report.follow_up_status as status %}
                             {% if status %}
                                 {% if status == 'requested' or status == 'initialized' %}
                                     
@@ -118,13 +118,13 @@
                                        href="{% url 'tfat:create_report_followup' report_id=report.id %}?next={{request.path}}"
                                        role="button">Follow-up Required</a>
 
-                                       {% else %}
+                                {% else %}
                                     <button class="btn  {{ status|status_button_class }}   btn-xs pull-right" role="button">
                                         <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 
                                         Follow-up Complete
                                     </button>
-                                       {% endif %}
                                 {% endif %}
+                            {% endif %}
                         {% endwith %}
 
                         
@@ -138,7 +138,7 @@
 
                     <ul>
                         {% for item in report.followups.all %}
-                            <li>{{item.get_status_display}} by {{item.created_by}} on {{item.timestamp|date:"M d, Y"}}
+                            <li>{{item.get_status_display}} by {{item.created_by.first_name}} {{item.created_by.last_name}} on {{item.timestamp|date:"M d, Y"}}
 
                                 {% if item.comment %}
                                     <span class="chevron_toggleable glyphicon glyphicon-chevron-down"></span>

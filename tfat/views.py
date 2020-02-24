@@ -3,6 +3,7 @@ from django.conf import settings
 # from django.core.servers.basehttp import FileWrapper
 from wsgiref.util import FileWrapper
 from django.db.models import Q, Count, Subquery
+from django.db import transaction
 from django.http import Http404, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, get_list_or_404
@@ -748,6 +749,7 @@ def create_report(request, angler_id, report_a_tag=False):
     """
 
     angler = get_object_or_404(JoePublic, id=angler_id)
+    follow_up = None
 
     if request.method == "POST" and angler:
         form = ReportForm(request.POST, request.FILES)
@@ -757,10 +759,13 @@ def create_report(request, angler_id, report_a_tag=False):
             report.reported_by = angler
             report.save()
             if report.follow_up and report.follow_up_status is None:
-                ReportFollowUp(
+                report.follow_up_status = "requested"
+                follow_up = ReportFollowUp(
                     report=report, created_by=request.user, status="requested"
-                ).save()
-
+                )
+                with transaction.atomic():
+                    report.save()
+                    follow_up.save()
             # redirect to report details:
             if report_a_tag:
                 return redirect("tfat:report_a_tag_report_detail", report_id=report.id)
@@ -788,6 +793,8 @@ def edit_report(request, report_id):
 
     report = get_object_or_404(Report, id=report_id)
     angler = report.reported_by
+    follow_up = None
+
     if request.method == "POST":
         form = ReportForm(request.POST, request.FILES, instance=report)
         if form.is_valid():
@@ -795,10 +802,15 @@ def edit_report(request, report_id):
             report.reported_by = angler
             report.save()
             if report.follow_up and report.follow_up_status is None:
-                ReportFollowUp(
+                report.follow_up_status = "requested"
+                follow_up = ReportFollowUp(
                     report=report, created_by=request.user, status="requested"
-                ).save()
-
+                )
+                with transaction.atomic():
+                    report.save()
+                    follow_up.save()
+            if follow_up:
+                follow_up.save()
             return redirect("tfat:report_detail", report_id=report.id)
     else:
         form = ReportForm(instance=report)
@@ -825,16 +837,20 @@ def create_report_followup(request, report_id):
     status_choices = [x for x in FOLLOW_UP_STATUS_CHOICES if x[0] != "requested"]
 
     # if the follow up is already intialized, don't offer that option again.
-    if report.follow_up_status.status == "initialized":
+    if report.follow_up_status == "initialized":
         status_choices = [x for x in status_choices if x[0] != "initialized"]
 
     if request.method == "POST" and report:
         form = ReportFollowUpForm(request.POST, request.FILES)
         if form.is_valid():
-            followup = form.save(commit=False)
-            followup.report = report
-            followup.created_by = user
-            followup.save()
+            # this should be in a transaction:
+            with transaction.atomic():
+                followup = form.save(commit=False)
+                followup.report = report
+                followup.created_by = user
+                followup.save()
+                report.follow_up_status = followup.status
+                report.save()
             if next_url is not None:
                 return redirect(next_url)
             else:

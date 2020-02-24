@@ -165,6 +165,16 @@ class Report(models.Model):
     # exactly is the follow up and who is it assigned to, who did it.
     follow_up = models.BooleanField(default=False)
 
+    follow_up_status = models.CharField(
+        "Follow Up Status",
+        max_length=12,
+        db_index=True,
+        choices=FOLLOW_UP_STATUS_CHOICES,
+        default=None,
+        blank=True,
+        null=True,
+    )
+
     class Meta:
 
         ordering = ["-report_date"]
@@ -204,15 +214,16 @@ class Report(models.Model):
         tags = [x for x in tags if x.dd_lat and x.dd_lon]
         return tags
 
-    @property
-    def follow_up_status(self):
-        """Get the the most recent follow up object.
 
-        Arguments:
-        - `self`:
-        """
-
-        return self.followups.order_by("status").first()
+#   @property
+#   def follow_up_status(self):
+#       """Get the the most recent follow up object.
+#
+#       Arguments:
+#       - `self`:
+#       """
+#
+#       return self.followups.order_by("status").first()
 
 
 class ReportFollowUp(models.Model):

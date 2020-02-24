@@ -41,7 +41,7 @@
                 <td> {{ object.general_location }} </td>
                 <td>
 
-                    {% with object.report.follow_up_status.status as status %}
+                    {% with object.report.follow_up_status as status %}
                         {% if  status %}
                             <a class="btn {{ status|status_button_class }} btn-xs" href="{% url 'tfat:report_detail' report_id=object.report.id %}" role="button">
                                 {{ status }}

@@ -268,6 +268,10 @@ class ReportForm(ModelForm):
 
         return cleaned_data
 
+    def save(self, commit=True):
+
+        return super(ReportForm, self).save(commit=commit)
+
 
 class RecoveryForm(ModelForm):
     """A form to capture the information associated with a recaptured tag

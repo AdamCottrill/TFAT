@@ -192,6 +192,8 @@ class ReportFollowUpTestCase(TestCase):
         ReportFollowUpFactory(
             report=self.report, created_by=self.user, status="initialized"
         )
+        self.report.follow_up_status = "initialized"
+        self.report.save()
 
         url = reverse(
             "tfat:create_report_followup", kwargs={"report_id": self.report.id}

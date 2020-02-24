@@ -11,7 +11,7 @@
                 <div class="col-md-2" >
 
 
-                    {% with object.follow_up_status.status as status %}
+                    {% with object.follow_up_status as status %}
                         {% if status %}
                             {% if status == 'requested' or status == 'initialized' %}
                                 

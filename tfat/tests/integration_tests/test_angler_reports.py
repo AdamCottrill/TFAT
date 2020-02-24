@@ -51,7 +51,12 @@ def db_setup():
         recovery = RecoveryFactory(report=report, spc=spc, tagid=tag)
 
     # a report filed by Monty Burns
-    report = ReportFactory(reported_by=angler2, follow_up=True, report_date=report_date)
+    report = ReportFactory(
+        reported_by=angler2,
+        follow_up=True,
+        follow_up_status="requested",
+        report_date=report_date,
+    )
 
     followup = ReportFollowUpFactory(report=report, created_by=user, status="requested")
 

@@ -49,7 +49,12 @@ def db_setup():
         recovery = RecoveryFactory(report=report, spc=spc, tagid=tag)
 
     # a report filed by Monty Burns
-    report = ReportFactory(reported_by=angler2, follow_up=True, report_date=report_date)
+    report = ReportFactory(
+        reported_by=angler2,
+        follow_up=True,
+        follow_up_status="requested",
+        report_date=report_date,
+    )
 
     followup = ReportFollowUpFactory(report=report, created_by=user, status="requested")
 
@@ -119,6 +124,8 @@ def test_follow_up_not_in_tag_report_list(client, db_setup):
     user = UserFactory()
     followup = ReportFollowUpFactory(report=report, created_by=user, status="completed")
     followup.save()
+    report.follow_up_status = "completed"
+    report.save()
 
     # verify that follow-up required is not in the list now:
     response = client.get(reverse("tfat:recovery_report_list"))
