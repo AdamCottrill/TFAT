@@ -146,9 +146,9 @@
           {% else %}
           {{ user.username }}!
           {% endif %} </p>
-        <p class="navbar-text"><a href="#">Logout</a> </p>
+        <p class="navbar-text"><a href="{% url 'logout' %}">Logout</a> </p>
         {% else %}
-        <p class="navbar-text"><a href="#">Login</a> </p>
+        <p class="navbar-text"><a href="{% url 'login' %}">Login</a> </p>
         {% endif %}
       </div><!-- /.navbar-collapse -->
     </header>

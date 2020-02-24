@@ -1,0 +1,73 @@
+{% extends "tfat/tfat_base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+
+<div id="Login">
+  <div class="row top-buffer">
+    <!-- Alignment -->
+    <div class="col-sm-offset-3 col-sm-5">
+
+      <!-- Form itself -->
+      <form method="POST" action="" class="well">
+        {% csrf_token %}
+        <legend>TFAT Login</legend>
+
+        {% if form.errors %}
+        <div class="alert alert-danger">
+          <button type="button" class="close" data-dismiss="alert">×</button>
+          <ul>
+            {% for error in form.errors.values %}
+                <li>{{ error|striptags }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+
+
+        
+        <!-- Full Name -->
+        <div class="form-group {% if form.username.errors %}has-error{% endif %}">
+            <div class="controls">
+                
+                <input type="email" class="form-control" name="username"
+                       placeholder="e-mail" id="username" required
+                       data-validation-required-message="Please enter your email" />
+                {% if form.username.errors %}
+                    {% for error in form.username.errors %}
+                        <div class="has-error help-block text-danger">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+                
+            </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group {% if form.username.errors %}has-error{% endif %}">
+            <div class="controls">
+                <input type="password" class="form-control" placeholder="password"
+                       name="password" id="password" required />
+            </div>
+
+            {% if form.password.errors %}
+                {% for error in form.password.errors %}
+                    <div class="has-error help-block text-danger">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+            
+        </div>
+        <br />
+        <div class="row">
+            <button type="submit" class="btn btn-primary pull-right">Login</button><br /></p>
+</div>
+
+</form>
+</div>
+</div>
+</div>
+
+
+
+{% endblock %}

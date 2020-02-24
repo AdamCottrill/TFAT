@@ -71,7 +71,10 @@ ROOT_URLCONF = "main.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, "../tfat/templates")],
+        "DIRS": [
+            os.path.join(BASE_DIR, "../templates"),
+            os.path.join(BASE_DIR, "../tfat/templates"),
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -104,7 +107,7 @@ AUTH_USER_MODEL = "myusers.CustomUser"
 
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "home"
-LOGOUT_REDIRECT_URL = "accounts/login"
+LOGOUT_REDIRECT_URL = "home"
 
 AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
 
