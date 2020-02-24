@@ -215,17 +215,6 @@ class Report(models.Model):
         return tags
 
 
-#   @property
-#   def follow_up_status(self):
-#       """Get the the most recent follow up object.
-#
-#       Arguments:
-#       - `self`:
-#       """
-#
-#       return self.followups.order_by("status").first()
-
-
 class ReportFollowUp(models.Model):
     """A table to hold the response letter(s) associted with a tag
     recovery event."""

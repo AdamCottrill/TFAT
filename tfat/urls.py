@@ -29,7 +29,6 @@ from tfat.views import (
     tags_applied_year,
     tags_recovered_year,
     report_a_tag_angler_list,
-    make_recovery_letter,
     serve_file,
     tags_recovered_this_year,
     report_list,
@@ -208,9 +207,4 @@ urlpatterns = [
     ),
     # this function is used to download reports and files from project pages
     url(r"^serve_file/(?P<filename>.+)/$", serve_file, name="serve_file"),
-    url(
-        regex=r"^make_recovery_letter/(?P<recovery_id>\d+)/(?P<zoom>\d+)/$",
-        view=make_recovery_letter,
-        name="make_recovery_letter",
-    ),
 ]
