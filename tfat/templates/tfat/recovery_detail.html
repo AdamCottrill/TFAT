@@ -43,7 +43,10 @@
 
     <div class="row">
         <h2>Tag Recovery Event ({{ recovery.id }})</h2>
-        <div class="btn-toolbar pull-right">
+
+        {% if user.is_authenticated %}
+            
+        <div class="btn-toolbar pull-right">            
             <a class="btn btn-primary" href="{% url 'tfat:edit_recovery' recovery_id=recovery.id  %}" role="button">
             <span class="glyphicon glyphicon-edit"></span>Edit Recovery Details</a>
         {% if add_another %}
@@ -51,6 +54,8 @@
                 <span class="glyphicon glyphicon-plus-sign"></span>  Add Another Tag </a>
         {% endif %}
         </div>
+        {% endif %}
+        
     </div>
 
     <hr />

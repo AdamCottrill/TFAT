@@ -22,9 +22,19 @@ from datetime import datetime
 
 
 @pytest.fixture()
+def user():
+
+    user = UserFactory(email="mickey@disney.com")
+    user.set_password("Abcd1234")
+    user.save()
+
+
+@pytest.fixture()
 def db_setup():
 
-    user = UserFactory()
+    user = UserFactory(email="mickey@disney.com")
+    user.set_password("Abcd1234")
+    user.save()
 
     report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.timezone("Canada/Eastern"))
 
@@ -81,9 +91,27 @@ def test_anlger_reports(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_anlger_report_has_crud_links(client, db_setup):
+def test_anlger_report_has_crud_links_if_authentciated(client, user, db_setup):
     """The report list for a partuclar angler should have links to allow
-    us to create and update reports.
+    us to create and update reports if the user is logged in.
+    """
+
+    angler = JoePublic.objects.get(first_name="Homer")
+    client.login(username="mickey@disney.com", password="Abcd1234")
+    response = client.get(
+        reverse("tfat:angler_reports", kwargs={"angler_id": angler.id})
+    )
+    content = str(response.content)
+
+    assert "Edit Details" in content  # angler details
+    assert "Create New Report" in content
+    assert "Report Details" in content
+
+
+@pytest.mark.django_db
+def test_anlger_report_has_no_crud_links_by_default(client, db_setup):
+    """The report list for a partuclar angler should NOT have links to
+    create and update reports. if the user is not logged
     """
 
     angler = JoePublic.objects.get(first_name="Homer")
@@ -92,8 +120,8 @@ def test_anlger_report_has_crud_links(client, db_setup):
     )
     content = str(response.content)
 
-    assert "Edit Details" in content  # angler details
-    assert "Create New Report" in content
+    assert "Edit Details" not in content  # angler details
+    assert "Create New Report" not in content
     assert "Report Details" in content
 
 
@@ -235,10 +263,35 @@ def test_step2_in_anlger_report_a_tag(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_report_a_tag_anlger_report_create_report_link(client, db_setup):
-    """When we view the angler reports through the report-a-tag url, the
-    link to create reports shoudl also be report-a-tag url, not the
-    standard create report url.
+def test_report_a_tag_anlger_report_create_report_link_authenticated(
+    client, user, db_setup
+):
+    """When a logged-in user views the angler reports through the
+    report-a-tag url, the link to create reports shoudl also be
+    report-a-tag url, not the standard create report url.
+
+    """
+
+    angler = JoePublic.objects.get(first_name="Homer")
+    client.login(username="mickey@disney.com", password="Abcd1234")
+    response = client.get(
+        reverse("tfat:report_a_tag_angler_reports", kwargs={"angler_id": angler.id})
+    )
+    content = str(response.content)
+
+    url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
+    assert url not in content
+
+    url = reverse("tfat:report_a_tag_create_report", kwargs={"angler_id": angler.id})
+    assert url in content
+
+
+@pytest.mark.django_db
+def test_report_a_tag_anlger_report_create_report_link_not_authenticated(
+    client, db_setup
+):
+    """If an unauthorized user accessess the view the angler reports through the report-a-tag url, they
+    should NOT see the link to create reports
 
     """
 
@@ -252,4 +305,4 @@ def test_report_a_tag_anlger_report_create_report_link(client, db_setup):
     assert url not in content
 
     url = reverse("tfat:report_a_tag_create_report", kwargs={"angler_id": angler.id})
-    assert url in content
+    assert url not in content

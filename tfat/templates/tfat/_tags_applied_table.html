@@ -1,56 +1,36 @@
 {% load humanize %}
-{% load tfat_tags %}
-
-
 <table class="tablesorter table table-condensed" id="myTable">
     <thead>
         <tr>
-            <th>TAGID</th>
+            <th>TagID</th>
             <th>Species</th>
             <th>Date</th>
             <th>Grid</th>
             <th>Type</th>
             <th>Colour</th>
             <th>Origin</th>
+            <th>TagStat</th>
             <th class="metric">Length <br /> (mm)</th>
             <th class="imperial">Length <br />(in)</th>
             <th class="metric">Weight <br />(g)</th>
             <th class="imperial">Weight <br />(lbs)</th>
-            <th>Returned By</th>
-            <th>General Location</th>
-            <th>Follow-up</th>
         </tr>
     </thead>
     <tbody>
-        {% for object in object_list %}
+        {% for object in applied %}
             <tr>
                 <td> <a href="{% url 'tfat:tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
                 <td> {{ object.spc.common_name }} </td>
-                <td> {{ object.observation_date|date:"M d, Y" }} </td>
+                <td> {{ object.observation_date }} </td>
                 <td> {{ object.grid }} </td>
                 <td> {{ object.tag_type }} </td>
                 <td> {{ object.tag_colour }} </td>
                 <td> {{ object.tag_origin }} </td>
+                <td> {{ object.tagstat }} </td>
                 <td class="metric"> {{ object.tlen|intcomma }} </td>
                 <td class="imperial"> {{ object.tlen_inches }} </td>
                 <td class="metric"> {{ object.rwt|intcomma }} </td>
                 <td class="imperial"> {{ object.pounds }} </td>
-                <td> <a href="{% url 'tfat:angler_reports' angler_id=object.report.reported_by.id %}">
-                    {{ object.report.reported_by }}</a> </td>
-
-                <td> {{ object.general_location }} </td>
-                <td>
-
-                    {% with object.report.follow_up_status as status %}
-                        {% if  status %}
-                            <a class="btn {{ status|status_button_class }} btn-xs" href="{% url 'tfat:report_detail' report_id=object.report.id %}" role="button">
-                                {{ status }}
-                                <a>
-                        {% else %}
-                                    <button class="btn btn-default btn-xs">Not Requested</button>
-                        {% endif %}
-                    {% endwith %}                                                
-                </td>
             </tr>
         {% endfor%}
     </tbody>

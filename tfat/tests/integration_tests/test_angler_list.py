@@ -20,11 +20,21 @@ from django.urls import reverse
 
 from tfat.tests.factories import *
 
-# from datetime import datetime
+
+@pytest.fixture()
+def user():
+    """Create a user we can login to some views:
+    """
+
+    user = UserFactory(email="mickey@disney.com")
+    user.set_password("Abcd1234")
+    user.save()
+
+    return user
 
 
 @pytest.fixture()
-def db_setup():
+def anglers():
     """Create some users with easy to remember names.
     """
 
@@ -34,7 +44,7 @@ def db_setup():
 
 
 @pytest.mark.django_db
-def test_angler_list(client, db_setup):
+def test_angler_list(client, anglers):
     """The default angler list should include a list of all anlgers in the
     database.
 
@@ -59,7 +69,7 @@ def test_angler_list(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_angler_list_filter_first_name(client, db_setup):
+def test_angler_list_filter_first_name(client, anglers):
     """Verify that the filter works if we provide a partial first name
     """
 
@@ -78,7 +88,7 @@ def test_angler_list_filter_first_name(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_add_new_person_link(client, db_setup):
+def test_add_new_person_link(client, anglers):
     """when we apply a filter, the Add New Person should be the content
     and it should point to the create_angler url not the
     report_a_tag_new_angler url.
@@ -98,14 +108,16 @@ def test_add_new_person_link(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_add_new_person_report_a_tag_link(client, db_setup):
+def test_add_new_person_report_a_tag_link_logged_in(client, user, anglers):
     """when we apply a filter to the report_a_tag link, the string "Add
     New Person" should be the content and it should point to
-    report_a_tag_new_angler url not the url for create_angler.
+    report_a_tag_new_angler url not the url for create_angler if the
+    user is logged in.
 
     """
 
     url = reverse("tfat:report_a_tag_angler_list")
+    client.login(username=user.email, password="Abcd1234")
     response = client.get(url + "?first_name=home")
     content = str(response.content)
 
@@ -118,13 +130,33 @@ def test_add_new_person_report_a_tag_link(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_report_a_tag_no_match(client, db_setup):
+def test_no_add_new_person_report_a_tag_link(client, anglers):
+    """The "Add a New" person button and url shold not be in the view if it
+    is accessed by a anonymous user.
+
+    """
+
+    url = reverse("tfat:report_a_tag_angler_list")
+    response = client.get(url + "?first_name=home")
+    content = str(response.content)
+
+    assert "Add New Person" not in content
+    url = reverse("tfat:create_angler")
+    assert url not in content
+
+    url = reverse("tfat:report_a_tag_new_angler")
+    assert url not in content
+
+
+@pytest.mark.django_db
+def test_report_a_tag_no_match(client, user, anglers):
     """If we apply a filter that that does not match any existing anglers
     and we are accessing the report-a-tag urls, a message explaining what
     do do next should be included in the response
     """
 
     url = reverse("tfat:report_a_tag_angler_list")
+    client.login(username=user.email, password="Abcd1234")
     response = client.get(url + "?first_name=nomatch")
     content = str(response.content)
 
@@ -136,7 +168,7 @@ def test_report_a_tag_no_match(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_angler_list_filter_last_name(client, db_setup):
+def test_angler_list_filter_last_name(client, anglers):
     """Verify that the filter works if we provide a partial last name
 
     """
@@ -157,7 +189,7 @@ def test_angler_list_filter_last_name(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_angler_not_in_angler_list(client, db_setup):
+def test_angler_not_in_angler_list(client, anglers):
     """If an angler who is not in the data base is queried, the response
     should indicate that no people matching that criteria could be
     found and provide an option to add a new person.

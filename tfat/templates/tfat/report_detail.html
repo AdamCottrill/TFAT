@@ -49,9 +49,11 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h3 class="panel-title">Report Details
-                            <a class="btn btn-default btn-xs pull-right"
-                               href="{% url 'tfat:edit_report' report_id=report.id %}"
-                               role="button">Edit Report</a>
+                            {% if user.is_authenticated %}
+                                <a class="btn btn-default btn-xs pull-right"
+                                   href="{% url 'tfat:edit_report' report_id=report.id %}"
+                                   role="button">Edit Report</a>
+                            {% endif %}
                         </h3>
                     </div>
                     <div class="panel-body">
@@ -193,11 +195,13 @@
                 <h2>Tag Recoveries</h2>
             </div>
 
+            {% if user.is_authenticated %}
             <div class="col-md-3" >
                 <a class="btn btn-danger pull-right" href="{% url 'tfat:create_recovery' report_id=report.id  %}" role="button">
                     <span class="glyphicon glyphicon-plus-sign"></span>  Add New Tag</a>
 
             </div>
+            {% endif %}
         </div>
         <br />
 

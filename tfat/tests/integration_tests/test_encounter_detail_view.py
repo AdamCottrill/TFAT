@@ -150,7 +150,7 @@ def test_detail_tag_details(client, project, species):
     assert "Yellow" in content
     assert "Flesh of Back" in content
     assert "Tubular Vinyl" in content
-    assert "Ontario Ministry of Natural Resources" in content
+    assert "MNRF" in content
 
 
 @pytest.mark.django_db

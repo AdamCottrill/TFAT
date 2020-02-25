@@ -59,7 +59,9 @@ except ImportError:
 @pytest.fixture()
 def db_setup():
 
-    user = UserFactory()
+    user = UserFactory(email="mickey@disney.com")
+    user.set_password("Abcd1234")
+    user.save()
 
     report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.timezone("Canada/Eastern"))
     spc = SpeciesFactory()
@@ -144,8 +146,26 @@ def test_reports_detail_contains_reported_by(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_reports_detail_contains_edit_report(client, db_setup):
-    """verify that a link to edit the report is included in the reponse
+def test_reports_detail_contains_edit_report_authenticated(client, db_setup):
+    """verify that a link to edit the report is included in the reponse if
+    our user is authenticated.
+
+    """
+
+    report = Report.objects.get(reported_by__first_name="Homer")
+    client.login(username="mickey@disney.com", password="Abcd1234")
+    response = client.get(
+        reverse("tfat:report_detail", kwargs={"report_id": report.id})
+    )
+    content = str(response.content)
+    url = reverse("tfat:edit_report", kwargs={"report_id": report.id})
+    assert url in content
+
+
+@pytest.mark.django_db
+def test_reports_detail_does_not_contain_edit_report(client, db_setup):
+    """verify that a link to edit the report is NOT included if our user
+    is not logged in.
 
     """
 
@@ -155,7 +175,7 @@ def test_reports_detail_contains_edit_report(client, db_setup):
     )
     content = str(response.content)
     url = reverse("tfat:edit_report", kwargs={"report_id": report.id})
-    assert url in content
+    assert url not in content
 
 
 @pytest.mark.django_db
@@ -190,8 +210,27 @@ def test_reports_detail_contains_report_format(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_reports_detail_contains_add_tag_link(client, db_setup):
-    """verify that the reponsce contains a link to add tags to this report
+def test_reports_detail_contains_add_tag_link_authorized(client, db_setup):
+    """verify that the reponse to an authorized user contains a link to
+    add tags to this report.
+
+    """
+
+    report = Report.objects.get(reported_by__first_name="Homer")
+    client.login(username="mickey@disney.com", password="Abcd1234")
+    response = client.get(
+        reverse("tfat:report_detail", kwargs={"report_id": report.id})
+    )
+    content = str(response.content)
+    url = reverse("tfat:create_recovery", kwargs={"report_id": report.id})
+    assert url in content
+
+
+@pytest.mark.django_db
+def test_reports_detail_contains_no_add_tag_link(client, db_setup):
+    """verify that the reponsce to unauthorized users does not contains a
+    link to add tags to this report
+
     """
 
     report = Report.objects.get(reported_by__first_name="Homer")
@@ -200,7 +239,7 @@ def test_reports_detail_contains_add_tag_link(client, db_setup):
     )
     content = str(response.content)
     url = reverse("tfat:create_recovery", kwargs={"report_id": report.id})
-    assert url in content
+    assert url not in content
 
 
 # CONTDITIONAL ELEMENTS BELOW THIS POINT

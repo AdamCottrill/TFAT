@@ -97,42 +97,9 @@
                 {% if applied %}
                 <div class="row">
                     <div class="col-md-12">
-                        <table class="tablesorter table" id="myTable">
-                            <thead>
-                                <tr>
-                                    <th>TagID</th>
-                                    <th>Species</th>
-                                    <th>Date</th>
-                                    <th>Grid</th>
-                                    <th>Type</th>
-                                    <th>Colour</th>
-                                    <th>Origin</th>
-                                    <th>TagStat</th>
-                                    <th class="metric">Length <br /> (mm)</th>
-                                    <th class="imperial">Length <br />(in)</th>
-                                    <th class="metric">Weight <br />(g)</th>
-                                    <th class="imperial">Weight <br />(lbs)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for object in applied %}
-                                <tr>
-                                    <td> <a href="{% url 'tfat:tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
-                                    <td> {{ object.spc.common_name }} </td>
-                                    <td> {{ object.observation_date }} </td>
-                                    <td> {{ object.grid }} </td>
-                                    <td> {{ object.tag_type }} </td>
-                                    <td> {{ object.tag_colour }} </td>
-                                    <td> {{ object.tag_origin }} </td>
-                                    <td> {{ object.tagstat }} </td>
-                                    <td class="metric"> {{ object.tlen|intcomma }} </td>
-                                    <td class="imperial"> {{ object.tlen_inches }} </td>
-                                    <td class="metric"> {{ object.rwt|intcomma }} </td>
-                                    <td class="imperial"> {{ object.pounds }} </td>
-                                </tr>
-                                {% endfor%}
-                            </tbody>
-                        </table>
+
+                        {% include "tfat/_tags_applied_table.html" %}
+                        
                         <div class="checkbox pull-right">
                             <label>
                                 <input type='checkbox' onclick='handleClick(this);'>metric/imperial
@@ -155,50 +122,11 @@
         <p>There are the subsequent recovery events for tags applied in {{ project.prj_cd }}.</p>
         <div class="row">
             <div class="col-md-12">
-                <table class="tablesorter table" id="myTable">
-                    <thead>
-                        <tr>
-                            <th>TagID</th>
-                            <th>Species</th>
-                            <th>Date</th>
-                            <th>Grid</th>
-                            <th>Type</th>
-                            <th>Colour</th>
-                            <th>Origin</th>
-                            <th>TagStat</th>
-                            <th class="metric">Length <br /> (mm)</th>
-                            <th class="imperial">Length <br />(in)</th>
-                            <th class="metric">Weight <br />(g)</th>
-                            <th class="imperial">Weight <br />(lbs)</th>
-                            <th>Project Code</th>
-                            <th>Project Name</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for object in recovered.queryset %}
-                        <tr>
-                            <td> <a href="{% url 'tfat:tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
-                            <td> {{ object.spc.common_name }} </td>
-                            <td> {{ object.observation_date }} </td>
-                            <td> {{ object.grid }} </td>
-                            <td> {{ object.tag_type }} </td>
-                            <td> {{ object.tag_colour }} </td>
-                            <td> {{ object.tag_origin }} </td>
-                            <td> {{ object.tagstat }} </td>
-                            <td class="metric"> {{ object.tlen|intcomma }} </td>
-                            <td class="imperial"> {{ object.tlen_inches }} </td>
-                            <td class="metric"> {{ object.rwt|intcomma }} </td>
-                            <td class="imperial"> {{ object.pounds }} </td>
-                            {% if object.tagstat == 'A' %}
-                            <td><a href="{% url 'tfat:tags_applied_in_project' object.project.slug %}">{{ object.project.prj_cd }}</a> </td>
-                            {% else %}
-                            <td><a href="{% url 'tfat:tags_recovered_in_project' object.project.slug %}">{{ object.project.prj_cd }}</a> </td>
-                            {% endif %}
-                            <td> {{ object.project.prj_nm }} </td
-                        </tr>
-                        {% endfor%}
-                    </tbody>
-                </table>
+
+                {% with recovered.queryset as object_list %}
+                    {%  include "tfat/_encounter_table.html" %}
+                {%  endwith %}
+
                 <div class="checkbox pull-right">
                     <label>
                         <input type='checkbox' onclick='handleClick(this);'>metric/imperial

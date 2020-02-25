@@ -34,19 +34,24 @@
 
     <div class="row">
         <div class="col-md-9" >
-        <h2>Tag Reports Filed By {{ angler }}</h2>
+            <h2>Tag Reports Filed By {{ angler }}</h2>
         </div>
-        <div class="col-md-3" >
-            {% if report_a_tag == True %}
-            {% url 'tfat:report_a_tag_create_report' angler_id=angler.id as new_report_url %}
-            {% else %}
-            {% url 'tfat:create_report' angler_id=angler.id as new_report_url %}
-           {% endif %}
 
-                        <a class="btn btn-primary"
-                           href="{{ new_report_url }}"
-                           role="button">Create New Report</a>
-        </div>
+        {% if user.is_authenticated %}
+            <div class="col-md-3" >
+                {% if report_a_tag == True %}
+                    {% url 'tfat:report_a_tag_create_report' angler_id=angler.id as new_report_url %}
+                {% else %}
+                    {% url 'tfat:create_report' angler_id=angler.id as new_report_url %}
+                {% endif %}
+
+                <a class="btn btn-primary"
+                   href="{{ new_report_url }}"
+                   role="button">Create New Report</a>
+            </div>
+        {% endif %}
+
+        
     </div>
 
     <hr />
@@ -56,9 +61,11 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">Angler Details
+                        {% if user.is_authenticated %}
                         <a class="btn btn-default btn-xs pull-right"
                            href="{% url 'tfat:update_angler' angler_id=angler.id %}"
                            role="button">Edit Details</a>
+                        {% endif %}
                     </h3>
                 </div>
                 <div class="panel-body">

@@ -134,7 +134,9 @@ class AnglerListView(ListFilteredMixin, ListView):
 
 
 angler_list = AnglerListView.as_view()
-report_a_tag_angler_list = AnglerListView.as_view(extra_context={"report_a_tag": True})
+report_a_tag_angler_list = login_required(
+    AnglerListView.as_view(extra_context={"report_a_tag": True})
+)
 
 
 class SpeciesListView(ListView):
@@ -643,13 +645,8 @@ def tags_recovered_project(request, slug):
 
     project = Project.objects.get(slug=slug)
 
-    recovered = Encounter.objects.filter(tagstat="C", project=project)
-
-    recovered = recovered.select_related
-    (
-        "project",
-        "spc"
-        # "project__prj_cd", "project__prj_nm", "spc__common_name"
+    recovered = Encounter.objects.filter(tagstat="C", project=project).select_related(
+        "project", "spc"
     )
 
     applied = get_omnr_tag_application(slug)

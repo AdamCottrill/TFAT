@@ -52,6 +52,17 @@ from datetime import datetime
 
 
 @pytest.fixture()
+def user():
+    """Create some users with easy to remember names."""
+
+    user = UserFactory(email="mickey@disney.com")
+    user.set_password("Abcd1234")
+    user.save()
+
+    return user
+
+
+@pytest.fixture()
 def angler():
     return JoePublicFactory(first_name="Homer", last_name="Simpson")
 
@@ -137,8 +148,60 @@ def test_recovery_detail_links(client, angler, report, species):
     url = reverse("tfat:report_detail", kwargs={"report_id": report.id})
     assert url in content
 
+
+@pytest.mark.django_db
+def test_recovery_detail_links(client, angler, report, species):
+    """Verify that we have links to the report's page, the report details
+    page, and the form to edit the recovery information."""
+
+    recovery = RecoveryFactory(report=report, spc=species)
+
+    response = client.get(
+        reverse("tfat:recovery_detail", kwargs={"recovery_id": recovery.id})
+    )
+
+    content = str(response.content)
+
+    assert "Homer Simpson" in content  # this should be a link to tag-details
+
+    url = reverse("tfat:angler_reports", kwargs={"angler_id": angler.id})
+    assert url in content
+
+    url = reverse("tfat:report_detail", kwargs={"report_id": report.id})
+    assert url in content
+
+
+@pytest.mark.django_db
+def test_no_edit_recovery_link(client, angler, report, species):
+    """if the page is accessed by a user who is not logged in, the link to
+    the edit_recovery view should *NOT* be provided."""
+
+    recovery = RecoveryFactory(report=report, spc=species)
+
+    response = client.get(
+        reverse("tfat:recovery_detail", kwargs={"recovery_id": recovery.id})
+    )
+    content = str(response.content)
+    url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
+    assert url not in content
+    assert "Edit Recovery Details" not in content
+
+
+@pytest.mark.django_db
+def test_edit_recovery_link_authorized(client, user, angler, report, species):
+    """if the page is accessed by a user who is logged in, a link to
+    the edit_recovery view should be provided."""
+
+    recovery = RecoveryFactory(report=report, spc=species)
+
+    client.login(username="mickey@disney.com", password="Abcd1234")
+    response = client.get(
+        reverse("tfat:recovery_detail", kwargs={"recovery_id": recovery.id})
+    )
+    content = str(response.content)
     url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
     assert url in content
+    assert "Edit Recovery Details" in content
 
 
 @pytest.mark.django_db
@@ -187,7 +250,7 @@ def test_detail_tag_details(client, report, species):
     assert "Yellow" in content
     assert "Flesh of Back" in content
     assert "Tubular Vinyl" in content
-    assert "Ontario Ministry of Natural Resources" in content
+    assert "MNRF" in content
 
 
 @pytest.mark.django_db
