@@ -55,13 +55,21 @@ except ImportError:
 
 
 @pytest.fixture()
+def user():
+
+    user = UserFactory(email="mickey@disney.com")
+    user.set_password("Abcd1234")
+    user.save()
+
+    return user
+
+
+@pytest.fixture()
 def db_setup():
     """Create some users with easy to remember names.
     """
 
     report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.timezone("Canada/Eastern"))
-
-    spc = SpeciesFactory()
 
     angler1 = JoePublicFactory.create(first_name="Homer", last_name="Simpson")
     angler2 = JoePublicFactory.create(first_name="Montgomery", last_name="Burns")
@@ -103,15 +111,14 @@ def test_report_edit_requires_login(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_edit_report_url(client, db_setup):
+def test_edit_report_url(client, user, db_setup):
     """Verify that the form and its correct elements are rendered when we
     call the edit_report form and all of the appropriate elements are there"""
 
     report = Report.objects.get(reported_by__first_name="Homer")
     url = reverse("tfat:edit_report", kwargs={"report_id": report.id})
 
-    user = UserFactory()
-    client.force_login(user)
+    client.login(username=user.email, password="Abcd1234")
 
     response = client.get(url)
     assert response.status_code == 200
@@ -128,20 +135,19 @@ def test_edit_report_url(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_edit_report_url_404(client, db_setup):
+def test_edit_report_url_404(client, user, db_setup):
     """If we try to edit a report that does not exist, we
     should get a 404 error."""
 
     url = reverse("tfat:edit_report", kwargs={"report_id": 9999999})
 
-    user = UserFactory()
-    client.force_login(user)
+    client.login(username=user.email, password="Abcd1234")
     response = client.get(url)
     assert response.status_code == 404
 
 
 @pytest.mark.django_db
-def test_edit_report_post_url(client, db_setup):
+def test_edit_report_post_url(client, user, db_setup):
     """verifty that we can post data some valid data it should be
     processed and we will be redirected to the report detail page."""
 
@@ -151,8 +157,7 @@ def test_edit_report_post_url(client, db_setup):
 
     data = {}
 
-    user = UserFactory()
-    client.force_login(user)
+    client.login(username=user.email, password="Abcd1234")
 
     response = client.post(url, data, follow=True)
 
@@ -164,7 +169,7 @@ def test_edit_report_post_url(client, db_setup):
 
 # REPORT EDITING:
 @pytest.mark.django_db
-def test_edit_report_change_date(client, db_setup):
+def test_edit_report_change_date(client, user, db_setup):
     """verifty that we can post data with a different date and change the
     report in the database."""
 
@@ -174,8 +179,7 @@ def test_edit_report_change_date(client, db_setup):
 
     data = {"report_date": last_week}
 
-    user = UserFactory()
-    client.force_login(user)
+    client.login(username=user.email, password="Abcd1234")
 
     response = client.post(url, data, follow=True)
 
@@ -184,7 +188,7 @@ def test_edit_report_change_date(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_edit_report_change_invalid_date(client, db_setup):
+def test_edit_report_change_invalid_date(client, user, db_setup):
     """verifty that we can post data with a different date and change the
     report in the database."""
 
@@ -193,8 +197,7 @@ def test_edit_report_change_invalid_date(client, db_setup):
 
     data = {"report_date": "not a date"}
 
-    user = UserFactory()
-    client.force_login(user)
+    client.login(username=user.email, password="Abcd1234")
 
     response = client.post(url, data)
 
@@ -203,7 +206,7 @@ def test_edit_report_change_invalid_date(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_edit_report_change_future_date(client, db_setup):
+def test_edit_report_change_future_date(client, user, db_setup):
     """verifty that we can post data with a different date and change the
     report in the database."""
 
@@ -213,8 +216,7 @@ def test_edit_report_change_future_date(client, db_setup):
 
     data = {"report_date": next_week}
 
-    user = UserFactory()
-    client.force_login(user)
+    client.login(username=user.email, password="Abcd1234")
 
     response = client.post(url, data, follow=True)
 
@@ -224,7 +226,7 @@ def test_edit_report_change_future_date(client, db_setup):
 
 @pytest.mark.xfail
 @pytest.mark.django_db
-def test_edit_report_change_date_flag(client, db_setup):
+def test_edit_report_change_date_flag(client, user, db_setup):
     """verifty that we can post data with a different date flag and change the
     report in the database.
 
@@ -239,8 +241,7 @@ def test_edit_report_change_date_flag(client, db_setup):
 
     data = {"date_flag": should_be}
 
-    user = UserFactory()
-    client.force_login(user)
+    client.login(username=user.email, password="Abcd1234")
 
     response = client.post(url, data, follow=True)
 
@@ -250,7 +251,7 @@ def test_edit_report_change_date_flag(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_edit_report_change_format_to_dcr_without_dcr_number(client, db_setup):
+def test_edit_report_change_format_to_dcr_without_dcr_number(client, user, db_setup):
     """if we post data to change reporting format to dcr without providing
     a dcr number, an error will be thrown"""
 
@@ -259,8 +260,7 @@ def test_edit_report_change_format_to_dcr_without_dcr_number(client, db_setup):
 
     data = {"reporting_format": "dcr"}
 
-    user = UserFactory()
-    client.force_login(user)
+    client.login(username=user.email, password="Abcd1234")
 
     response = client.post(url, data)
 
@@ -269,7 +269,7 @@ def test_edit_report_change_format_to_dcr_without_dcr_number(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_edit_report_change_format_to_dcr_without_eff_number(client, db_setup):
+def test_edit_report_change_format_to_dcr_without_eff_number(client, user, db_setup):
     """if we post data to change reporting format to dcr without providing
     an effort number, an error will be thrown"""
 
@@ -278,8 +278,7 @@ def test_edit_report_change_format_to_dcr_without_eff_number(client, db_setup):
 
     data = {"reporting_format": "dcr", "dcr": "DCR1234"}
 
-    user = UserFactory()
-    client.force_login(user)
+    client.login(username=user.email, password="Abcd1234")
 
     response = client.post(url, data)
 
@@ -289,7 +288,7 @@ def test_edit_report_change_format_to_dcr_without_eff_number(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_edit_report_change_format_to_dcr_with_dcr_eff(client, db_setup):
+def test_edit_report_change_format_to_dcr_with_dcr_eff(client, user, db_setup):
     """if we post data to change reporting format to dcr and provide
     dcr and effort numbers, the report should be updated"""
 
@@ -301,8 +300,7 @@ def test_edit_report_change_format_to_dcr_with_dcr_eff(client, db_setup):
 
     data = {"reporting_format": "dcr", "dcr": dcr, "effort": effort}
 
-    user = UserFactory()
-    client.force_login(user)
+    client.login(username=user.email, password="Abcd1234")
 
     response = client.post(url, data, follow=True)
 
@@ -314,7 +312,7 @@ def test_edit_report_change_format_to_dcr_with_dcr_eff(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_edit_report_change_format_from_dcr_with_eff(client, db_setup):
+def test_edit_report_change_format_from_dcr_with_eff(client, user, db_setup):
     """if we post data to change reporting format from dcr to something
     else but forget to clear the effort, an error should be thrown by
     the form and included in the response
@@ -324,8 +322,7 @@ def test_edit_report_change_format_from_dcr_with_eff(client, db_setup):
 
     data = {"reporting_format": "verbal", "dcr": "", "effort": "001"}
 
-    user = UserFactory()
-    client.force_login(user)
+    client.login(username=user.email, password="Abcd1234")
 
     response = client.post(url, data)
 
@@ -336,7 +333,7 @@ def test_edit_report_change_format_from_dcr_with_eff(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_edit_report_change_format_from_dcr_with_dcr(client, db_setup):
+def test_edit_report_change_format_from_dcr_with_dcr(client, user, db_setup):
     """if we post data to change reporting format from dcr to something
     else but forget to clear the dcr number, an error should be thrown by
     the form and included in the response
@@ -347,8 +344,7 @@ def test_edit_report_change_format_from_dcr_with_dcr(client, db_setup):
 
     data = {"reporting_format": "verbal", "dcr": "DCR1234", "effort": ""}
 
-    user = UserFactory()
-    client.force_login(user)
+    client.login(username=user.email, password="Abcd1234")
 
     response = client.post(url, data)
 
@@ -358,7 +354,7 @@ def test_edit_report_change_format_from_dcr_with_dcr(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_edit_report_change_format_from_dcr(client, db_setup):
+def test_edit_report_change_format_from_dcr(client, user, db_setup):
     """if we post data to change reporting format from dcr to something
     else and we remember to clear the dcr and effort boxes, the report
     should be updated and the associated effort and dcr values should
@@ -369,8 +365,8 @@ def test_edit_report_change_format_from_dcr(client, db_setup):
     url = reverse("tfat:edit_report", kwargs={"report_id": report.id})
 
     data = {"reporting_format": "verbal", "dcr": "", "effort": ""}
-    user = UserFactory()
-    client.force_login(user)
+
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, data)
 
     # check the report in the database:
@@ -381,7 +377,7 @@ def test_edit_report_change_format_from_dcr(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_edit_report_change_comment(client, db_setup):
+def test_edit_report_change_comment(client, user, db_setup):
     """if we post data to change reporting format to dcr and provide
     dcr and effort numbers, the report should be updated"""
 
@@ -392,8 +388,7 @@ def test_edit_report_change_comment(client, db_setup):
 
     data = {"comment": after}
 
-    user = UserFactory()
-    client.force_login(user)
+    client.login(username=user.email, password="Abcd1234")
 
     response = client.post(url, data)
 
@@ -403,7 +398,7 @@ def test_edit_report_change_comment(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_edit_report_change_follow_up(client, db_setup):
+def test_edit_report_change_follow_up(client, user, db_setup):
     """if we post data to change reporting format to dcr and provide
     dcr and effort numbers, the report should be updated"""
 
@@ -415,8 +410,7 @@ def test_edit_report_change_follow_up(client, db_setup):
 
     data = {"follow_up": True}
 
-    user = UserFactory()
-    client.force_login(user)
+    client.login(username=user.email, password="Abcd1234")
 
     response = client.post(url, data)
 
@@ -426,7 +420,7 @@ def test_edit_report_change_follow_up(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_edit_report_add_file(client, db_setup):
+def test_edit_report_add_file(client, user, db_setup):
     """if we post data to add a file to a report, the file should be
     available and associated with our report.
     """
@@ -438,8 +432,7 @@ def test_edit_report_add_file(client, db_setup):
     report = Report.objects.get(reported_by__first_name="Montgomery")
     assert report.associated_file.name == ""
 
-    user = UserFactory()
-    client.force_login(user)
+    client.login(username=user.email, password="Abcd1234")
 
     url = reverse("tfat:edit_report", kwargs={"report_id": report.id})
     response = client.post(url, data, follow=True)

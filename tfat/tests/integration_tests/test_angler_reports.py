@@ -16,7 +16,15 @@ import pytest
 import pytz
 from django.urls import reverse
 
-from tfat.tests.factories import *
+from tfat.models import JoePublic
+from tfat.tests.factories import (
+    JoePublicFactory,
+    UserFactory,
+    SpeciesFactory,
+    ReportFactory,
+    ReportFollowUpFactory,
+    RecoveryFactory,
+)
 
 from datetime import datetime
 
@@ -28,13 +36,11 @@ def user():
     user.set_password("Abcd1234")
     user.save()
 
+    return user
+
 
 @pytest.fixture()
-def db_setup():
-
-    user = UserFactory(email="mickey@disney.com")
-    user.set_password("Abcd1234")
-    user.save()
+def db_setup(user):
 
     report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.timezone("Canada/Eastern"))
 

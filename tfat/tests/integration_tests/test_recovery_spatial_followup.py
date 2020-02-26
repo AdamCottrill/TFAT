@@ -16,13 +16,45 @@ import pytest
 import pytz
 from django.urls import reverse
 
-from tfat.tests.factories import *
+
+from tfat.models import Recovery
+from tfat.tests.factories import (
+    UserFactory,
+    JoePublicFactory,
+    SpeciesFactory,
+    ReportFactory,
+    RecoveryFactory,
+)
+
 
 from datetime import datetime
 
 
 @pytest.fixture()
-def db_setup():
+def user():
+    """
+    """
+    user = UserFactory(email="mickey@disney.com")
+    user.set_password("Abcd1234")
+    user.save()
+
+    return user
+
+
+@pytest.fixture()
+def species():
+    spc = SpeciesFactory(common_name="Lake Trout")
+    return spc
+
+
+@pytest.fixture()
+def angler():
+    angler = JoePublicFactory.create(first_name="Homer", last_name="Simpson")
+    return angler
+
+
+@pytest.fixture()
+def db_setup(species, angler):
     """
 
     Arguments:
@@ -30,9 +62,6 @@ def db_setup():
     """
 
     report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.UTC)
-    spc = SpeciesFactory(common_name="Lake Trout")
-
-    angler = JoePublicFactory.create(first_name="Homer", last_name="Simpson")
 
     # report filed by Homer
     report = ReportFactory(reported_by=angler, report_date=report_date)
@@ -40,7 +69,7 @@ def db_setup():
     for tag in tagids:
         recovery = RecoveryFactory(
             report=report,
-            spc=spc,
+            spc=species,
             tagid=tag,
             general_location="Over There",
             specific_location="Right There",

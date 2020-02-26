@@ -49,7 +49,14 @@ import pytz
 
 from django.urls import reverse
 
-from tfat.tests.factories import *
+from tfat.tests.factories import (
+    ProjectFactory,
+    SpeciesFactory,
+    JoePublicFactory,
+    ReportFactory,
+    RecoveryFactory,
+    EncounterFactory,
+)
 
 from datetime import datetime
 

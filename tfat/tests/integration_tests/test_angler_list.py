@@ -18,7 +18,7 @@ A. Cottrill
 import pytest
 from django.urls import reverse
 
-from tfat.tests.factories import *
+from tfat.tests.factories import JoePublicFactory, UserFactory
 
 
 @pytest.fixture()

@@ -16,29 +16,49 @@ import pytest
 import pytz
 from django.urls import reverse
 
-from tfat.tests.factories import *
+
+from tfat.models import Report
+
+from tfat.tests.factories import (
+    UserFactory,
+    JoePublicFactory,
+    SpeciesFactory,
+    ReportFactory,
+    ReportFollowUpFactory,
+    RecoveryFactory,
+)
 
 from datetime import datetime
 
 
 @pytest.fixture()
-def db_setup():
+def user():
+
+    user = UserFactory(email="mickey@disney.com")
+    user.set_password("Abcd1234")
+    user.save()
+
+    return user
+
+
+@pytest.fixture()
+def species():
+    spc = SpeciesFactory()
+    return spc
+
+
+@pytest.fixture()
+def db_setup(user, species):
     """
 
     Arguments:
     - `db`:
     """
 
-    user = UserFactory()
-
     report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.UTC)
 
-    spc = SpeciesFactory()
-
     angler1 = JoePublicFactory.create(first_name="Homer", last_name="Simpson")
-
     angler2 = JoePublicFactory.create(first_name="Montgomery", last_name="Burns")
-
     angler3 = JoePublicFactory.create(first_name="Barney", last_name="Gumble")
 
     # report filed by Homer
@@ -46,7 +66,7 @@ def db_setup():
 
     tagids = ["111111", "222222", "333333"]
     for tag in tagids:
-        recovery = RecoveryFactory(report=report, spc=spc, tagid=tag)
+        recovery = RecoveryFactory(report=report, spc=species, tagid=tag)
 
     # a report filed by Monty Burns
     report = ReportFactory(
@@ -60,7 +80,7 @@ def db_setup():
 
     tagids = ["4444", "5555", "6666"]
     for tag in tagids:
-        recovery = RecoveryFactory(report=report, spc=spc, tagid=tag)
+        recovery = RecoveryFactory(report=report, spc=species, tagid=tag)
 
 
 @pytest.mark.django_db
@@ -113,7 +133,7 @@ def test_follow_up_in_tag_report_list(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_follow_up_not_in_tag_report_list(client, db_setup):
+def test_follow_up_not_in_tag_report_list(client, user, db_setup):
     """If there there are no more follow-ups required for a report,
     "Follow-up Required" it should not appear in the list of reports
     """
@@ -121,7 +141,6 @@ def test_follow_up_not_in_tag_report_list(client, db_setup):
     # get the only report with a follow required and update it
     report = Report.objects.get(reported_by__last_name="Burns")
 
-    user = UserFactory()
     followup = ReportFollowUpFactory(report=report, created_by=user, status="completed")
     followup.save()
     report.follow_up_status = "completed"

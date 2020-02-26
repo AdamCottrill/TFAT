@@ -39,7 +39,7 @@ import pytest
 from django.core.files import File
 from django.urls import reverse
 
-from tfat.tests.factories import *
+from tfat.tests.factories import EncounterFactory, SpeciesFactory, ProjectFactory
 
 from datetime import datetime
 

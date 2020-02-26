@@ -15,9 +15,14 @@ A. Cottrill
 import pytest
 from django.urls import reverse
 
-from tfat.tests.factories import *
-
-from datetime import datetime
+from tfat.tests.factories import (
+    SpeciesFactory,
+    ProjectFactory,
+    EncounterFactory,
+    JoePublicFactory,
+    ReportFactory,
+    RecoveryFactory,
+)
 
 
 @pytest.fixture()
@@ -30,40 +35,25 @@ def db_setup():
 
     project = ProjectFactory(prj_cd="LHA_IA11_111", prj_nm="Fake Project")
 
-    # same species, same tagdoc - everything is A-Ok.
-    encounter1 = EncounterFactory(
-        spc=spc1, tagid="11111", project=project, tagdoc="25012"
-    )
-    encounter2 = EncounterFactory(
-        spc=spc1, tagid="11111", project=project, tagdoc="25012"
-    )
+    encounters = [
+        (spc1, "11111", project, "25012"),
+        (spc1, "11111", project, "25012"),
+        (spc1, "11111", project, "25012"),
+        (spc1, "22222", project, "25012"),
+        (spc2, "22222", project, "25012"),
+        (spc1, "33333", project, "25012"),
+        (spc1, "33333", project, "15012"),
+    ]
 
-    encounter3 = EncounterFactory(
-        spc=spc1, tagid="11111", project=project, tagdoc="25012"
-    )
-
-    # different species
-    encounter4 = EncounterFactory(
-        spc=spc1, tagid="22222", project=project, tagdoc="25012"
-    )
-    encounter5 = EncounterFactory(
-        spc=spc2, tagid="22222", project=project, tagdoc="25012"
-    )
-
-    # same species, different tagdoc
-    encounter6 = EncounterFactory(
-        spc=spc1, tagid="33333", project=project, tagdoc="25012"
-    )
-    encounter7 = EncounterFactory(
-        spc=spc1, tagid="33333", project=project, tagdoc="15012"
-    )
+    for item in encounters:
+        EncounterFactory(spc=item[0], tagid=item[1], project=item[2], tagdoc=item[3])
 
     angler1 = JoePublicFactory.create(first_name="Homer", last_name="Simpson")
     # angler report filed by Homer
     report = ReportFactory(reported_by=angler1)
-    recovery = RecoveryFactory(report=report, spc=spc1, tagid="11111")
+    RecoveryFactory(report=report, spc=spc1, tagid="11111")
     # a recovered tag that has not been observed by the omnr
-    recovery2 = RecoveryFactory(report=report, spc=spc1, tagid="654321")
+    RecoveryFactory(report=report, spc=spc1, tagid="654321")
 
 
 @pytest.mark.django_db

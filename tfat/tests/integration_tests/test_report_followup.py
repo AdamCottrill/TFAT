@@ -26,10 +26,9 @@ optionally the comment.
 """
 
 import pytest
-import pytz
 
 # import unittest
-from django.test import TestCase
+
 from django.urls import reverse
 
 from tfat.tests.factories import (
@@ -42,171 +41,174 @@ from tfat.tests.factories import (
 # from datetime import datetime
 
 
-class ReportFollowUpTestCase(TestCase):
-    def setUp(self):
+@pytest.fixture()
+def user():
+    """
+    """
+    user = UserFactory(email="mickey@disney.com")
+    user.set_password("Abcd1234")
+    user.save()
 
-        self.password = "Abcd1234"
-        self.email = "micky@disney.com"
-        self.user = UserFactory(email=self.email)
-        self.user.set_password(self.password)
-        self.user.save()
+    return user
 
-        self.joe = JoePublicFactory()
-        self.report = ReportFactory(reported_by=self.joe)
-        ReportFollowUpFactory(report=self.report, created_by=self.user)
 
-    @pytest.mark.django_db
-    def test_followup_form_requires_login(self):
-        """The follow up report form in unaccessible to unauthorized users. If
-        an unathenticated user tries to access the url, they should be
-        rediected to the login page.
+@pytest.fixture()
+def angler():
+    angler = JoePublicFactory.create(first_name="Homer", last_name="Simpson")
+    return angler
 
-        """
-        url = reverse(
-            "tfat:create_report_followup", kwargs={"report_id": self.report.id}
-        )
 
-        response = self.client.get(url)
-        assert response.status_code == 302
+@pytest.fixture()
+def report(angler, user):
 
-    @pytest.mark.django_db
-    def test_followup_form_elements(self):
-        """An authorized user should be able to access the form and it should
-        contain the following elements: status select widget, comment text
-        area, cancel button, submit submit button, reporter's name and
-        report date.
+    report = ReportFactory(reported_by=angler)
+    ReportFollowUpFactory(report=report, created_by=user)
+    return report
 
-        """
 
-        url = reverse(
-            "tfat:create_report_followup", kwargs={"report_id": self.report.id}
-        )
+@pytest.mark.django_db
+def test_followup_form_requires_login(client, report):
+    """The follow up report form in unaccessible to unauthorized users. If
+    an unathenticated user tries to access the url, they should be
+    rediected to the login page.
 
-        logged_in = self.client.login(username=self.email, password=self.password)
-        assert logged_in is True
+    """
+    url = reverse("tfat:create_report_followup", kwargs={"report_id": report.id})
 
-        response = self.client.get(url)
-        assert response.status_code == 200
+    response = client.get(url)
+    assert response.status_code == 302
 
-        content = str(response.content)
 
-        assert self.joe.first_name in content
-        assert self.joe.last_name in content
-        assert '<select name="status"' in content
-        assert '<textarea name="comment"' in content
-        assert "Cancel" in content
-        assert "Update Status" in content
+@pytest.mark.django_db
+def test_followup_form_elements(client, report, user, angler):
+    """An authorized user should be able to access the form and it should
+    contain the following elements: status select widget, comment text
+    area, cancel button, submit submit button, reporter's name and
+    report date.
 
-    def test_followup_form_good_data(self):
-        """If we post data with both a status choice and a comment, we should
-        be redirected to the report detail page which should include
-        the followup details.
+    """
 
-        """
+    url = reverse("tfat:create_report_followup", kwargs={"report_id": report.id})
 
-        url = reverse(
-            "tfat:create_report_followup", kwargs={"report_id": self.report.id}
-        )
+    logged_in = client.login(username=user.email, password="Abcd1234")
+    assert logged_in is True
 
-        data = {"comment": "Something pithy"}
+    response = client.get(url)
+    assert response.status_code == 200
 
-        logged_in = self.client.login(username=self.email, password=self.password)
-        assert logged_in is True
+    content = str(response.content)
 
-        response = self.client.post(url)
-        assert response.status_code == 200
+    assert angler.first_name in content
+    assert angler.last_name in content
+    assert '<select name="status"' in content
+    assert '<textarea name="comment"' in content
+    assert "Cancel" in content
+    assert "Update Status" in content
 
-        content = str(response.content)
-        assert "This field is required" in content
 
-    def test_followup_form_status_required(self):
-        """the status widget is required - an error should appear if the form
-        is submitted without a choice.
-        """
+@pytest.mark.django_db
+def test_followup_form_good_data(client, report, user):
+    """If we post data with both a status choice and a comment, we should
+    be redirected to the report detail page which should include
+    the followup details.
 
-        url = reverse(
-            "tfat:create_report_followup", kwargs={"report_id": self.report.id}
-        )
+    """
 
-        data = {"comment": "Something pithy"}
+    url = reverse("tfat:create_report_followup", kwargs={"report_id": report.id})
+    data = {"comment": "Something pithy"}
 
-        logged_in = self.client.login(username=self.email, password=self.password)
-        assert logged_in is True
+    logged_in = client.login(username=user.email, password="Abcd1234")
+    assert logged_in is True
 
-        response = self.client.post(url, data)
-        assert response.status_code == 200
+    response = client.post(url)
+    assert response.status_code == 200
 
-        self.assertTemplateUsed("tfat/report_followup_form.html")
+    content = str(response.content)
+    assert "This field is required" in content
 
-        content = str(response.content)
-        assert "This field is required" in content
 
-    def test_followup_form_comment_optional(self):
-        """the comment widget is optional, the form should still submit if the
-        comment box is empty and we shoul be redirected to the report
-        detail page.
+@pytest.mark.django_db
+def test_followup_form_comment_optional(client, report, user):
+    """the comment widget is optional, the form should still submit if the
+    comment box is empty and we shoul be redirected to the report
+    detail page.
 
-        """
+    """
 
-        url = reverse(
-            "tfat:create_report_followup", kwargs={"report_id": self.report.id}
-        )
+    logged_in = client.login(username=user.email, password="Abcd1234")
+    assert logged_in is True
+    url = reverse("tfat:create_report_followup", kwargs={"report_id": report.id})
+    data = {"status": "completed"}
+    response = client.post(url, data, follow=True)
+    assert response.status_code == 200
 
-        data = {"status": "completed"}
+    templates = [x.name for x in response.templates]
+    assert "tfat/report_detail.html" in templates
 
-        logged_in = self.client.login(username=self.email, password=self.password)
-        assert logged_in is True
+    content = str(response.content)
+    assert "Follow Up Actions to Date" in content
 
-        response = self.client.post(url, data, follow=True)
-        assert response.status_code == 200
 
-        self.assertTemplateUsed("tfat/report_detail.html")
-        content = str(response.content)
-        assert "Follow Up Actions to Date" in content
+@pytest.mark.django_db
+def test_followup_form_status_required(client, report, user):
+    """the status widget is required - an error should appear if the form
+    is submitted without a choice.
+    """
 
-    def test_followup_form_status_requested(self):
-        """ the select widget has two options if the status is 'requested'.  THe
-        options should be 'initialized' and 'completed'
-        """
+    url = reverse("tfat:create_report_followup", kwargs={"report_id": report.id})
+    data = {"comment": "Something pithy"}
 
-        url = reverse(
-            "tfat:create_report_followup", kwargs={"report_id": self.report.id}
-        )
+    logged_in = client.login(username=user.email, password="Abcd1234")
+    assert logged_in is True
 
-        logged_in = self.client.login(username=self.email, password=self.password)
-        assert logged_in is True
+    response = client.post(url, data)
+    assert response.status_code == 200
 
-        response = self.client.get(url)
-        assert response.status_code == 200
+    templates = [x.name for x in response.templates]
+    assert "tfat/report_followup_form.html" in templates
 
-        content = str(response.content)
-        assert '<option value="initialized">Initialized</option>' in content
-        assert '<option value="completed">Completed</option>' in content
+    content = str(response.content)
+    assert "This field is required" in content
 
-    def test_followup_form_status_initialized_complete(self):
-        """the select widget has one option if the status is 'initialized'.  THe
-        options should 'completed' and is a required field.
-        """
 
-        # add an itialized follow to our report:
-        ReportFollowUpFactory(
-            report=self.report, created_by=self.user, status="initialized"
-        )
-        self.report.follow_up_status = "initialized"
-        self.report.save()
+@pytest.mark.django_db
+def test_followup_form_status_requested(client, report, user):
+    """ the select widget has two options if the status is 'requested'.  THe
+    options should be 'initialized' and 'completed'
+    """
 
-        url = reverse(
-            "tfat:create_report_followup", kwargs={"report_id": self.report.id}
-        )
+    logged_in = client.login(username=user.email, password="Abcd1234")
+    assert logged_in is True
 
-        logged_in = self.client.login(username=self.email, password=self.password)
-        assert logged_in is True
+    url = reverse("tfat:create_report_followup", kwargs={"report_id": report.id})
+    response = client.get(url)
+    assert response.status_code == 200
 
-        response = self.client.get(url)
-        assert response.status_code == 200
+    content = str(response.content)
+    assert '<option value="initialized">Initialized</option>' in content
+    assert '<option value="completed">Completed</option>' in content
 
-        content = str(response.content)
-        #  **NOT** in response
 
-        assert '<option value="initialized">Initialized</option>' not in content
-        assert '<option value="completed">Completed</option>' in content
+@pytest.mark.django_db
+def test_followup_form_status_initialized_complete(client, report, user):
+    """the select widget has one option if the status is 'initialized'.  THe
+    options should 'completed' and is a required field.
+    """
+
+    # add an itialized follow to our report:
+    ReportFollowUpFactory(report=report, created_by=user, status="initialized")
+    report.follow_up_status = "initialized"
+    report.save()
+
+    url = reverse("tfat:create_report_followup", kwargs={"report_id": report.id})
+
+    logged_in = client.login(username=user.email, password="Abcd1234")
+    assert logged_in is True
+
+    response = client.get(url)
+    assert response.status_code == 200
+
+    content = str(response.content)
+    #  initialized is **NOT** in response:
+    assert '<option value="initialized">Initialized</option>' not in content
+    assert '<option value="completed">Completed</option>' in content

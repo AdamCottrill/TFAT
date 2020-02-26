@@ -37,42 +37,66 @@ import pytz
 from datetime import datetime, timedelta
 
 from tfat.models import Recovery
-from tfat.tests.factories import *
+from tfat.tests.factories import (
+    UserFactory,
+    JoePublicFactory,
+    LakeFactory,
+    SpeciesFactory,
+    ReportFactory,
+    RecoveryFactory,
+)
 
 
 @pytest.fixture()
-def db_setup():
+def user():
     """
     """
-
     user = UserFactory(email="mickey@disney.com")
     user.set_password("Abcd1234")
     user.save()
 
-    report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.UTC)
-
-    angler = JoePublicFactory.create(first_name="Homer", last_name="Simpson")
-    spc = SpeciesFactory()
-    lake = LakeFactory()
-    # associated tags to test conditional elements
-    report = ReportFactory(reported_by=angler, follow_up=False, report_date=report_date)
-
-    recovery = RecoveryFactory(report=report, spc=spc, lake=lake)
+    return user
 
 
 @pytest.fixture()
-def tag_data():
+def species():
+    spc = SpeciesFactory()
+    return spc
+
+
+@pytest.fixture()
+def lake():
+    lake = LakeFactory()
+    return lake
+
+
+@pytest.fixture()
+def angler():
+    angler = JoePublicFactory.create(first_name="Homer", last_name="Simpson")
+    return angler
+
+
+@pytest.fixture()
+def db_setup(angler, species, lake):
+    """
+    """
+
+    report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.UTC)
+    # associated tags to test conditional elements
+    report = ReportFactory(reported_by=angler, follow_up=False, report_date=report_date)
+    RecoveryFactory(report=report, spc=species, lake=lake)
+
+
+@pytest.fixture()
+def tag_data(species, lake):
     """A fixture to hold basic minimal data requirements for each
     test. Updated as needed in each test.
     """
 
-    spc = Species.objects.first()
-    lake = Lake.objects.first()
-
     tag_data = {
         "tagdoc": "25012",
         "tagid": "1234",
-        "spc": spc.id,
+        "spc": species.id,
         "lake": lake.id,
         "date_flag": 0,
     }
@@ -81,7 +105,7 @@ def tag_data():
 
 
 @pytest.mark.django_db
-def test_edit_recovery_form_requires_login(client, db_setup):
+def test_edit_recovery_form_requires_login(client, user, db_setup):
     """The edit recovery form should be unaccessible to unauthorized users. If
     an unathenticated user tries to access the url, they should be
     rediected to the login page.
@@ -96,7 +120,7 @@ def test_edit_recovery_form_requires_login(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_can_edit_recovery_url(client, db_setup):
+def test_can_edit_recovery_url(client, user, db_setup):
     """Verify that the form and its correct elements are rendered when we
     call the edit_recovery form"""
 
@@ -104,7 +128,7 @@ def test_can_edit_recovery_url(client, db_setup):
 
     url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.get(url)
     assert response.status_code == 200
     content = str(response.content)
@@ -123,7 +147,7 @@ def test_can_edit_recovery_url(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_basic_data(client, db_setup, tag_data):
+def test_basic_data(client, user, db_setup, tag_data):
     """verify that we can post the form with the minimal data elements and
     a tag recovery object will be editd in the database.
 
@@ -135,7 +159,7 @@ def test_basic_data(client, db_setup, tag_data):
     recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
     url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -149,7 +173,7 @@ def test_basic_data(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_basic_data_no_add_another(client, db_setup):
+def test_basic_data_no_add_another(client, user, db_setup):
     """If we are editing an existing recovery, when it is submitted, the
     'Add Another Tag' button should not appear in the repsonse.  It is for
     new tags only.
@@ -166,7 +190,7 @@ def test_basic_data_no_add_another(client, db_setup):
     tagdoc = "25012"
     tag_data = {"tagdoc": tagdoc, "tagid": tagid, "spc": 1, "date_flag": 0}
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     content = str(response.content)
@@ -175,7 +199,7 @@ def test_basic_data_no_add_another(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_missing_tagid(client, db_setup):
+def test_missing_tagid(client, user, db_setup):
     """tagid is a required field.  If the form is submitted without it, a
     meaningful error message should be generated.
 
@@ -187,7 +211,7 @@ def test_missing_tagid(client, db_setup):
     tagdoc = "25012"
     tag_data = {"tagdoc": tagdoc, "spc": 1, "date_flag": 0}
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     content = str(response.content)
@@ -196,7 +220,7 @@ def test_missing_tagid(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_missing_species(client, db_setup):
+def test_missing_species(client, user, db_setup):
     """fish species is a required field.  If the form is submitted without it, a
     meaningful error message should be generated.
 
@@ -209,7 +233,7 @@ def test_missing_species(client, db_setup):
     tagid = "1234"
     tag_data = {"tagid": tagid, "tagdoc": tagdoc, "date_flag": 0}
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     content = str(response.content)
@@ -218,7 +242,7 @@ def test_missing_species(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_invalid_species(client, db_setup):
+def test_invalid_species(client, user, db_setup):
     """species is a required field.  If the form is submitted with a
     species that does not exist, a meaningful error message should be
     generated.
@@ -231,7 +255,7 @@ def test_invalid_species(client, db_setup):
     tagdoc = "25012"
     tag_data = {"tagdoc": tagdoc, "tagid": tagid, "spc": 999, "date_flag": 0}
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -242,7 +266,7 @@ def test_invalid_species(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_missing_tagdoc(client, db_setup):
+def test_missing_tagdoc(client, user, db_setup):
     """tagdoc is a required field.  If the form is submitted without it, a
     meaningful error message should be generated.
 
@@ -254,7 +278,7 @@ def test_missing_tagdoc(client, db_setup):
     tagid = "1236"
     tag_data = {"tagid": tagid, "spc": 1, "date_flag": 0}
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     content = str(response.content)
@@ -263,7 +287,7 @@ def test_missing_tagdoc(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_tagdoc_short(client, db_setup):
+def test_tagdoc_short(client, user, db_setup):
     """if the tagdoc is provided, it must be exacly 5 characters long.
     """
 
@@ -274,7 +298,7 @@ def test_tagdoc_short(client, db_setup):
     tagdoc = "2501"
     tag_data = {"tagdoc": tagdoc, "tagid": tagid, "spc": 1, "date_flag": 0}
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -284,7 +308,7 @@ def test_tagdoc_short(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_tagdoc_long(client, db_setup):
+def test_tagdoc_long(client, user, db_setup):
     """if the tagdoc is provided, it must be exacly 5 characters long.
     """
     recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
@@ -294,7 +318,7 @@ def test_tagdoc_long(client, db_setup):
     tagdoc = "250129"
     tag_data = {"tagdoc": tagdoc, "tagid": tagid, "spc": 1, "date_flag": 0}
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -304,7 +328,7 @@ def test_tagdoc_long(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_tagdoc_bad_tag_type(client, db_setup):
+def test_tagdoc_bad_tag_type(client, user, db_setup):
     """if the tagdoc is provided, the 1st character must correspond to a
     valid, exising tag_type.  if not, an error will be thrown.
 
@@ -317,7 +341,7 @@ def test_tagdoc_bad_tag_type(client, db_setup):
     tagdoc = "Y5012"
     tag_data = {"tagdoc": tagdoc, "tagid": tagid, "spc": 1, "date_flag": 0}
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -327,7 +351,7 @@ def test_tagdoc_bad_tag_type(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_tagdoc_good_tag_type(client, db_setup, tag_data):
+def test_tagdoc_good_tag_type(client, user, db_setup, tag_data):
     """if the tagdoc is provided, the 1st character must correspond to a
     valid, exising tag_type.  When the recovery is saved, the tag_type
     will be updated to reflect the value of the 1st character in
@@ -343,7 +367,7 @@ def test_tagdoc_good_tag_type(client, db_setup, tag_data):
     tag_data["tagid"] = tagid
     tag_data["tagdoc"] = tagdoc
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -356,7 +380,7 @@ def test_tagdoc_good_tag_type(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_tagdoc_bad_tag_position(client, db_setup):
+def test_tagdoc_bad_tag_position(client, user, db_setup):
     """if the tagdoc is provided, the 2nd character must correspond to a
     valid, exising tag_position.  if not, an error will be thrown.
 
@@ -369,7 +393,7 @@ def test_tagdoc_bad_tag_position(client, db_setup):
     tagdoc = "2Y012"
     tag_data = {"tagdoc": tagdoc, "tagid": tagid, "spc": 1, "date_flag": 0}
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -379,7 +403,7 @@ def test_tagdoc_bad_tag_position(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_tagdoc_good_tag_position(client, db_setup):
+def test_tagdoc_good_tag_position(client, user, db_setup):
     """if the tagdoc is provided, the 2nd character must correspond to a
     valid, exising tag_position.  When the recovery is saved, the tag_position
     will be updated to reflect the value of the 2nd character in
@@ -394,7 +418,7 @@ def test_tagdoc_good_tag_position(client, db_setup):
     tagdoc = "25012"
     tag_data = {"tagdoc": tagdoc, "tagid": tagid, "spc": 1, "date_flag": 0}
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -407,7 +431,7 @@ def test_tagdoc_good_tag_position(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_tagdoc_bad_agency(client, db_setup):
+def test_tagdoc_bad_agency(client, user, db_setup):
     """if the tagdoc is provided, the 3rd and 4th characters must
     correspond to a valid, exising agency.  If not, an error will be
     thrown.
@@ -420,7 +444,7 @@ def test_tagdoc_bad_agency(client, db_setup):
     tagdoc = "25XX2"
     tag_data = {"tagdoc": tagdoc, "tagid": tagid, "spc": 1, "date_flag": 0}
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -431,7 +455,7 @@ def test_tagdoc_bad_agency(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_tagdoc_bad_colour(client, db_setup):
+def test_tagdoc_bad_colour(client, user, db_setup):
     """if the tagdoc is provided, the 5th character must correspond to a
     valid, exising colour.  if not, an error will be thrown.
 
@@ -444,7 +468,7 @@ def test_tagdoc_bad_colour(client, db_setup):
     tagdoc = "2501X"
     tag_data = {"tagdoc": tagdoc, "tagid": tagid, "spc": 1, "date_flag": 0}
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -455,7 +479,7 @@ def test_tagdoc_bad_colour(client, db_setup):
 
 
 @pytest.mark.django_db
-def test_good_clipc(client, db_setup, tag_data):
+def test_good_clipc(client, user, db_setup, tag_data):
     """clipc is a character field that contains the concatinated clips
     observed on a fish when captured.  All of the elements must exist
     in the clip code lookup table.
@@ -469,7 +493,7 @@ def test_good_clipc(client, db_setup, tag_data):
     clipc = "14"
     tag_data["clipc"] = clipc
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -482,7 +506,7 @@ def test_good_clipc(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_good_clipc_0(client, db_setup, tag_data):
+def test_good_clipc_0(client, user, db_setup, tag_data):
     """clipc is a character field that contains the concatinated clips
     observed on a fish when captured.  Clip code '0' is used to
     indicate the absence of other clips and should be acceptable as a
@@ -496,7 +520,7 @@ def test_good_clipc_0(client, db_setup, tag_data):
     clipc = "0"
     tag_data["clipc"] = clipc
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -509,7 +533,7 @@ def test_good_clipc_0(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_bad_clipc_includes_0(client, db_setup, tag_data):
+def test_bad_clipc_includes_0(client, user, db_setup, tag_data):
     """clipc is a character field that contains the concatinated clips
     observed on a fish when captured.  Clip code '0' is used to
     indicate the absence of other clips.  As such, and clipc value
@@ -524,7 +548,7 @@ def test_bad_clipc_includes_0(client, db_setup, tag_data):
     clipc = "140"
     tag_data["clipc"] = clipc
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -535,7 +559,7 @@ def test_bad_clipc_includes_0(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_bad_clipc_includes_duplicates(client, db_setup, tag_data):
+def test_bad_clipc_includes_duplicates(client, user, db_setup, tag_data):
     """clipc is a character field that contains the concatinated clips
     observed on a fish when captured.  All of the elements must exist
     in the clip code lookup table and appear only once.  If a clip
@@ -550,7 +574,7 @@ def test_bad_clipc_includes_duplicates(client, db_setup, tag_data):
     clipc = "114"
     tag_data["clipc"] = clipc
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -561,7 +585,7 @@ def test_bad_clipc_includes_duplicates(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_bad_clipc_includes_wrong_order(client, db_setup, tag_data):
+def test_bad_clipc_includes_wrong_order(client, user, db_setup, tag_data):
     """clipc is a character field that contains the concatinated clips
     observed on a fish when captured. All of the elements are to be
     saved in ascii-sort order.  If a clip code is reported in the
@@ -576,7 +600,7 @@ def test_bad_clipc_includes_wrong_order(client, db_setup, tag_data):
     clipc = "532"
     tag_data["clipc"] = clipc
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -586,7 +610,7 @@ def test_bad_clipc_includes_wrong_order(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_bad_clipc_nonexistant_clip(client, db_setup, tag_data):
+def test_bad_clipc_nonexistant_clip(client, user, db_setup, tag_data):
     """clipc is a character field that contains the concatinated clips
     observed on a fish when captured.  If one of the elements does exist
     in the clip code lookup table an error should be thrown.
@@ -599,7 +623,7 @@ def test_bad_clipc_nonexistant_clip(client, db_setup, tag_data):
     clipc = "15X"
     tag_data["clipc"] = clipc
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -610,7 +634,7 @@ def test_bad_clipc_nonexistant_clip(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_bad_clipc_multiple_nonexistant_clips(client, db_setup, tag_data):
+def test_bad_clipc_multiple_nonexistant_clips(client, user, db_setup, tag_data):
     """clipc is a character field that contains the concatinated clips
     observed on a fish when captured.  If more than one of the
     elements does exist in the clip code lookup table an error should
@@ -625,7 +649,7 @@ def test_bad_clipc_multiple_nonexistant_clips(client, db_setup, tag_data):
     clipc = "15XZ"
     tag_data["clipc"] = clipc
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
     content = str(response.content)
@@ -635,7 +659,7 @@ def test_bad_clipc_multiple_nonexistant_clips(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_missing_recovery_date(client, db_setup, tag_data):
+def test_missing_recovery_date(client, user, db_setup, tag_data):
     """It's not clear what should happen if data is not populated.
 
     """
@@ -643,7 +667,7 @@ def test_missing_recovery_date(client, db_setup, tag_data):
     recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
     url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -656,7 +680,7 @@ def test_missing_recovery_date(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_recovery_date_greater_than_report_date(client, db_setup, tag_data):
+def test_recovery_date_greater_than_report_date(client, user, db_setup, tag_data):
     """a tag recovery event cannot occur after the reporting date.  A
     recovery event cannot be recorded if it had not happened when the
     report was created.  If the recovery date is a head of the report
@@ -671,7 +695,7 @@ def test_recovery_date_greater_than_report_date(client, db_setup, tag_data):
 
     tag_data["recovery_date"] = week_late.date()
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data)
 
     assert response.status_code == 200
@@ -682,7 +706,7 @@ def test_recovery_date_greater_than_report_date(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_future_date(client, db_setup, tag_data):
+def test_future_date(client, user, db_setup, tag_data):
     """a tag recovery event cannot be reported from the future.  A
     recovery event cannot be recorded if it has not happened yet.  If a
     date in the future is submitted, an appropriate error message should
@@ -697,7 +721,7 @@ def test_future_date(client, db_setup, tag_data):
 
     tag_data["recovery_date"] = next_week.date()
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data)
 
     assert response.status_code == 200
@@ -709,7 +733,7 @@ def test_future_date(client, db_setup, tag_data):
 
 @pytest.mark.xfail
 @pytest.mark.django_db
-def test_recapture_date_ahead_of_report_date(client, db_setup, tag_data):
+def test_recapture_date_ahead_of_report_date(client, user, db_setup, tag_data):
     """a tag recovery event cannot occur more recently than the reporting
     date. If this happens an error should be raised.
 
@@ -720,7 +744,7 @@ def test_recapture_date_ahead_of_report_date(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_tlen_greater_than_flen(client, db_setup, tag_data):
+def test_tlen_greater_than_flen(client, user, db_setup, tag_data):
     """both tlen and flen can be provided as long as flen is less than tlen.
     """
 
@@ -733,7 +757,7 @@ def test_tlen_greater_than_flen(client, db_setup, tag_data):
     tag_data["flen"] = flen
     tag_data["tlen"] = tlen
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
 
     assert response.status_code == 200
@@ -744,7 +768,7 @@ def test_tlen_greater_than_flen(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_tlen_less_than_flen(client, db_setup, tag_data):
+def test_tlen_less_than_flen(client, user, db_setup, tag_data):
     """if both total length and fork length are provided and fork length
     is greater than total length, raise an error.
 
@@ -759,7 +783,7 @@ def test_tlen_less_than_flen(client, db_setup, tag_data):
     tag_data["flen"] = flen
     tag_data["tlen"] = tlen
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
     content = str(response.content)
@@ -769,7 +793,7 @@ def test_tlen_less_than_flen(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_ddlat_ddlon(client, db_setup, tag_data):
+def test_ddlat_ddlon(client, user, db_setup, tag_data):
     """ddlat and ddlon are optional fields.  If they are included in the
     posted data, they will be correctly associated with the recovery
     object in the database.
@@ -784,7 +808,7 @@ def test_ddlat_ddlon(client, db_setup, tag_data):
     tag_data["dd_lat"] = dd_lat
     tag_data["dd_lon"] = dd_lon
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -799,7 +823,7 @@ def test_ddlat_ddlon(client, db_setup, tag_data):
 
 @pytest.mark.xfail
 @pytest.mark.django_db
-def test_unknown_ddlat_ddlon(client, db_setup, tag_data):
+def test_unknown_ddlat_ddlon(client, user, db_setup, tag_data):
     """ddlat and ddlon are optional fields.  but if they are null,
     latlon_flag must be unknown.  If a recovery is submitted without
     at latlon_flag==unknown, and error should be thrown.
@@ -813,7 +837,7 @@ def test_unknown_ddlat_ddlon(client, db_setup, tag_data):
     recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
     url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -823,7 +847,7 @@ def test_unknown_ddlat_ddlon(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_derived_ddlat_ddlon_with_comment(client, db_setup, tag_data):
+def test_derived_ddlat_ddlon_with_comment(client, user, db_setup, tag_data):
     """ddlat and ddlon are optional fields.  If a recovery is submitted
     with a comment (hopefully explaining how lat long was derived), the
     recovery should be edit in the database.
@@ -840,7 +864,7 @@ def test_derived_ddlat_ddlon_with_comment(client, db_setup, tag_data):
     tag_data["latlon_flag"] = latlon_flag
     tag_data["comment"] = comment
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -851,7 +875,7 @@ def test_derived_ddlat_ddlon_with_comment(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_derived_ddlat_ddlon_without_comment(client, db_setup, tag_data):
+def test_derived_ddlat_ddlon_without_comment(client, user, db_setup, tag_data):
     """ddlat and ddlon are optional fields.  If a recovery is submitted
     without a comment an error will be thrown.
     """
@@ -863,7 +887,7 @@ def test_derived_ddlat_ddlon_without_comment(client, db_setup, tag_data):
     tag_data["dd_lon"] = -81.1
     tag_data["latlon_flag"] = 2
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -873,7 +897,7 @@ def test_derived_ddlat_ddlon_without_comment(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_ddlat_without_ddlon(client, db_setup, tag_data):
+def test_ddlat_without_ddlon(client, user, db_setup, tag_data):
     """ddlat and ddlon are optional fields, but if one is provided, the
     other must be provided too. If ddlon is omitted, but dd_lat is
     included, an appropriate error message should be generated.
@@ -886,7 +910,7 @@ def test_ddlat_without_ddlon(client, db_setup, tag_data):
     tag_data["dd_lat"] = 45.25
     tag_data["dd_lon"] = ""
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -896,7 +920,7 @@ def test_ddlat_without_ddlon(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_ddlon_without_ddlat(client, db_setup, tag_data):
+def test_ddlon_without_ddlat(client, user, db_setup, tag_data):
     """ddlat and ddlon are optional fields, but if one is provided, the
     other must be provided too. If ddkat is omitted, but dd_lon is
     included, an appropriate error message should be generated.
@@ -908,7 +932,7 @@ def test_ddlon_without_ddlat(client, db_setup, tag_data):
     tag_data["dd_lat"] = ""
     tag_data["dd_lon"] = -81.1
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -918,7 +942,7 @@ def test_ddlon_without_ddlat(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_ddlat_max_90(client, db_setup, tag_data):
+def test_ddlat_max_90(client, user, db_setup, tag_data):
     """ddlat is the latitude and cannot exceed 90 degrees.  If a ddlat
     value is submitted with a latitude greater than 9s, an
     appropriate error message should be generated.
@@ -931,7 +955,7 @@ def test_ddlat_max_90(client, db_setup, tag_data):
     tag_data["dd_lat"] = 100
     tag_data["dd_lon"] = -81.1
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -941,7 +965,7 @@ def test_ddlat_max_90(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_ddlat_min_negative_90(client, db_setup, tag_data):
+def test_ddlat_min_negative_90(client, user, db_setup, tag_data):
     """ddlat is the latitude and cannot be less than -90 degrees.  If a
     ddlat value is submitted with a latitude less than -90, an
     appropriate error message should be generated.
@@ -954,7 +978,7 @@ def test_ddlat_min_negative_90(client, db_setup, tag_data):
     tag_data["dd_lat"] = -100
     tag_data["dd_lon"] = -81.1
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -964,7 +988,7 @@ def test_ddlat_min_negative_90(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_ddlon_max_180(client, db_setup, tag_data):
+def test_ddlon_max_180(client, user, db_setup, tag_data):
     """ddlon is the longitude and cannot exceed 180 degrees.  If a ddlon
     value is submitted with a longitude greater than 180, an
     appropriate error message should be generated.
@@ -976,7 +1000,7 @@ def test_ddlon_max_180(client, db_setup, tag_data):
     tag_data["dd_lat"] = 45.25
     tag_data["dd_lon"] = 281.1
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -986,7 +1010,7 @@ def test_ddlon_max_180(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_ddlon_min_negative_180(client, db_setup, tag_data):
+def test_ddlon_min_negative_180(client, user, db_setup, tag_data):
     """ddlon is the lonitude and cannot be less than -180 degrees.  If a ddlon
     value is submitted with a lonitude less than -180s, an
     appropriate error message should be generated.
@@ -1002,7 +1026,7 @@ def test_ddlon_min_negative_180(client, db_setup, tag_data):
     tag_data["dd_lat"] = dd_lat
     tag_data["dd_lon"] = dd_lon
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -1012,7 +1036,7 @@ def test_ddlon_min_negative_180(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_general_location(client, db_setup, tag_data):
+def test_general_location(client, user, db_setup, tag_data):
     """general_location is an optional field.  If it is included in the
     posted data, it will be correctly associated with the recovery
     object in the database.
@@ -1025,7 +1049,7 @@ def test_general_location(client, db_setup, tag_data):
     general_location = "Somewhere out there."
     tag_data["general_location"] = general_location
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -1035,7 +1059,7 @@ def test_general_location(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_specific_location(client, db_setup, tag_data):
+def test_specific_location(client, user, db_setup, tag_data):
     """specific_location is an optional field.  If it is included in the
     posted data, it will be correctly associated with the recovery
     object in the database.
@@ -1048,7 +1072,7 @@ def test_specific_location(client, db_setup, tag_data):
     specific_location = "Right here. Exactly here."
     tag_data["specific_location"] = specific_location
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -1058,7 +1082,7 @@ def test_specific_location(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_tlen(client, db_setup, tag_data):
+def test_tlen(client, user, db_setup, tag_data):
     """tlen is an optional field.  If it is included in the
     posted data, it will be correctly associated with the recovery
     object in the database.
@@ -1071,7 +1095,7 @@ def test_tlen(client, db_setup, tag_data):
     tlen = 450
     tag_data["tlen"] = tlen
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -1081,7 +1105,7 @@ def test_tlen(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_flen(client, db_setup, tag_data):
+def test_flen(client, user, db_setup, tag_data):
     """flen is an optional field.  If it is included in the
     posted data, it will be correctly associated with the recovery
     object in the database.
@@ -1093,7 +1117,7 @@ def test_flen(client, db_setup, tag_data):
     flen = 450
     tag_data["flen"] = flen
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -1103,7 +1127,7 @@ def test_flen(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_rwt(client, db_setup, tag_data):
+def test_rwt(client, user, db_setup, tag_data):
     """rwt is an optional field.  If it is included in the
     posted data, it will be correctly associated with the recovery
     object in the database.
@@ -1116,7 +1140,7 @@ def test_rwt(client, db_setup, tag_data):
     rwt = 1450
     tag_data["rwt"] = rwt
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -1126,7 +1150,7 @@ def test_rwt(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_girth(client, db_setup, tag_data):
+def test_girth(client, user, db_setup, tag_data):
     """girth is an optional field.  If it is included in the
     posted data, it will be correctly associated with the recovery
     object in the database.
@@ -1139,7 +1163,7 @@ def test_girth(client, db_setup, tag_data):
     girth = 1450
     tag_data["girth"] = girth
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -1149,7 +1173,7 @@ def test_girth(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_fish_fate_released(client, db_setup, tag_data):
+def test_fish_fate_released(client, user, db_setup, tag_data):
     """fish fate is an optional field.  If it is included in the
     posted data, it will be correctly associated with the recovery
     object in the database.
@@ -1162,7 +1186,7 @@ def test_fish_fate_released(client, db_setup, tag_data):
     fate = "R"
     tag_data["fate"] = fate
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -1172,7 +1196,7 @@ def test_fish_fate_released(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_fish_fate_killed(client, db_setup, tag_data):
+def test_fish_fate_killed(client, user, db_setup, tag_data):
     """fish fate is an optional field.  If it is included in the
     posted data, it will be correctly associated with the recovery
     object in the database.
@@ -1184,7 +1208,7 @@ def test_fish_fate_killed(client, db_setup, tag_data):
     fate = "K"
     tag_data["fate"] = fate
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -1194,7 +1218,7 @@ def test_fish_fate_killed(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_fish_fate_nonexistant(client, db_setup, tag_data):
+def test_fish_fate_nonexistant(client, user, db_setup, tag_data):
     """fish fate is an optional field but is constrained to one of
     pre-determined values.  If a non-existant option is included in
     the posted data, an appropriate error will be thrown.
@@ -1206,7 +1230,7 @@ def test_fish_fate_nonexistant(client, db_setup, tag_data):
     fate = "FOO"
     tag_data["fate"] = fate
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
     content = str(response.content)
@@ -1219,7 +1243,7 @@ def test_fish_fate_nonexistant(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_fish_sex_male(client, db_setup, tag_data):
+def test_fish_sex_male(client, user, db_setup, tag_data):
     """fish sex is an optional field.  If it is included in the
     posted data, it will be correctly associated with the recovery
     object in the database.
@@ -1232,7 +1256,7 @@ def test_fish_sex_male(client, db_setup, tag_data):
     sex = "1"
     tag_data["sex"] = sex
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -1242,7 +1266,7 @@ def test_fish_sex_male(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_fish_sex_female(client, db_setup, tag_data):
+def test_fish_sex_female(client, user, db_setup, tag_data):
     """fish sex is an optional field.  If it is included in the
     posted data, it will be correctly associated with the recovery
     object in the database.
@@ -1254,7 +1278,7 @@ def test_fish_sex_female(client, db_setup, tag_data):
     sex = "2"
     tag_data["sex"] = sex
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -1264,7 +1288,7 @@ def test_fish_sex_female(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_fish_sex_nonexistant(client, db_setup, tag_data):
+def test_fish_sex_nonexistant(client, user, db_setup, tag_data):
     """fish sex is an optional field but is constrained to one of
     pre-determined values.  If a non-existant option is included in
     the posted data, an appropriate error will be thrown.
@@ -1277,7 +1301,7 @@ def test_fish_sex_nonexistant(client, db_setup, tag_data):
     sex = "FOO"
     tag_data["sex"] = sex
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
     content = str(response.content)
@@ -1287,7 +1311,7 @@ def test_fish_sex_nonexistant(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_fish_tag_removed_false(client, db_setup, tag_data):
+def test_fish_tag_removed_false(client, user, db_setup, tag_data):
     """tag removed is an optional field.  If it is included in the
     posted data as false, it will be false in the associated recovery
     object in the database.
@@ -1299,7 +1323,7 @@ def test_fish_tag_removed_false(client, db_setup, tag_data):
     tag_removed = False
     tag_data["tag_removed"] = tag_removed
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 
@@ -1309,7 +1333,7 @@ def test_fish_tag_removed_false(client, db_setup, tag_data):
 
 
 @pytest.mark.django_db
-def test_fish_tag_removed_true(client, db_setup, tag_data):
+def test_fish_tag_removed_true(client, user, db_setup, tag_data):
     """tag removed is an optional field.  If it is included in the
     posted data as true, it will be true in the associated recovery
     object in the database.
@@ -1322,7 +1346,7 @@ def test_fish_tag_removed_true(client, db_setup, tag_data):
     tag_removed = True
     tag_data["tag_removed"] = tag_removed
 
-    client.login(username="mickey@disney.com", password="Abcd1234")
+    client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
     assert response.status_code == 200
 

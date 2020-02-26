@@ -3,14 +3,19 @@ import pytz
 
 # from django.conf import settings
 
-from django.test.client import Client
 from django.test import TestCase
 
 from django.urls import reverse
 
-from tfat.tests.factories import *
+from tfat.tests.factories import (
+    JoePublicFactory,
+    SpeciesFactory,
+    RecoveryFactory,
+    ReportFactory,
+)
 
 from datetime import datetime
+
 import pytest
 
 
@@ -20,8 +25,6 @@ class TestAnlgerList(TestCase):
 
     def setUp(self):
         """"""
-
-        self.client = Client()
 
         spc = SpeciesFactory()  # necessary to prevent integrity errors:
 
