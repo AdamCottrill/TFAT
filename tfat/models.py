@@ -178,7 +178,6 @@ class Report(models.Model):
     class Meta:
 
         ordering = ["-report_date"]
-        verbose_name_plural = "JoePublic"
 
     def __str__(self):
         report = ""

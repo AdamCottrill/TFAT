@@ -1,10 +1,9 @@
 from django.contrib import admin
 
-# Register your models here.
-from tfat.models import Species, JoePublic
+from tfat.models import Species, JoePublic, Report, ReportFollowUp
 
 
-class Admin_Species(admin.ModelAdmin):
+class AdminSpecies(admin.ModelAdmin):
     """Admin class for species"""
 
     list_display = ("common_name", "scientific_name", "species_code", "primary")
@@ -15,13 +14,42 @@ class Admin_Species(admin.ModelAdmin):
         return Species.allspecies
 
 
-class Admin_JoePublic(admin.ModelAdmin):
-    """Admin class for species"""
+class AdminJoePublic(admin.ModelAdmin):
+    """Admin class for anglers or the general public"""
 
-    list_display = ("last_name", "first_name", "town", "province", "email", "phone")
-    list_filter = ("first_name", "last_name", "town", "province")
+    search_fields = ["first_name", "last_name"]
+
+    list_display = ("full_name", "town", "province", "email", "phone")
+    list_filter = ("town", "province")
     ordering = ("last_name", "first_name")
 
+    def full_name(self, obj):
+        return "{} {}".format(obj.first_name, obj.last_name)
 
-admin.site.register(Species, Admin_Species)
-admin.site.register(JoePublic, Admin_JoePublic)
+
+class ReportFollowUpInline(admin.TabularInline):
+    model = ReportFollowUp
+    extra = 1
+
+
+class AdminReport(admin.ModelAdmin):
+    """Admin class for tag recovery reports"""
+
+    date_hierarchy = "report_date"
+    search_fields = ["reported_by__first_name", "reported_by__last_name"]
+    list_display = (
+        "reported_by",
+        "report_date",
+        "reporting_format",
+        "follow_up_status",
+    )
+    # filter by year:
+    list_filter = ("recoveries__lake", "follow_up_status", "reporting_format")
+    ordering = ["-report_date"]
+
+    inlines = [ReportFollowUpInline]
+
+
+admin.site.register(Species, AdminSpecies)
+admin.site.register(JoePublic, AdminJoePublic)
+admin.site.register(Report, AdminReport)
