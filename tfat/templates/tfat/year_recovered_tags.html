@@ -17,17 +17,23 @@
     <div class="container">
 
         <div class="row">
-            <h2>Tags recovered {% if this_year %}so far {% endif %}in {{ year }} </h2>
+            <h2>Tags recovered {% if lake %} in {{lake.lake_name}} {% endif %}{% if this_year %}so far {% endif %}in {{ year }} </h2>
+
+            {% include "tfat/_lake_button_bar.html" %}
+            
         </div>
 
-        <p>A summary of tags applied in {{ year }} can be found <a href= "{% url 'tfat:tags_applied_in_year' year %}" >here.</a></p>
-
+        
+        <p>A summary of tags applied {% if lake %}in {{lake.lake_name}} {% endif %}in {{ year }} can be found
+            <a href= "{% url 'tfat:tags_applied_in_year' year %}{% if lake %}?lake={{lake.abbrev}}{% endif %}" >here.</a></p>
         <br />
 
 
         <script type="text/javascript">
          function map_init_basic (map, options) {
 
+             map.fitBounds({{mapBounds|safe}})             
+             
              var applied = L.MakiMarkers.icon({icon: "circle", color: "#b0b", size: "s"});
              var recap = L.MakiMarkers.icon({icon: "square", color: "#0a0", size: "s"});
              var angler = L.MakiMarkers.icon({icon: "star", color: "#00f", size: "s"});

@@ -10,7 +10,8 @@
 <div class="container">
 
   <div class="row">
-    <h2>Tags Applied By Year </h2>
+      <h2>Tags Applied {% if lake %} in {{lake.lake_name}} {% endif %} By Year </h2>
+      {% include  "tfat/_lake_button_bar.html" %}
   </div>
   <br />
   {% if tags_applied %}
@@ -19,7 +20,7 @@
       <table class="table">
         {% for yr, cnt in tags_applied.items %}
         <tr>
-            <td><a href="{% url 'tfat:tags_applied_in_year' yr %}">{{ yr }}</a> </td>
+            <td><a href="{% url 'tfat:tags_applied_in_year' yr %}{% if lake  %}?lake={{lake.abbrev}}{% endif %}">{{ yr }}</a> </td>
             <td>(N = {{ cnt }})</td>
         </tr>
         {% endfor%}

@@ -49,6 +49,7 @@ import pytz
 
 from django.urls import reverse
 
+
 from tfat.tests.factories import (
     ProjectFactory,
     SpeciesFactory,
@@ -126,13 +127,17 @@ def test_tags_recovered_year_contains_link_to_applied(client):
     response = client.get(url)
     content = str(response.content)
 
-    url = reverse("tfat:tags_applied_in_year", kwargs={"year": yr})
-    msg = (
-        "A summary of tags applied in {year} can be found "
-        + '<a href= "{url}" >here.</a>'
-    )
+    print(content)
 
-    msg = msg.format(**dict(year=yr, url=url))
+    # these two asserts are part of one long string that is wrapped in
+    # template (but not in the html). django-pytest does not currently
+    # have an equivalent to assertContains(html=True), so we will test
+    # both parts separately.
+    msg = "A summary of tags applied in {} can be found".format(yr)
+    assert msg in content
+
+    url = reverse("tfat:tags_applied_in_year", kwargs={"year": yr})
+    msg = '<a href= "{}" >here.</a>'.format(url)
     assert msg in content
 
 

@@ -9,7 +9,9 @@
 {% block content %}
 
 <div class="row">
-    <h2>Tags Applied in UGLMU Projects by Year:</h2>
+    <h2>Tags Applied in {% if lake %} {{lake.lake_name}} {% else %} UGLMU {% endif %} Projects by Year:</h2>
+
+    {% include  "tfat/_lake_button_bar.html" %}
 </div>
 <br />
 {% if object_list %}

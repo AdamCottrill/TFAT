@@ -16,7 +16,7 @@
     <div class="container">
 
         <div class="row">
-            <h2>Tags that contain '{{ partial }}' (N = {{ nobs }} ) </h2>
+            <h2>Tags {% if lake %} from {{lake.lake_name}} {% endif %}that contain '{{ partial }}' (N = {{ nobs }} ) </h2>
         </div>
 
         {% if encounter_list|length > max_record_count %}
@@ -40,12 +40,12 @@
 
         <br />
 
-
-
         
         <script type="text/javascript">
          function map_init_basic (map, options) {
 
+             map.fitBounds({{mapBounds|safe}})
+             
              var applied = L.MakiMarkers.icon({icon: "circle", color: "#b0b", size: "s"});
              var recap = L.MakiMarkers.icon({icon: "square", color: "#0a0", size: "s"});
              var angler = L.MakiMarkers.icon({icon: "star", color: "#00f", size: "s"});

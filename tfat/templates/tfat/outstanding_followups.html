@@ -4,11 +4,13 @@
     <div class="container">
 
         <div class="row">
-            <h1>Outstanding Report Follow-ups{% if  lake %} for {{ lake }}{% endif %} </h2>
+            <h1>Outstanding Report Follow-ups{% if lake %} for {{ lake }}{% endif %} </h2>
+
+                {% include 'tfat/_lake_button_bar.html' %}
         </div>
 
         <br />
-
+       
         <h2>Tag Recoveries Requiring Spatial Follow-up</h2>
 
 

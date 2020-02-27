@@ -70,12 +70,12 @@ urlpatterns = [
     url(regex=r"^tagid_q/$", view=tagid_quicksearch_view, name="tagid_quicksearch"),
     # TAGGED AND RECOVERED IN A PROJECT
     url(
-        regex=r"^project_list/tagged_in$",
+        regex=r"^project_list/tagged_in/$",
         view=ProjectTagsAppliedListView.as_view(),
         name="projectlist_taggedin",
     ),
     url(
-        regex=r"^project_list/recovered_in$",
+        regex=r"^project_list/recovered_in/$",
         view=ProjectTagsRecoveredListView.as_view(),
         name="projectlist_recoveredin",
     ),
@@ -96,12 +96,12 @@ urlpatterns = [
     ),
     # TAGGED AND RECOVERED IN A YEAR
     url(
-        regex=r"^years/tagged_in$",
+        regex=r"^years/tagged_in/$",
         view=years_with_tags_applied_view,
         name="yearlist_taggedin",
     ),
     url(
-        regex=r"^years/recovered_in$",
+        regex=r"^years/recovered_in/$",
         view=years_with_tags_recovered_view,
         name="yearlist_recoveredin",
     ),

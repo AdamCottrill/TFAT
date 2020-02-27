@@ -168,7 +168,9 @@
                 {% if report.get_recoveries %}
                     <script type="text/javascript">
                      function map_init_basic (map, options) {
-                         map.setZoom(7)
+                         //map.setZoom(7)
+
+                         map.fitBounds({{mapBounds|safe}})
 
                          {% for object in report.get_recoveries_with_latlon %}
 

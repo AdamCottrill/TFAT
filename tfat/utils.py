@@ -18,6 +18,28 @@ from geojson import MultiLineString
 from tfat.models import *
 
 
+def get_map_bounds(lake):
+    """Return the corners of a bounding box containing the spefied lake in
+    the correct format to pass to Leaflet's map.fitbound
+    function. Someday, this will be a function of lake objectss, but
+    for now this will work.  If no lake is provided, a box that
+    contain all lakes is returned.
+
+    Arguments:
+    - `lake`:
+
+    """
+
+    bounds = {
+        "HU": [[46.332, -83.986], [43.000, -79.654]],
+        "SU": [[46.453, -89.562], [49.016, -84.352]],
+    }
+
+    default = [[43.000, -89.562], [49.016, -79.654]]
+
+    return bounds.get(lake, default)
+
+
 def connect_the_dots(pts):
     """given a list of tag pts, convert the point observations to
     poly-lines.  If there is only one pt, return None, otherwise connect
@@ -449,7 +471,7 @@ def get_omnr_tag_application(project_slug):
     return {"queryset": queryset, "nobs": nobs}
 
 
-def get_recoveries_per_year():
+def get_recoveries_per_year(lake=None):
     """A helper function used by years_with_tag_recoveries view.  returns
     a set of nested dictionaries.  The outer dictionary is ordered and
     keyed by year.  The inner dictionaries contain the keys 'anglers'
@@ -457,9 +479,13 @@ def get_recoveries_per_year():
     for that year.
 
     """
+    omnr_recaps = Encounter.objects.filter(tagstat="C")
+
+    if lake:
+        omnr_recaps = omnr_recaps.filter(project__lake__abbrev=lake.upper())
+
     omnr_recaps = (
-        Encounter.objects.filter(tagstat="C")
-        .values_list("project__year")
+        omnr_recaps.values_list("project__year")
         .annotate(total=Count("sam"))
         .order_by("project__year")
     )
@@ -470,7 +496,15 @@ def get_recoveries_per_year():
     # is not provided.
     angler_recoveries = Recovery.objects.exclude(
         report__report_date__isnull=True, recovery_date__isnull=True
-    ).values_list("report__report_date", "recovery_date")
+    )
+
+    if lake:
+        angler_recoveries = angler_recoveries.filter(lake__abbrev=lake.upper())
+
+    angler_recoveries = angler_recoveries.values_list(
+        "report__report_date", "recovery_date"
+    )
+
     # create a list that contain the year of the report:
     years = []
     for x in angler_recoveries:

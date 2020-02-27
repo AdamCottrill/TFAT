@@ -1,0 +1,7 @@
+{% load tfat_tags %}
+
+<div class="btn-group btn-group-xs pull-right" role="group" aria-label="...">
+    <a class="btn btn-default{% if lake == None %} active {% endif %}" href="{% strip_parameter 'lake' %}" role="button">Combined</a>
+    <a class="btn btn-default{% if lake.abbrev == 'SU' %} active {% endif %}" href="?{% query_transform lake='SU' include_page=True %}" role="button">Superior</a>
+    <a class="btn btn-default{% if lake.abbrev == 'HU' %} active {% endif %}" href="?{% query_transform lake='HU' include_page=True %}" role="button">Huron</a>
+</div>           

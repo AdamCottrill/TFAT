@@ -207,16 +207,17 @@
         <div class="col-md-8" >
 
             {% if recovery.has_latlon %}
-            <script type="text/javascript">
+                <script type="text/javascript">
 
-             function map_init_basic (map, options) {
-                 map.setZoom(7)
+                 function map_init_basic (map, options) {
+                     map.fitBounds({{mapBounds|safe}})
+
                      {% if recovery.dd_lat and recovery.dd_lon %}
                      L.marker([{{ recovery.dd_lat }}, {{ recovery.dd_lon}}]).addTo(map).bindPopup('{{ recovery.popup_text|safe }}');
-                 {% endif %}
-             }
+                     {% endif %}
+                 }
 
-            </script>
+                </script>
             {% endif %}
 
             {% leaflet_map "mymap" callback="window.map_init_basic" %}

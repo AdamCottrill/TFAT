@@ -8,39 +8,40 @@
 
 {% block extrahead %}
 
-<style type="text/css" media="screen">
- .table td {
-   text-align: center;
-}
+    <style type="text/css" media="screen">
+     .table td {
+         text-align: center;
+     }
 
- th {
-   text-align: center;
-}
-</style>
+     th {
+         text-align: center;
+     }
+    </style>
 
 {% endblock %}
 
 {% block content %}
-<div class="container">
+    <div class="container">
 
-  <div class="row">
-    <h2>Tags Recovered By Year </h2>
-  </div>
-  <br />
-  {% if tags_recovered %}
-  <div class="row">
-    <div class="col-md-6 col-md-offset-1">
-      <table class="table">
-          <thead>
-              <tr>
-                  <th>Year</th>
-                  <th>OMNR Recoveries</th>
-                  <th>Anlger Returns</th>
-              </tr>
-          </thead>
-        {% for yr, counts in tags_recovered.items %}
-        <tr>
-            <td><a href="{% url 'tfat:tags_recovered_in_year' yr %}">{{ yr }}</a> </td>
+        <div class="row">
+            <h2>Tags Recovered {% if lake %} in {{lake.lake_name}} {% endif %} By Year </h2>
+            {% include  "tfat/_lake_button_bar.html" %}
+        </div>
+        <br />
+        {% if tags_recovered %}
+            <div class="row">
+                <div class="col-md-6 col-md-offset-1">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>OMNR Recoveries</th>
+                                <th>Anlger Returns</th>
+                            </tr>
+                        </thead>
+                        {% for yr, counts in tags_recovered.items %}
+                            <tr>
+                                <td><a href="{% url 'tfat:tags_recovered_in_year' yr %}{% if lake  %}?lake={{lake.abbrev}}{% endif %}">{{ yr }}</a> </td>
             <td>{{ counts.omnr }}</td>
             <td>{{ counts.anglers }}</td>
         </tr>

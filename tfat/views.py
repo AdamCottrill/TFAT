@@ -32,7 +32,13 @@ from tfat.models import (
     Project,
     ReportFollowUp,
 )
-from tfat.filters import JoePublicFilter
+from tfat.filters import (
+    JoePublicFilter,
+    ReportFilter,
+    RecoveryFilter,
+    ProjectFilter,
+    EncounterFilter,
+)
 from tfat.forms import (
     JoePublicForm,
     CreateJoePublicForm,
@@ -97,13 +103,22 @@ class ListFilteredMixin(object):
         return super(ListFilteredMixin, self).get_context_data(**kwargs)
 
 
-class RecoveryReportsListView(ListView):
+# added lake Filter
+class RecoveryReportsListView(ListFilteredMixin, ListView):
     """
     """
 
     model = Report
     queryset = Report.objects.all().order_by("-report_date")
     paginate_by = REPORT_PAGE_CNT
+    filter_set = ReportFilter
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(RecoveryReportsListView, self).get_context_data(*args, **kwargs)
+        lake_abbrev = self.request.GET.get("lake")
+        if lake_abbrev:
+            context["lake"] = Lake.objects.filter(abbrev=lake_abbrev.upper()).first()
+        return context
 
 
 report_list = RecoveryReportsListView.as_view()
@@ -143,12 +158,16 @@ class SpeciesListView(ListView):
     model = Species
 
 
+# add lake-filter
 class ReportListView(ListView):
     model = Report
+    paginate_by = REPORT_PAGE_CNT
 
 
+# add lake-filter
 class RecoveryListView(ListView):
     model = Recovery
+    paginate_by = REPORT_PAGE_CNT
 
 
 class SpatialFollowupListView(ListView):
@@ -164,7 +183,7 @@ class SpatialFollowupListView(ListView):
 
 spatial_followup = SpatialFollowupListView.as_view()
 
-
+# added lake List
 def report_follow_ups(request):
     """This View will return three tables with all of the outstanding
     followups - one for recoveries that do not have coordinates, one
@@ -208,8 +227,8 @@ def report_follow_ups(request):
 
     if lake:
         spatial = spatial.filter(lake__abbrev=lake.upper())
-        requested = requested.filter(Report__lake__abbrev=lake.upper())
-        initiated = initiated.filter(Report__lake__abbrev=lake.upper())
+        requested = requested.filter(recoveries__lake__abbrev=lake.upper())
+        initiated = initiated.filter(recoveries__lake__abbrev=lake.upper())
 
     return render(
         request,
@@ -223,6 +242,7 @@ def report_follow_ups(request):
     )
 
 
+# add lake filter
 class EncounterListView(ListView):
     model = Encounter
 
@@ -237,9 +257,16 @@ def encounter_detail_view(request, encounter_id):
     """
     encounter = get_object_or_404(Encounter, id=encounter_id)
 
-    return render(request, "tfat/encounter_detail.html", {"encounter": encounter})
+    mapbounds = get_map_bounds(encounter.project.lake.abbrev)
+
+    return render(
+        request,
+        "tfat/encounter_detail.html",
+        {"encounter": encounter, "mapBounds": mapbounds},
+    )
 
 
+# added lake filter
 class ProjectTagsAppliedListView(ListView):
     model = Project
     template_name = "tfat/project_applied_list.html"
@@ -254,9 +281,21 @@ class ProjectTagsAppliedListView(ListView):
             .distinct()
             .annotate(tags=Count("Encounters__tagid"))
         )
+
+        lake_abbrev = self.request.GET.get("lake")
+        if lake_abbrev:
+            projects = projects.filter(lake__abbrev=lake_abbrev)
         return projects
 
+    def get_context_data(self, **kwargs):
+        context = super(ProjectTagsAppliedListView, self).get_context_data(**kwargs)
+        lake_abbrev = self.request.GET.get("lake")
+        if lake_abbrev:
+            context["lake"] = Lake.objects.filter(abbrev=lake_abbrev.upper()).first()
+        return context
 
+
+# added lake filter
 class ProjectTagsRecoveredListView(ListView):
 
     model = Project
@@ -264,6 +303,7 @@ class ProjectTagsRecoveredListView(ListView):
 
     def get_queryset(self):
         "projects that re-captured at least one tag"
+
         projects = (
             Project.objects.filter(
                 Encounters__tagid__isnull=False, Encounters__tagstat="C"
@@ -271,9 +311,21 @@ class ProjectTagsRecoveredListView(ListView):
             .distinct()
             .annotate(tags=Count("Encounters__tagid"))
         )
+
+        lake_abbrev = self.request.GET.get("lake")
+        if lake_abbrev:
+            projects = projects.filter(lake__abbrev=lake_abbrev)
         return projects
 
+    def get_context_data(self, **kwargs):
+        context = super(ProjectTagsRecoveredListView, self).get_context_data(**kwargs)
+        lake_abbrev = self.request.GET.get("lake")
+        if lake_abbrev:
+            context["lake"] = Lake.objects.filter(abbrev=lake_abbrev.upper()).first()
+        return context
 
+
+# added lake filter
 def years_with_tags_applied_view(request):
     """Render a list of years in which tags were applied.  The list of
     years should be in descending order and include the number of tags
@@ -281,9 +333,19 @@ def years_with_tags_applied_view(request):
 
     """
 
+    lake = None
+
+    tags_applied = Encounter.objects.filter(Q(tagstat="A") | Q(tagstat="A2"))
+
+    lake_abbrev = request.GET.get("lake")
+    if lake_abbrev:
+        lake = Lake.objects.filter(abbrev=lake_abbrev.upper()).first()
+
+    if lake_abbrev:
+        tags_applied = tags_applied.filter(project__lake__abbrev=lake_abbrev.upper())
+
     tags_applied = (
-        Encounter.objects.filter(Q(tagstat="A") | Q(tagstat="A2"))
-        .values_list("project__year")
+        tags_applied.values_list("project__year")
         .annotate(total=Count("sam"))
         .order_by("-project__year")
     )
@@ -296,10 +358,11 @@ def years_with_tags_applied_view(request):
     return render(
         request,
         "tfat/years_with_tags_applied.html",
-        {"tags_applied": tags_applied_dict},
+        {"tags_applied": tags_applied_dict, "lake": lake},
     )
 
 
+# added lake filter
 def years_with_tags_recovered_view(request):
     """Render a list of years in which tags were recovered either by OMNR
     or outside agency.  The list of years should be in descending
@@ -309,12 +372,17 @@ def years_with_tags_recovered_view(request):
 
     # calculate the number of recoveries per year:
 
-    tags_recovered = get_recoveries_per_year()
+    lake = None
+    lake_abbrev = request.GET.get("lake")
+    if lake_abbrev:
+        lake = Lake.objects.filter(abbrev=lake_abbrev.upper()).first()
+
+    tags_recovered = get_recoveries_per_year(lake_abbrev)
 
     return render(
         request,
         "tfat/years_with_tags_recovered.html",
-        {"tags_recovered": tags_recovered},
+        {"tags_recovered": tags_recovered, "lake": lake},
     )
 
 
@@ -342,6 +410,12 @@ def angler_reports_view(request, angler_id, report_a_tag=False):
     # the subset of recovery events with both lat and lon (used for plotting)
     recoveries_with_latlon = [x for x in recoveries if x.dd_lat and x.dd_lon]
 
+    lakes = list(set([x[0] for x in recoveries.values_list("lake__abbrev")]))
+    if len(lakes) == 1:
+        mapbounds = get_map_bounds(lakes[0])
+    else:
+        mapbounds = get_map_bounds("")
+
     return render(
         request,
         "tfat/angler_reports.html",
@@ -350,6 +424,7 @@ def angler_reports_view(request, angler_id, report_a_tag=False):
             "recoveries_with_latlon": recoveries_with_latlon,
             "recoveries": recoveries,
             "report_a_tag": report_a_tag,
+            "mapBounds": mapbounds,
         },
     )
 
@@ -378,6 +453,14 @@ def tagid_detail_view(request, tagid):
 
     detail_data = get_tagid_detail_data(tagid, encounter_list)
 
+    lakes = list(
+        set([x[0] for x in encounter_list.values_list("project__lake__abbrev")])
+    )
+    if len(lakes) == 1:
+        mapbounds = get_map_bounds(lakes[0])
+    else:
+        mapbounds = get_map_bounds("")
+
     return render(
         request,
         "tfat/tagid_details.html",
@@ -390,6 +473,7 @@ def tagid_detail_view(request, tagid):
             "tagdoc_warn": detail_data.get("tagdoc_warn"),
             "max_record_count": MAX_RECORD_CNT,
             "nobs": detail_data.get("nobs", 0),
+            "mapBounds": mapbounds,
         },
     )
 
@@ -405,13 +489,21 @@ def report_detail_view(request, report_id, report_a_tag=False):
     report = get_object_or_404(Report, id=report_id)
     # angler = report.reported_by
 
+    lakes = list(set([x.lake.abbrev for x in report.recoveries.all()]))
+
+    if len(lakes) == 1:
+        mapbounds = get_map_bounds(lakes[0])
+    else:
+        mapbounds = get_map_bounds("")
+
     return render(
         request,
         "tfat/report_detail.html",
         {
             "report": report,
-            "report_a_tag": report_a_tag
+            "report_a_tag": report_a_tag,
             #'angler':angler
+            "mapBounds": mapbounds,
         },
     )
 
@@ -424,6 +516,7 @@ def tagid_quicksearch_view(request):
     return redirect("tfat:tagid_contains", partial=partial)
 
 
+# added lake filter
 def tagid_contains_view(request, partial):
     """
     This view returns all of the omnr encounters and any angler
@@ -438,10 +531,20 @@ def tagid_contains_view(request, partial):
 
     """
 
+    lake = None
+    lake_abbrev = request.GET.get("lake")
+    if lake_abbrev:
+        lake = Lake.objects.filter(abbrev=lake_abbrev.upper()).first()
+
     encounter_list = Encounter.objects.filter(tagid__icontains=partial)
 
+    if lake:
+        encounter_list = encounter_list.filter(
+            project__lake__abbrev=lake_abbrev.upper()
+        )
+
     if encounter_list:
-        encouter_list = encounter_list.order_by("tagid", "tagstat")[:MAX_RECORD_CNT]
+        encounter_list = encounter_list.order_by("tagid", "tagstat")[:MAX_RECORD_CNT]
 
     detail_data = get_tagid_detail_data(partial, encounter_list, partial=True)
 
@@ -457,10 +560,13 @@ def tagid_contains_view(request, partial):
             "tagdoc_warn": detail_data.get("tagdoc_warn"),
             "max_record_count": MAX_RECORD_CNT,
             "nobs": detail_data.get("nobs", 0),
+            "lake": lake,
+            "mapBounds": get_map_bounds(lake_abbrev),
         },
     )
 
 
+# add lake filter
 def tags_recovered_year(request, year, this_year=False):
     """A view to show the where recoveries in a particular year originated
 
@@ -481,9 +587,14 @@ def tags_recovered_year(request, year, this_year=False):
 
     """
 
-    encounter_list = Encounter.objects.filter(tagstat="C", project__year=year)
+    lake = None
+    lake_abbrev = request.GET.get("lake")
+    if lake_abbrev:
+        lake = Lake.objects.filter(abbrev=lake_abbrev.upper()).first()
 
-    encounter_list = encounter_list.select_related(
+    encounter_list = Encounter.objects.filter(
+        tagstat="C", project__year=year
+    ).select_related(
         "project",
         "spc"
         # "project__prj_cd", "project__prj_nm", "project__slug", "spc__common_name"
@@ -497,6 +608,12 @@ def tags_recovered_year(request, year, this_year=False):
         "report",
         "spc",
     )
+
+    if lake_abbrev:
+        encounter_list = encounter_list.filter(
+            project__lake__abbrev=lake_abbrev.upper()
+        )
+        angler_recaps = angler_recaps.filter(lake__abbrev=lake_abbrev.upper())
 
     # mls = get_multilinestring([applied.get('queryset'), recovered,
     #                           other_recoveries.get('queryset'),
@@ -513,10 +630,13 @@ def tags_recovered_year(request, year, this_year=False):
             #'applied':applied,
             #'mls':mls
             "this_year": this_year,
+            "lake": lake,
+            "mapBounds": get_map_bounds(lake_abbrev),
         },
     )
 
 
+# add lake filter
 def tags_recovered_this_year(request):
     """Pass the current year into the tags recovered view.  THis will
     be the TFAT home page.  """
@@ -526,6 +646,7 @@ def tags_recovered_this_year(request):
     return tags_recovered_year(request, this_year, this_year=True)
 
 
+# added lake filter
 def tags_applied_year(request, year):
     """A view to show the of all tags applied in a particular
     year and their assoiciated recoveries
@@ -545,11 +666,14 @@ def tags_applied_year(request, year):
 
     """
 
+    lake = None
+    lake_abbrev = request.GET.get("lake")
+    if lake_abbrev:
+        lake = Lake.objects.filter(abbrev=lake_abbrev.upper()).first()
+
     applied = Encounter.objects.filter(
         Q(tagstat="A") | Q(tagstat="A2"), project__year=year
-    )
-
-    applied = applied.select_related(
+    ).select_related(
         "project",
         "spc",
         # "project__prj_cd", "project__prj_nm", "spc__common_name"
@@ -561,6 +685,9 @@ def tags_applied_year(request, year):
     # mls = get_multilinestring([applied, recovered.get('queryset'),
     #                           angler_recaps.get('queryset')])
 
+    if lake_abbrev:
+        applied = applied.filter(project__lake__abbrev=lake_abbrev.upper())
+
     return render(
         request,
         "tfat/year_applied_tags.html",
@@ -570,6 +697,8 @@ def tags_applied_year(request, year):
             #'recovered':recovered,
             #'angler_recaps':angler_recaps,
             #'mls':mls,
+            "lake": lake,
+            "mapBounds": get_map_bounds(lake_abbrev),
         },
     )
 
@@ -619,6 +748,7 @@ def tags_applied_project(request, slug):
             "recovered": recovered,
             "angler_recaps": angler_recaps,
             "mls": mls,
+            "mapBounds": get_map_bounds(project.lake.abbrev),
         },
     )
 
@@ -644,6 +774,8 @@ def tags_recovered_project(request, slug):
     """
 
     project = Project.objects.get(slug=slug)
+
+    mapbounds = get_map_bounds(project.lake.abbrev)
 
     recovered = Encounter.objects.filter(tagstat="C", project=project).select_related(
         "project", "spc"
@@ -673,6 +805,7 @@ def tags_recovered_project(request, slug):
             "angler_recaps": angler_recaps,
             "applied": applied,
             "mls": mls,
+            "mapBounds": mapbounds,
         },
     )
 
@@ -942,10 +1075,12 @@ def recovery_detail_view(request, recovery_id, add_another=False):
     """
     recovery = get_object_or_404(Recovery, id=recovery_id)
 
+    mapbounds = get_map_bounds(recovery.lake.abbrev)
+
     return render(
         request,
         "tfat/recovery_detail.html",
-        {"recovery": recovery, "add_another": add_another},
+        {"recovery": recovery, "mapBounds": mapbounds, "add_another": add_another},
     )
 
 

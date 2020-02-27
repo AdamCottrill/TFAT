@@ -111,19 +111,20 @@
         <div class="col-md-8" >
 
             {% if recoveries_with_latlon %}
-            <script type="text/javascript">
-             function map_init_basic (map, options) {
-                 map.setZoom(7)
+                <script type="text/javascript">
+                 function map_init_basic (map, options) {
+                     //map.setZoom(7)
+                     map.fitBounds({{mapBounds|safe}})
 
                      //var marker = L.MakiMarkers.icon({icon: "square", color: "#a0a", size: "s"});
 
-                 {% for object in recoveries_with_latlon %}
-                 L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}]).addTo(map).bindPopup('{{ object.popup_text|safe }}');
+                     {% for object in recoveries_with_latlon %}
+                     L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}]).addTo(map).bindPopup('{{ object.popup_text|safe }}');
 
-                 {% endfor %}
+                     {% endfor %}
 
-             }
-            </script>
+                 }
+                </script>
             {% endif %}
 
             {% leaflet_map "mymap" callback="window.map_init_basic" %}

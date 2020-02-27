@@ -13,7 +13,11 @@ A. Cottrill
 
 import django_filters
 from django.db import models
-from tfat.models import JoePublic
+from tfat.models import JoePublic, Recovery, Report, Project, Encounter
+
+
+class ValueInFilter(django_filters.BaseInFilter, django_filters.CharFilter):
+    pass
 
 
 class JoePublicFilter(django_filters.FilterSet):
@@ -34,3 +38,39 @@ class JoePublicFilter(django_filters.FilterSet):
                 "extra": lambda f: {"lookup_expr": "icontains"},
             }
         }
+
+
+class ReportFilter(django_filters.FilterSet):
+
+    lake = ValueInFilter(field_name="recoveries__lake__abbrev", lookup_expr="in")
+
+    class Meta:
+        model = Report
+        fields = ["recoveries__lake__abbrev"]
+
+
+class RecoveryFilter(django_filters.FilterSet):
+
+    lake = ValueInFilter(field_name="lake__abbrev", lookup_expr="in")
+
+    class Meta:
+        model = Recovery
+        fields = ["lake__abbrev"]
+
+
+class ProjectFilter(django_filters.FilterSet):
+
+    lake = ValueInFilter(field_name="lake__abbrev", lookup_expr="in")
+
+    class Meta:
+        model = Project
+        fields = ["lake__abbrev"]
+
+
+class EncounterFilter(django_filters.FilterSet):
+
+    lake = ValueInFilter(field_name="project__lake__abbrev", lookup_expr="in")
+
+    class Meta:
+        model = Encounter
+        fields = ["project__lake__abbrev"]

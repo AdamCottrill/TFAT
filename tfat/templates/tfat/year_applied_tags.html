@@ -18,30 +18,34 @@
 <div class="container">
 
     <div class="row">
-        <h2>Tags applied in {{ year }}  (N = {{ applied|length }})</h2>
+        <h2>Tags applied {% if lake %} in {{lake.lake_name}} {% endif %} in {{ year }}  (N = {{ applied|length }})</h2>
+        {% include  "tfat/_lake_button_bar.html" %}
     </div>
 
-      <p>A summary of tags recovered in {{ year }} can be found <a href= "{% url 'tfat:tags_recovered_in_year' year %}" >here.</a></p>
+    <p>A summary of tags recovered in {{ year }} can be found
+        <a href= "{% url 'tfat:tags_recovered_in_year' year %}{% if lake %}?lake={{lake.abbrev}} {% endif %}" >here.</a></p>
 
 
     {% if applied %}
-    <script type="text/javascript">
-     function map_init_basic (map, options) {
+        <script type="text/javascript">
+         function map_init_basic (map, options) {
 
-         var tagging_marker = L.MakiMarkers.icon({icon: "circle", color: "#b0b", size: "s"});
-         var recap_marker = L.MakiMarkers.icon({icon: "square", color: "#0a0", size: "s"});
-         var angler = L.MakiMarkers.icon({icon: "star", color: "#00f", size: "s"});
+             map.fitBounds({{mapBounds|safe}})
+             
+             var tagging_marker = L.MakiMarkers.icon({icon: "circle", color: "#b0b", size: "s"});
+             var recap_marker = L.MakiMarkers.icon({icon: "square", color: "#0a0", size: "s"});
+             var angler = L.MakiMarkers.icon({icon: "star", color: "#00f", size: "s"});
 
-         {% for object in applied %}
-         {% if object.dd_lat and object.dd_lon %}
-         L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon:tagging_marker}).addTo(map)
-                     .bindPopup('{{ object.popup_text|safe }}');
-         {% endif %}
-         {% endfor %}
+             {% for object in applied %}
+             {% if object.dd_lat and object.dd_lon %}
+             L.marker([{{ object.dd_lat }}, {{ object.dd_lon}}], {icon:tagging_marker}).addTo(map)
+              .bindPopup('{{ object.popup_text|safe }}');
+             {% endif %}
+             {% endfor %}
 
 
-     }
-    </script>
+         }
+        </script>
 
     {% leaflet_map "mymap" callback="window.map_init_basic" %}
 

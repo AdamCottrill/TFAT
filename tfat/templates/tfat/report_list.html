@@ -5,28 +5,32 @@
 {% block content %}
 <div class="container">
 
-    <h3>Tag Recovery Reports</h3>
+    <div class="row">
+        <h3>Tag Recovery Reports</h3>
+        {% include "tfat/_lake_button_bar.html" %}       
+    </div>
 
-{% if object_list %}
+    
+    {% if object_list %}
 
 
-    {% if page_obj %}
-    {% if page_obj.paginator.num_pages > 1 %}
-    <ul class="pager">
-        {% if page_obj.has_previous %}
-        <li class="previous"><a href="?page={{ page_obj.previous_page_number }}">Newer Reports</a></li>
-        {% else %}
-        <li class="previous disabled"><a href="#">Newer Reports</a></li>
-        {% endif %}
+        {% if page_obj %}
+            {% if page_obj.paginator.num_pages > 1 %}
+                <ul class="pager">
+                    {% if page_obj.has_previous %}
+                        <li class="previous"><a href="?{% query_transform page=page_obj.previous_page_number include_page=True %}">Newer Reports</a></li>
+                    {% else %}
+                        <li class="previous disabled"><a href="#">Newer Reports</a></li>
+                    {% endif %}
 
-        <span class="page-current">
-            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-        </span>
+                    <span class="page-current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                    </span>
 
-        {% if page_obj.has_next %}
-        <li class="next"><a href="?page={{ page_obj.next_page_number }}">Older Reports</a></li>
-        {% else %}
-        <li class="next disabled"><a href="#">Older Reports</a></li>
+                    {% if page_obj.has_next %}
+                        <li class="next"><a href="?{% query_transform page=page_obj.next_page_number include_page=True %}">Older Reports</a></li>
+                    {% else %}
+                        <li class="next disabled"><a href="#">Older Reports</a></li>
         {% endif %}
     </ul>
     {% else %}
