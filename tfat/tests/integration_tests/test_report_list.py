@@ -43,8 +43,8 @@ def user():
 
 @pytest.fixture()
 def species():
-    spc = SpeciesFactory()
-    return spc
+    species = SpeciesFactory()
+    return species
 
 
 @pytest.fixture()
@@ -66,7 +66,7 @@ def db_setup(user, species):
 
     tagids = ["111111", "222222", "333333"]
     for tag in tagids:
-        recovery = RecoveryFactory(report=report, spc=species, tagid=tag)
+        recovery = RecoveryFactory(report=report, species=species, tagid=tag)
 
     # a report filed by Monty Burns
     report = ReportFactory(
@@ -80,7 +80,7 @@ def db_setup(user, species):
 
     tagids = ["4444", "5555", "6666"]
     for tag in tagids:
-        recovery = RecoveryFactory(report=report, spc=species, tagid=tag)
+        recovery = RecoveryFactory(report=report, species=species, tagid=tag)
 
 
 @pytest.mark.django_db

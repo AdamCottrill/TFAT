@@ -40,7 +40,7 @@
                             {% for object  in spatial %}
                                 <tr class="{% cycle 'row1' 'row2' %}">
                                     <td> <a href="{% url 'tfat:recovery_detail'  object.id  %}">{{ object.tagid }}</a> </td>
-                                    <td> {{ object.spc.common_name | title }} </td>
+                                    <td> {{ object.species.spc_nmco | title }} </td>
                                     <td> {{ object.recovery_date }} </td>
                                     <td> {{ object.general_location }} </td>
                                     <td> {{ object.specific_location }} </td>
@@ -67,7 +67,7 @@
         <h2>Initiated Report Follow-ups</h2>
 
         <div class="alert alert-warning" role="alert">
-            <p>Tag recovery reports in this list have an outstand follow-up that needs to be complete.
+            <p>Tag recovery reports in this list have an outstand follow-up that needs to be completed.
                 Please review the report detail to see progress to date.
             </p>
         </div>

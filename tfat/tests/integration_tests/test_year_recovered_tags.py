@@ -184,8 +184,8 @@ def test_tags_recovered_year_mnr_encounters(client, project, species):
     """
 
     # create a couple of omnr encounters
-    encounter = EncounterFactory(project=project, spc=species)
-    encounter2 = EncounterFactory(project=project, spc=species)
+    encounter = EncounterFactory(project=project, species=species)
+    encounter2 = EncounterFactory(project=project, species=species)
 
     yr = 2015  # the year of the project
     url = reverse("tfat:tags_recovered_in_year", kwargs={"year": yr})
@@ -206,8 +206,12 @@ def test_tags_recovered_year_public_recoveries(client, report, species):
     recovery_date = datetime(yr, 10, 10)
 
     # create a couple of public tag recoveries
-    recovery = RecoveryFactory(report=report, spc=species, recovery_date=recovery_date)
-    recovery2 = RecoveryFactory(report=report, spc=species, recovery_date=recovery_date)
+    recovery = RecoveryFactory(
+        report=report, species=species, recovery_date=recovery_date
+    )
+    recovery2 = RecoveryFactory(
+        report=report, species=species, recovery_date=recovery_date
+    )
 
     url = reverse("tfat:tags_recovered_in_year", kwargs={"year": yr})
     response = client.get(url)

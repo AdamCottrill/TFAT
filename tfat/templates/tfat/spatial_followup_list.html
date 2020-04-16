@@ -58,7 +58,7 @@
                     {% for object  in object_list %}
                     <tr class="{% cycle 'row1' 'row2' %}">
                         <td> <a href="{% url 'tfat:recovery_detail'  object.id  %}">{{ object.tagid }}</a> </td>
-                        <td> {{ object.spc.common_name | title }} </td>
+                        <td> {{ object.species.spc_nmco | title }} </td>
                         <td> {{ object.recovery_date }} </td>
                         <td> {{ object.general_location }} </td>
                         <td> {{ object.specific_location }} </td>

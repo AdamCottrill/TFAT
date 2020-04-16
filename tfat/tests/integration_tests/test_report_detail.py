@@ -77,8 +77,8 @@ def user():
 
 @pytest.fixture()
 def species():
-    spc = SpeciesFactory()
-    return spc
+    species = SpeciesFactory()
+    return species
 
 
 @pytest.fixture()
@@ -106,7 +106,7 @@ def db_setup(user, species):
     )
     tagids = ["111111", "222222", "333333"]
     for tag in tagids:
-        recovery = RecoveryFactory(report=report, spc=species, tagid=tag)
+        recovery = RecoveryFactory(report=report, species=species, tagid=tag)
 
     followup = ReportFollowUpFactory(report=report, created_by=user, status="requested")
 

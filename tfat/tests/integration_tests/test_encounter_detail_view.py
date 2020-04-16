@@ -64,7 +64,7 @@ def test_encounter_detail(client, project, species):
     """Verify that we can navigate to the encounter detail page (status
     code=200) and that the template is the one we think it is.
     """
-    encounter = EncounterFactory(project=project, spc=species)
+    encounter = EncounterFactory(project=project, species=species)
 
     response = client.get(
         reverse("tfat:encounter_detail", kwargs={"encounter_id": encounter.id})
@@ -83,7 +83,7 @@ def test_encounter_panel_headings(client, project, species):
     """
 
     encounter = EncounterFactory(
-        project=project, spc=species, tlen=None, flen=None, rwt=2200
+        project=project, species=species, tlen=None, flen=None, rwt=2200
     )
 
     response = client.get(
@@ -112,7 +112,7 @@ def test_encounter_detail_dates(client, project, species):
     encounter_date = datetime(2010, 9, 9)
 
     encounter = EncounterFactory(
-        project=project, spc=species, observation_date=encounter_date
+        project=project, species=species, observation_date=encounter_date
     )
 
     response = client.get(
@@ -131,7 +131,7 @@ def test_detail_tag_details(client, project, species):
 
     tagid = "54321"
     encounter = EncounterFactory(
-        project=project, spc=species, tagid=tagid, tagdoc="25012"
+        project=project, species=species, tagid=tagid, tagdoc="25012"
     )
 
     response = client.get(
@@ -165,7 +165,7 @@ def test_encounter_details_with_location_info(client, project, species):
     dd_lon = -81.25
 
     encounter = EncounterFactory(
-        project=project, spc=species, grid=grid, dd_lat=dd_lat, dd_lon=dd_lon
+        project=project, species=species, grid=grid, dd_lat=dd_lat, dd_lon=dd_lon
     )
 
     response = client.get(
@@ -188,7 +188,7 @@ def test_encounter_details_flen(client, project, species):
     """
 
     encounter = EncounterFactory(
-        project=project, spc=species, flen=450, tlen=None, rwt=None
+        project=project, species=species, flen=450, tlen=None, rwt=None
     )
 
     response = client.get(
@@ -214,7 +214,7 @@ def test_encounter_details_tlen(client, project, species):
     """
 
     encounter = EncounterFactory(
-        project=project, spc=species, tlen=450, flen=None, rwt=None
+        project=project, species=species, tlen=450, flen=None, rwt=None
     )
 
     response = client.get(
@@ -240,7 +240,7 @@ def test_encounter_details_rwt(client, project, species):
     """
 
     encounter = EncounterFactory(
-        project=project, spc=species, tlen=None, flen=None, rwt=2200
+        project=project, species=species, tlen=None, flen=None, rwt=2200
     )
 
     response = client.get(

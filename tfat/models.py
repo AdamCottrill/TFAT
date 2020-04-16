@@ -12,7 +12,7 @@ from textwrap import wrap
 
 import html
 
-from common.models import Lake
+from common.models import Lake, Species as NewSpecies
 
 from .constants import (
     REPORTING_CHOICES,
@@ -29,45 +29,6 @@ from .constants import (
     PROVINCES_STATE_CHOICES,
     RECOVERY_LETTER_CHOICES,
 )
-
-
-class ActiveSpecies(models.Manager):
-    """only return those species where primary is true - keeps dropdowns
-    reasonably small"""
-
-    def get_queryset(self):
-        # use_for_related_fields = True
-        return super(ActiveSpecies, self).get_queryset().filter(primary=True)
-
-
-class AllSpecies(models.Manager):
-    """only return all species currently in database. Used primary in
-    admin or shell"""
-
-    def get_queryset(self):
-        # use_for_related_fields = True
-        return super(AllSpecies, self).get_queryset()
-
-
-class Species(models.Model):
-    species_code = models.IntegerField(unique=True)
-    common_name = models.CharField(max_length=40)
-    scientific_name = models.CharField(max_length=50, null=True, blank=True)
-    primary = models.BooleanField(default=False)
-
-    objects = ActiveSpecies()
-    allspecies = AllSpecies()
-
-    class Meta:
-        ordering = ["-primary", "common_name"]
-        verbose_name_plural = "Species"
-
-    def __str__(self):
-        if self.scientific_name:
-            spc_unicode = "{} ({})".format(self.common_name, self.scientific_name)
-        else:
-            spc_unicode = "{}".format(self.common_name)
-        return spc_unicode
 
 
 class JoePublic(models.Model):
@@ -196,7 +157,7 @@ class Report(models.Model):
         Arguments:
         - `self`:
         """
-        tags = self.recoveries.select_related("spc")
+        tags = self.recoveries.select_related("species")
         return tags
 
     def get_recoveries_with_latlon(self):
@@ -270,8 +231,12 @@ class Recovery(models.Model):
     report = models.ForeignKey(
         Report, related_name="recoveries", on_delete=models.CASCADE
     )
-    spc = models.ForeignKey(
-        Species, related_name="recoveries", on_delete=models.CASCADE
+    # spc = models.ForeignKey(
+    #    Species, related_name="recoveries", on_delete=models.CASCADE
+    # )
+
+    species = models.ForeignKey(
+        NewSpecies, related_name="recoveries", on_delete=models.CASCADE
     )
 
     lake = models.ForeignKey(
@@ -360,7 +325,7 @@ class Recovery(models.Model):
 
     class Meta:
         ordering = ["tagdoc", "tagid"]
-        index_together = ["tagid", "tagdoc", "spc"]
+        index_together = ["tagid", "tagdoc", "species"]
 
     def _get_observation_date(self):
         """An aliase for recovery date - if recovery date is available use it,
@@ -395,7 +360,7 @@ class Recovery(models.Model):
         """
 
         mnr = (
-            Encounter.objects.filter(tagid=self.tagid, spc=self.spc)
+            Encounter.objects.filter(tagid=self.tagid, spc=self.species)
             .filter(Q(tagstat="A") | Q(tagstat="A2"))
             .first()
         )
@@ -458,8 +423,8 @@ class Recovery(models.Model):
             "tagid": href,
             "tagdoc": self.tagdoc,
             "recovery_date": recovery_date,
-            "common_name": self.spc.common_name,
-            "species_code": self.spc.species_code,
+            "common_name": self.species.spc_nmco,
+            "species_code": self.species.spc,
             "first_name": self.report.reported_by.first_name,
             "last_name": last_name,
             "comments": comments,
@@ -725,7 +690,8 @@ class Encounter(models.Model):
     project = models.ForeignKey(
         Project, related_name="Encounters", on_delete=models.CASCADE
     )
-    spc = models.ForeignKey(Species, on_delete=models.CASCADE)
+    # spc = models.ForeignKey(Species, on_delete=models.CASCADE, blank=True, null=True)
+    species = models.ForeignKey(NewSpecies, on_delete=models.CASCADE)
     sam = models.CharField(max_length=5)
     eff = models.CharField(max_length=3)
     grp = models.CharField(max_length=3)
@@ -761,7 +727,7 @@ class Encounter(models.Model):
 
     class Meta:
         ordering = ["tagdoc", "tagid", "observation_date"]
-        index_together = ["tagid", "tagdoc", "spc"]
+        index_together = ["tagid", "tagdoc", "species"]
 
     def has_latlon(self):
         if self.dd_lat and self.dd_lon:
@@ -780,7 +746,7 @@ class Encounter(models.Model):
             self.project.prj_cd,
             self.sam,
             self.eff,
-            self.spc.species_code,
+            self.species.spc,
             self.grp,
             self.fish,
         )
@@ -864,8 +830,8 @@ class Encounter(models.Model):
             "tagdoc": self.tagdoc,
             "tagstat": self.get_tagstat_display(),
             "obs_date": obs_date,
-            "common_name": self.spc.common_name,
-            "species_code": self.spc.species_code,
+            "common_name": self.species.spc_nmco,
+            "species_code": self.species.spc,
             "fn_key": self.fn_key(),
         }
 

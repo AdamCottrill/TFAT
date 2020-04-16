@@ -29,13 +29,13 @@ def db_setup():
 
     some of the tags recovered by the onmr and general public will
     match those applied in the tagging project.  Only those tags with
-    the same spc and with lat-long will be returned by the helper
+    the same species and with lat-long will be returned by the helper
     functions.
 
     """
 
-    spc = SpeciesFactory(species_code="334", common_name="Walleye")
-    spc2 = SpeciesFactory(species_code="091", common_name="Whitefish")
+    species = SpeciesFactory(spc="334", spc_nmco="Walleye")
+    species2 = SpeciesFactory(spc="091", spc_nmco="Whitefish")
 
     report = ReportFactory()
 
@@ -50,25 +50,35 @@ def db_setup():
     tagids = ["1", "2", "3", "4", "5", "6", "7", "8"]
     # make the tags and associate them with the tagging project
     for tagid in tagids:
-        EncounterFactory(project=tagging_prj, spc=spc, tagid=tagid, tagstat="A")
+        EncounterFactory(project=tagging_prj, species=species, tagid=tagid, tagstat="A")
 
     # the first four tags were recaptured by the omnr
     for tagid in tagids[:2]:
-        EncounterFactory(project=recovery_prj, spc=spc, tagid=tagid, tagstat="C")
+        EncounterFactory(
+            project=recovery_prj, species=species, tagid=tagid, tagstat="C"
+        )
 
     # encunterd by mnr but a different species
     EncounterFactory(
-        project=recovery_prj, spc=spc, tagdoc="15012", tagid=tagids[2], tagstat="C"
+        project=recovery_prj,
+        species=species,
+        tagdoc="15012",
+        tagid=tagids[2],
+        tagstat="C",
     )
-    EncounterFactory(project=recovery_prj, spc=spc2, tagid=tagids[3], tagstat="C")
+    EncounterFactory(
+        project=recovery_prj, species=species2, tagid=tagids[3], tagstat="C"
+    )
 
     # the remaining 4 tags were reported by the general public
     for tagid in tagids[4:6]:
-        RecoveryFactory(report=report, spc=spc, tagid=tagid)
+        RecoveryFactory(report=report, species=species, tagid=tagid)
     # this one has no lat-lon
-    RecoveryFactory(report=report, spc=spc, dd_lat=None, dd_lon=None, tagid=tagids[6])
+    RecoveryFactory(
+        report=report, species=species, dd_lat=None, dd_lon=None, tagid=tagids[6]
+    )
     # this one is a different species
-    RecoveryFactory(report=report, spc=spc2, tagid=tagids[7])
+    RecoveryFactory(report=report, species=species2, tagid=tagids[7])
 
 
 @pytest.mark.django_db

@@ -93,7 +93,7 @@ def test_recovery_detail(client, report, species):
     """Verify that we can navigate to the recovery detail page (status
     code=200) and that the template is the one we think it is.
     """
-    recovery = RecoveryFactory(report=report, spc=species)
+    recovery = RecoveryFactory(report=report, species=species)
 
     response = client.get(
         reverse("tfat:recovery_detail", kwargs={"recovery_id": recovery.id})
@@ -112,7 +112,7 @@ def test_recovery_panel_headings(client, report, species):
     """
 
     recovery = RecoveryFactory(
-        report=report, spc=species, tlen=None, flen=None, rwt=2200
+        report=report, species=species, tlen=None, flen=None, rwt=2200
     )
 
     response = client.get(
@@ -138,7 +138,7 @@ def test_recovery_detail_links(client, angler, report, species):
     """Verify that we have links to the report's page, the report details
     page, and the form to edit the recovery information."""
 
-    recovery = RecoveryFactory(report=report, spc=species)
+    recovery = RecoveryFactory(report=report, species=species)
 
     response = client.get(
         reverse("tfat:recovery_detail", kwargs={"recovery_id": recovery.id})
@@ -160,7 +160,7 @@ def test_recovery_detail_links(client, angler, report, species):
     """Verify that we have links to the report's page, the report details
     page, and the form to edit the recovery information."""
 
-    recovery = RecoveryFactory(report=report, spc=species)
+    recovery = RecoveryFactory(report=report, species=species)
 
     response = client.get(
         reverse("tfat:recovery_detail", kwargs={"recovery_id": recovery.id})
@@ -182,7 +182,7 @@ def test_no_edit_recovery_link(client, angler, report, species):
     """if the page is accessed by a user who is not logged in, the link to
     the edit_recovery view should *NOT* be provided."""
 
-    recovery = RecoveryFactory(report=report, spc=species)
+    recovery = RecoveryFactory(report=report, species=species)
 
     response = client.get(
         reverse("tfat:recovery_detail", kwargs={"recovery_id": recovery.id})
@@ -198,7 +198,7 @@ def test_edit_recovery_link_authorized(client, user, angler, report, species):
     """if the page is accessed by a user who is logged in, a link to
     the edit_recovery view should be provided."""
 
-    recovery = RecoveryFactory(report=report, spc=species)
+    recovery = RecoveryFactory(report=report, species=species)
 
     client.login(username="mickey@disney.com", password="Abcd1234")
     response = client.get(
@@ -218,7 +218,7 @@ def test_recovery_detail_dates(client, report, species, report_date):
     recovery_date = datetime(2010, 9, 9).replace(tzinfo=pytz.timezone("Canada/Eastern"))
 
     recovery = RecoveryFactory(
-        report=report, spc=species, recovery_date=recovery_date, date_flag=0
+        report=report, species=species, recovery_date=recovery_date, date_flag=0
     )
 
     response = client.get(
@@ -238,7 +238,9 @@ def test_detail_tag_details(client, report, species):
     including a link to the tag details page."""
 
     tagid = "54321"
-    recovery = RecoveryFactory(report=report, spc=species, tagid=tagid, tagdoc="25012")
+    recovery = RecoveryFactory(
+        report=report, species=species, tagid=tagid, tagdoc="25012"
+    )
 
     response = client.get(
         reverse("tfat:recovery_detail", kwargs={"recovery_id": recovery.id})
@@ -271,7 +273,7 @@ def test_recovery_details_with_locations(client, report, species):
 
     recovery = RecoveryFactory(
         report=report,
-        spc=species,
+        species=species,
         general_location=general_location,
         specific_location=specific_location,
     )
@@ -291,7 +293,9 @@ def test_recovery_details_with_latlon(client, report, species):
     Latitude: and Longitude: should appear in rendered page.
     """
 
-    recovery = RecoveryFactory(report=report, spc=species, dd_lat=45.5, dd_lon=-81.3)
+    recovery = RecoveryFactory(
+        report=report, species=species, dd_lat=45.5, dd_lon=-81.3
+    )
 
     response = client.get(
         reverse("tfat:recovery_detail", kwargs={"recovery_id": recovery.id})
@@ -308,7 +312,7 @@ def test_recovery_details_no_latlon(client, report, species):
     strings Latitude: and Longitude: should not appear in rendered
     page."""
 
-    recovery = RecoveryFactory(report=report, spc=species, dd_lat=None, dd_lon=None)
+    recovery = RecoveryFactory(report=report, species=species, dd_lat=None, dd_lon=None)
 
     response = client.get(
         reverse("tfat:recovery_detail", kwargs={"recovery_id": recovery.id})
@@ -326,7 +330,9 @@ def test_recovery_details_no_lat(client, report, species):
     not appear in rendered page.
     """
 
-    recovery = RecoveryFactory(report=report, spc=species, dd_lat=None, dd_lon=-81.3)
+    recovery = RecoveryFactory(
+        report=report, species=species, dd_lat=None, dd_lon=-81.3
+    )
 
     response = client.get(
         reverse("tfat:recovery_detail", kwargs={"recovery_id": recovery.id})
@@ -344,7 +350,7 @@ def test_recovery_details_no_lon(client, report, species):
     not appear in rendered page.
     """
 
-    recovery = RecoveryFactory(report=report, spc=species, dd_lat=45.5, dd_lon=None)
+    recovery = RecoveryFactory(report=report, species=species, dd_lat=45.5, dd_lon=None)
 
     response = client.get(
         reverse("tfat:recovery_detail", kwargs={"recovery_id": recovery.id})
@@ -365,7 +371,7 @@ def test_recovery_details_flen(client, report, species):
     """
 
     recovery = RecoveryFactory(
-        report=report, spc=species, flen=450, tlen=None, rwt=None
+        report=report, species=species, flen=450, tlen=None, rwt=None
     )
 
     response = client.get(
@@ -391,7 +397,7 @@ def test_recovery_details_tlen(client, report, species):
     """
 
     recovery = RecoveryFactory(
-        report=report, spc=species, tlen=450, flen=None, rwt=None
+        report=report, species=species, tlen=450, flen=None, rwt=None
     )
 
     response = client.get(
@@ -417,7 +423,7 @@ def test_recovery_details_rwt(client, report, species):
     """
 
     recovery = RecoveryFactory(
-        report=report, spc=species, tlen=None, flen=None, rwt=2200
+        report=report, species=species, tlen=None, flen=None, rwt=2200
     )
 
     response = client.get(
@@ -443,7 +449,7 @@ def test_recovery_details_girth(client, report, species):
     """
 
     recovery = RecoveryFactory(
-        report=report, spc=species, tlen=None, flen=None, girth=450
+        report=report, species=species, tlen=None, flen=None, girth=450
     )
 
     response = client.get(

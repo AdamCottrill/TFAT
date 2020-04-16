@@ -78,17 +78,17 @@ def tag_data():
     test. Updated as needed in each test.
     """
 
-    spc = SpeciesFactory()
+    species = SpeciesFactory()
     lake = LakeFactory()
 
     tag_data = {
         "tagdoc": "25012",
         "tagid": "1234",
-        "spc": spc.id,
+        "species": species.id,
         "date_flag": 0,
         "lake": lake.id,
     }
-    # tag_data["spc"] = spc.id
+    # tag_data["species"] = species.id
     return tag_data
 
 
@@ -123,7 +123,7 @@ def test_can_create_recovery_url(client, user, db_setup):
     assert "Tag Recovery Event" in content
     assert "Tag Recovery Details" in content
     assert "Tagid:" in content
-    assert "Spc:" in content
+    assert "Species:" in content
     assert "TAGDOC" in content
 
     assert "Recovery Location" in content
@@ -220,7 +220,7 @@ def test_missing_species(client, user, db_setup, tag_data):
     report = Report.objects.get(reported_by__first_name="Homer")
     url = reverse("tfat:create_recovery", kwargs={"report_id": report.id})
 
-    foo = tag_data.pop("spc")
+    foo = tag_data.pop("species")
 
     client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
@@ -240,7 +240,7 @@ def test_invalid_species(client, user, db_setup, tag_data):
     report = Report.objects.get(reported_by__first_name="Homer")
     url = reverse("tfat:create_recovery", kwargs={"report_id": report.id})
 
-    tag_data["spc"] = 999
+    tag_data["species"] = 999
 
     client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)

@@ -26,7 +26,7 @@ class TestAnlgerList(TestCase):
     def setUp(self):
         """"""
 
-        spc = SpeciesFactory()  # necessary to prevent integrity errors:
+        species = SpeciesFactory()  # necessary to prevent integrity errors:
 
         self.angler1 = JoePublicFactory.create(first_name="Homer", last_name="Simpson")
 
@@ -42,11 +42,17 @@ class TestAnlgerList(TestCase):
             reported_by=self.angler1, report_date=self.report_date
         )
 
-        self.recovery1 = RecoveryFactory(report=self.report, spc=spc, tagid="11111")
+        self.recovery1 = RecoveryFactory(
+            report=self.report, species=species, tagid="11111"
+        )
 
-        self.recovery2 = RecoveryFactory(report=self.report, spc=spc, tagid="22222")
+        self.recovery2 = RecoveryFactory(
+            report=self.report, species=species, tagid="22222"
+        )
 
-        self.recovery3 = RecoveryFactory(report=self.report, spc=spc, tagid="33333")
+        self.recovery3 = RecoveryFactory(
+            report=self.report, species=species, tagid="33333"
+        )
 
     def test_anglers_render_in_angler_listview(self):
         """."""

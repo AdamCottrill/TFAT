@@ -22,16 +22,10 @@ from datetime import datetime
 
 from geojson import MultiLineString
 
+from common.models import Species
+
 from tfat.constants import CLIP_CODE_CHOICES, FOLLOW_UP_STATUS_CHOICES
-from tfat.models import (
-    Species,
-    JoePublic,
-    Report,
-    Recovery,
-    Encounter,
-    Project,
-    ReportFollowUp,
-)
+from tfat.models import JoePublic, Report, Recovery, Encounter, Project, ReportFollowUp
 from tfat.filters import (
     JoePublicFilter,
     ReportFilter,
@@ -197,7 +191,7 @@ def report_follow_ups(request):
 
     spatial = (
         Recovery.objects.filter(spatial_followup=True)
-        .select_related("spc")
+        .select_related("species")
         .order_by("-report__report_date")
         .all()
     )
@@ -213,7 +207,7 @@ def report_follow_ups(request):
             | Q(pk__in=Subquery(complete.values("report_id")))
         )
         .select_related("reported_by")
-        .prefetch_related("recoveries", "recoveries__spc", "recoveries__lake")
+        .prefetch_related("recoveries", "recoveries__species", "recoveries__lake")
         .order_by("-report_date")
     )
 
@@ -222,7 +216,7 @@ def report_follow_ups(request):
         .exclude(pk__in=Subquery(complete.values("report_id")))
         .order_by("-report_date")
         .select_related("reported_by")
-        .prefetch_related("recoveries", "recoveries__spc", "recoveries__lake")
+        .prefetch_related("recoveries", "recoveries__species", "recoveries__lake")
     )
 
     if lake:
@@ -404,7 +398,7 @@ def angler_reports_view(request, angler_id, report_a_tag=False):
     recoveries = (
         Recovery.objects.filter(report__reported_by=angler)
         .order_by("-report__report_date")
-        .select_related("report", "spc")
+        .select_related("report", "species")
     )
 
     # the subset of recovery events with both lat and lon (used for plotting)
@@ -445,7 +439,7 @@ def tagid_detail_view(request, tagid):
         Encounter.objects.filter(tagid=tagid)
         .select_related(
             "project",
-            "spc"
+            "species"
             #            "project__prj_cd", "project__prj_nm", "project__slug", "spc__common_name"
         )
         .all()
@@ -596,7 +590,7 @@ def tags_recovered_year(request, year, this_year=False):
         tagstat="C", project__year=year
     ).select_related(
         "project",
-        "spc"
+        "species"
         # "project__prj_cd", "project__prj_nm", "project__slug", "spc__common_name"
     )
 
@@ -606,7 +600,7 @@ def tags_recovered_year(request, year, this_year=False):
     angler_recaps = Recovery.objects.filter(recovery_date__year=year).select_related(
         # "report__reported_by", "spc__common_name"
         "report",
-        "spc",
+        "species",
     )
 
     if lake_abbrev:
@@ -675,7 +669,7 @@ def tags_applied_year(request, year):
         Q(tagstat="A") | Q(tagstat="A2"), project__year=year
     ).select_related(
         "project",
-        "spc",
+        "species",
         # "project__prj_cd", "project__prj_nm", "spc__common_name"
     )
 
@@ -728,7 +722,7 @@ def tags_applied_project(request, slug):
 
     applied = applied.select_related(
         "project",
-        "spc"
+        "species"
         # "project__prj_cd", "project__prj_nm", "spc__common_name"
     )
 
@@ -778,7 +772,7 @@ def tags_recovered_project(request, slug):
     mapbounds = get_map_bounds(project.lake.abbrev)
 
     recovered = Encounter.objects.filter(tagstat="C", project=project).select_related(
-        "project", "spc"
+        "project", "species"
     )
 
     applied = get_omnr_tag_application(slug)

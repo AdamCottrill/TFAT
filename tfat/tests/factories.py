@@ -3,10 +3,10 @@ import pytz
 from datetime import datetime
 
 from myusers.models import CustomUser as User
-from common.models import Lake
+from common.models import Lake, Species
 
 from tfat.models import (
-    Species,
+    # Species,
     JoePublic,
     Report,
     ReportFollowUp,
@@ -39,15 +39,26 @@ class LakeFactory(factory.DjangoModelFactory):
 
 
 class SpeciesFactory(factory.DjangoModelFactory):
-    # FACTORY_FOR = Species
     class Meta:
         model = Species
-        django_get_or_create = ("species_code",)
+        django_get_or_create = ("spc",)
 
-    species_code = "091"
-    common_name = "Lake Whitefish"
-    scientific_name = "Coregonus clupeaformis"
-    primary = True
+    # species_code = '81'
+    spc = factory.Sequence(lambda n: n)
+    spc_nmco = "Lake Trout"
+    spc_nmsc = "Salvelinus nameychush"
+
+
+# class SpeciesFactory(factory.DjangoModelFactory):
+#     # FACTORY_FOR = Species
+#     class Meta:
+#         model = Species
+#         django_get_or_create = ("species_code",)
+
+#     species_code = "091"
+#     common_name = "Lake Whitefish"
+#     scientific_name = "Coregonus clupeaformis"
+#     primary = True
 
 
 class JoePublicFactory(factory.DjangoModelFactory):
@@ -92,7 +103,7 @@ class RecoveryFactory(factory.DjangoModelFactory):
         model = Recovery
 
     report = factory.SubFactory(ReportFactory)
-    spc = factory.SubFactory(SpeciesFactory)
+    species = factory.SubFactory(SpeciesFactory)
     lake = factory.SubFactory(LakeFactory)
 
     recovery_date = datetime(2013, 10, 10).replace(tzinfo=pytz.UTC)
@@ -140,7 +151,7 @@ class EncounterFactory(factory.DjangoModelFactory):
         model = Encounter
 
     project = factory.SubFactory(ProjectFactory)
-    spc = factory.SubFactory(SpeciesFactory)
+    species = factory.SubFactory(SpeciesFactory)
 
     sam = "1001"
     eff = "001"

@@ -51,12 +51,12 @@ def test_recovery_pop_text():
     report = ReportFactory(reported_by=angler)
 
     species = SpeciesFactory(
-        common_name=elements["common_name"], species_code=elements["species_code"]
+        spc_nmco=elements["common_name"], spc=elements["species_code"]
     )
 
     encounter = Recovery(
         report=report,
-        spc=species,
+        species=species,
         tagid=elements["tagid"],
         tagdoc=elements["tagdoc"],
         recovery_date=elements["obs_date"],
@@ -94,7 +94,7 @@ def test_recovery_get_comments():
     species = SpeciesFactory()
     encounter = RecoveryFactory(
         report=report,
-        spc=species,
+        species=species,
         general_location=elements["general_loc"],
         specific_location=elements["specific_loc"],
         comment=elements["comment"],
@@ -123,7 +123,7 @@ def test_recovery_get_comments_without_comment():
     species = SpeciesFactory()
     encounter = RecoveryFactory(
         report=report,
-        spc=species,
+        species=species,
         general_location=elements["general_loc"],
         specific_location=elements["specific_loc"],
         comment=None,
@@ -152,7 +152,7 @@ def test_recovery_get_comments_without_specific():
     species = SpeciesFactory()
     encounter = RecoveryFactory(
         report=report,
-        spc=species,
+        species=species,
         general_location=elements["general_loc"],
         specific_location=None,
         comment=None,
@@ -182,7 +182,7 @@ def test_recovery_get_comments_when_all_are_none():
     species = SpeciesFactory()
     encounter = RecoveryFactory(
         report=report,
-        spc=species,
+        species=species,
         general_location=None,
         specific_location=None,
         comment=None,
@@ -201,7 +201,7 @@ def test_recovery_observation_date():
 
     species = SpeciesFactory()
     report = ReportFactory()
-    recovery = RecoveryFactory(report=report, spc=species, recovery_date=obs_date)
+    recovery = RecoveryFactory(report=report, species=species, recovery_date=obs_date)
 
     assert recovery.observation_date == obs_date
 
@@ -216,7 +216,7 @@ def test_recovery_observation_date_report_date():
 
     species = SpeciesFactory()
     report = ReportFactory(report_date=obs_date)
-    recovery = RecoveryFactory(report=report, spc=species, recovery_date=None)
+    recovery = RecoveryFactory(report=report, species=species, recovery_date=None)
 
     assert recovery.observation_date == obs_date
 
@@ -229,7 +229,7 @@ def test_recovery_observation_date_none():
 
     species = SpeciesFactory()
     report = ReportFactory(report_date=None)
-    recovery = RecoveryFactory(report=report, spc=species, recovery_date=None)
+    recovery = RecoveryFactory(report=report, species=species, recovery_date=None)
 
     assert recovery.observation_date is None
 
@@ -240,7 +240,9 @@ def test_recovery_has_latlon_true():
     """
     species = SpeciesFactory()
     report = ReportFactory()
-    recovery = RecoveryFactory(report=report, spc=species, dd_lat=45.5, dd_lon=-81.3)
+    recovery = RecoveryFactory(
+        report=report, species=species, dd_lat=45.5, dd_lon=-81.3
+    )
     assert recovery.has_latlon() is True
 
 
@@ -250,7 +252,7 @@ def test_recovery_has_latlon_false():
     """
     species = SpeciesFactory()
     report = ReportFactory()
-    recovery = RecoveryFactory(report=report, spc=species, dd_lat=None, dd_lon=None)
+    recovery = RecoveryFactory(report=report, species=species, dd_lat=None, dd_lon=None)
     assert recovery.has_latlon() is False
 
 
@@ -260,7 +262,9 @@ def test_recovery_has_latlon_no_lat_is_false():
     """
     species = SpeciesFactory()
     report = ReportFactory()
-    recovery = RecoveryFactory(report=report, spc=species, dd_lat=None, dd_lon=-81.3)
+    recovery = RecoveryFactory(
+        report=report, species=species, dd_lat=None, dd_lon=-81.3
+    )
     assert recovery.has_latlon() is False
 
 
@@ -270,7 +274,7 @@ def test_recovery_has_latlon_no_lon_is_false():
     """
     species = SpeciesFactory()
     report = ReportFactory()
-    recovery = RecoveryFactory(report=report, spc=species, dd_lat=45.5, dd_lon=None)
+    recovery = RecoveryFactory(report=report, species=species, dd_lat=45.5, dd_lon=None)
     assert recovery.has_latlon() is False
 
 
@@ -280,7 +284,7 @@ def test_recovery_flen_inches():
     """
     species = SpeciesFactory()
     report = ReportFactory()
-    recovery = RecoveryFactory(report=report, spc=species, flen=450)
+    recovery = RecoveryFactory(report=report, species=species, flen=450)
     assert recovery.flen_inches() == 17.7
 
 
@@ -290,7 +294,7 @@ def test_recovery_girth_inches():
     """
     species = SpeciesFactory()
     report = ReportFactory()
-    recovery = RecoveryFactory(report=report, spc=species, girth=450)
+    recovery = RecoveryFactory(report=report, species=species, girth=450)
     assert recovery.girth_inches() == 17.7
 
 
@@ -300,7 +304,7 @@ def test_recovery_flen_inches_none():
     """
     species = SpeciesFactory()
     report = ReportFactory()
-    recovery = RecoveryFactory(report=report, spc=species, flen=None)
+    recovery = RecoveryFactory(report=report, species=species, flen=None)
     assert recovery.flen_inches() is None
 
 
@@ -310,7 +314,7 @@ def test_recovery_tlen_inches():
     """
     species = SpeciesFactory()
     report = ReportFactory()
-    recovery = RecoveryFactory(report=report, spc=species, tlen=450)
+    recovery = RecoveryFactory(report=report, species=species, tlen=450)
     assert recovery.tlen_inches() == 17.7
 
 
@@ -320,7 +324,7 @@ def test_recovery_tlen_inches_none():
     """
     species = SpeciesFactory()
     report = ReportFactory()
-    recovery = RecoveryFactory(report=report, spc=species, tlen=None)
+    recovery = RecoveryFactory(report=report, species=species, tlen=None)
     assert recovery.tlen_inches() is None
 
 
@@ -330,7 +334,7 @@ def test_recovery_rwt_pounds():
     """
     species = SpeciesFactory()
     report = ReportFactory()
-    recovery = RecoveryFactory(report=report, spc=species, rwt=2000)
+    recovery = RecoveryFactory(report=report, species=species, rwt=2000)
     assert recovery.pounds() == 4.4
 
 
@@ -340,7 +344,7 @@ def test_recovery_rwt_pounds_none():
     """
     species = SpeciesFactory()
     report = ReportFactory()
-    recovery = RecoveryFactory(report=report, spc=species, rwt=None)
+    recovery = RecoveryFactory(report=report, species=species, rwt=None)
     assert recovery.pounds() is None
 
 
@@ -352,7 +356,7 @@ def test_recovery_tagstat():
     """
     species = SpeciesFactory()
     report = ReportFactory()
-    recovery = RecoveryFactory(report=report, spc=species)
+    recovery = RecoveryFactory(report=report, species=species)
     assert recovery.tagstat() == "C"
 
 
@@ -373,7 +377,7 @@ def test_recovery_tag_type():
     should_be = {k: v for k, v in TAG_TYPE_CHOICES}
     for k, tag_type in should_be.items():
         tagdoc = tagdoc_base.format(k)
-        recovery = RecoveryFactory(report=report, spc=species, tagdoc=tagdoc)
+        recovery = RecoveryFactory(report=report, species=species, tagdoc=tagdoc)
         assert recovery.tag_type == tag_type
 
 
@@ -390,7 +394,7 @@ def test_recovery_tag_origin():
     should_be = {k: v for k, v in TAG_ORIGIN_CHOICES}
     for k, origin in should_be.items():
         tagdoc = tagdoc_base.format(k)
-        recovery = RecoveryFactory(report=report, spc=species, tagdoc=tagdoc)
+        recovery = RecoveryFactory(report=report, species=species, tagdoc=tagdoc)
         assert recovery.tag_origin == origin
 
 
@@ -407,7 +411,7 @@ def test_recovery_tag_position():
     should_be = {k: v for k, v in TAG_POSITION_CHOICES}
     for k, position in should_be.items():
         tagdoc = tagdoc_base.format(k)
-        recovery = RecoveryFactory(report=report, spc=species, tagdoc=tagdoc)
+        recovery = RecoveryFactory(report=report, species=species, tagdoc=tagdoc)
         assert recovery.tag_position == position
 
 
@@ -424,5 +428,5 @@ def test_recovery_tag_colour():
     should_be = {k: v for k, v in TAG_COLOUR_CHOICES}
     for k, colour in should_be.items():
         tagdoc = tagdoc_base.format(k)
-        recovery = RecoveryFactory(report=report, spc=species, tagdoc=tagdoc)
+        recovery = RecoveryFactory(report=report, species=species, tagdoc=tagdoc)
         assert recovery.tag_colour == colour

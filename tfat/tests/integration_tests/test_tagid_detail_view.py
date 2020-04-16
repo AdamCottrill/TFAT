@@ -30,30 +30,32 @@ def db_setup():
     """
     """
 
-    spc1 = SpeciesFactory(species_code="334", common_name="Walleye")
-    spc2 = SpeciesFactory(species_code="091", common_name="Whitefish")
+    species1 = SpeciesFactory(spc="334", spc_nmco="Walleye")
+    species2 = SpeciesFactory(spc="091", spc_nmco="Whitefish")
 
     project = ProjectFactory(prj_cd="LHA_IA11_111", prj_nm="Fake Project")
 
     encounters = [
-        (spc1, "11111", project, "25012"),
-        (spc1, "11111", project, "25012"),
-        (spc1, "11111", project, "25012"),
-        (spc1, "22222", project, "25012"),
-        (spc2, "22222", project, "25012"),
-        (spc1, "33333", project, "25012"),
-        (spc1, "33333", project, "15012"),
+        (species1, "11111", project, "25012"),
+        (species1, "11111", project, "25012"),
+        (species1, "11111", project, "25012"),
+        (species1, "22222", project, "25012"),
+        (species2, "22222", project, "25012"),
+        (species1, "33333", project, "25012"),
+        (species1, "33333", project, "15012"),
     ]
 
     for item in encounters:
-        EncounterFactory(spc=item[0], tagid=item[1], project=item[2], tagdoc=item[3])
+        EncounterFactory(
+            species=item[0], tagid=item[1], project=item[2], tagdoc=item[3]
+        )
 
     angler1 = JoePublicFactory.create(first_name="Homer", last_name="Simpson")
     # angler report filed by Homer
     report = ReportFactory(reported_by=angler1)
-    RecoveryFactory(report=report, spc=spc1, tagid="11111")
+    RecoveryFactory(report=report, species=species1, tagid="11111")
     # a recovered tag that has not been observed by the omnr
-    RecoveryFactory(report=report, spc=spc1, tagid="654321")
+    RecoveryFactory(report=report, species=species1, tagid="654321")
 
 
 @pytest.mark.django_db

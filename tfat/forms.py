@@ -296,7 +296,7 @@ class RecoveryForm(ModelForm):
         model = Recovery
         fields = [
             "tagid",
-            "spc",
+            "species",
             "recovery_date",
             "date_flag",
             "lake",
@@ -320,7 +320,7 @@ class RecoveryForm(ModelForm):
 
         widgets = {
             "tagid": forms.TextInput(attrs={"class": "form-control"}),
-            "spc": forms.Select(attrs={"class": "form-control"}),
+            "species": forms.Select(attrs={"class": "form-control"}),
             "recovery_date": forms.DateInput(
                 attrs={"class": "form-control datepicker", "placeholder": TODAY}
             ),

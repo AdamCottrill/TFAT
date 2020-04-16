@@ -101,7 +101,7 @@ def spc_warning(qs_list):
     """
     spc_list = []
     for qs in qs_list:
-        spc_list.extend([x.spc.species_code for x in qs])
+        spc_list.extend([x.species.spc for x in qs])
     ret = False if len(set(spc_list)) == 1 else True
     return ret
 
@@ -141,7 +141,7 @@ def get_tagid_detail_data(tagid, encounter_list, partial=False):
     else:
         angler_recaps = Recovery.objects.filter(tagid=tagid)
 
-    angler_recaps = angler_recaps.select_related("report", "spc")
+    angler_recaps = angler_recaps.select_related("report", "species")
 
     mls = get_multilinestring([encounter_list, angler_recaps])
 
@@ -277,15 +277,15 @@ def get_omnr_tag_recoveries(project_slug):
 
     sql = """
     SELECT ap.prj_nm as prj_nm, ap.prj_cd as prj_cd,
-    spc.common_name as common_name, recap.*
+    species.spc_nmco as common_name, recap.*
     FROM tfat_encounter recap
        JOIN
        tfat_encounter applied
          ON applied.tagid = recap.tagid
-         AND applied.spc_id = recap.spc_id
+         AND applied.species_id = recap.species_id
        JOIN
        tfat_project AS ap ON ap.id = applied.project_id
-       join tfat_species spc on spc.id=recap.spc_id
+       join common_species as species on species.id=recap.species_id
     WHERE ap.slug = %s AND
        applied.tagstat = 'A'
     AND recap.tagstat = 'C'
@@ -333,7 +333,7 @@ def get_angler_tag_recoveries(project_slug, tagstat="A"):
     """
 
     sql = """
-    SELECT spc.common_name as common_name,
+    SELECT species.spc_nmco as common_name,
     angler.first_name || ' ' || angler.last_name as reported_by,
     angler.id as reported_by_id,
     recovery.*
@@ -342,9 +342,9 @@ def get_angler_tag_recoveries(project_slug, tagstat="A"):
     join tfat_joepublic angler on angler.id=report.reported_by_id
     JOIN tfat_encounter encounter
         ON encounter.tagid=recovery.tagid
-        AND encounter.spc_id=recovery.spc_id
+        AND encounter.species_id=recovery.species_id
     JOIN tfat_project proj ON proj.id=encounter.project_id
-    join tfat_species spc on spc.id=recovery.spc_id
+    join common_species species on species.id=recovery.species_id
     WHERE encounter.tagstat='{tagstat}'
     AND proj.slug=%s
     ORDER BY recovery.recovery_date
@@ -404,15 +404,15 @@ def get_other_omnr_recoveries(project_slug):
     SELECT prj1.prj_nm AS prj_nm,
            prj1.prj_cd AS prj_cd,
            prj1.slug AS slug,
-           spc.common_name AS common_name,
+           species.spc_nmco AS common_name,
            recap2.*
     FROM tfat_encounter recap2
       JOIN tfat_encounter recap1
         ON recap1.tagid = recap2.tagid
-       AND recap1.spc_id = recap2.spc_id
+       AND recap1.species_id = recap2.species_id
       JOIN tfat_project AS prj1 ON prj1.id = recap1.project_id
       JOIN tfat_project AS prj2 ON prj2.id = recap2.project_id
-      JOIN tfat_species AS spc ON recap1.spc_id = spc.id
+      JOIN common_species AS species ON recap1.species_id = species.id
     WHERE prj1.slug = %s
     AND   recap1.tagstat = 'C'
     AND   recap2.tagstat = 'C'
@@ -450,15 +450,15 @@ def get_omnr_tag_application(project_slug):
     cp.prj_nm AS prj_nm,
            cp.prj_cd AS prj_cd,
            cp.slug AS slug,
-           spc.common_name AS common_name,
+           species.spc_nmco AS common_name,
     applied.*
       FROM tfat_encounter applied
            JOIN tfat_encounter recap
              ON recap.tagid = applied.tagid
-             AND recap.spc_id = applied.spc_id
+             AND recap.species_id = applied.species_id
            JOIN tfat_project AS cp
              ON cp.id = recap.project_id
-           join tfat_species spc on spc.id=applied.spc_id
+           join common_species species on species.id=applied.species_id
      WHERE cp.slug = %s AND
            recap.tagstat = 'C' AND
            applied.tagstat = 'A'

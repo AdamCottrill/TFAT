@@ -25,48 +25,48 @@ from unittest.mock import MagicMock
 import pytest
 
 
-def test_warn_spc_true():
+def test_warn_species_true():
     """spc_warning should return true if the querysets/lists we pass in
     have more than one species assocaited with them.
     """
 
     species = ["091", "334"]
 
-    spc1 = []
+    species1 = []
     for x in range(4):
         tmp = MagicMock()
-        tmp.spc.species_code = species[0]
-        spc1.append(tmp)
+        tmp.species.spc = species[0]
+        species1.append(tmp)
 
-    spc2 = []
+    species2 = []
     for x in range(4):
         tmp = MagicMock()
-        tmp.spc.species_code = species[1]
-        spc2.append(tmp)
+        tmp.species.spc = species[1]
+        species2.append(tmp)
 
-    assert spc_warning([spc1, spc2]) == True
+    assert spc_warning([species1, species2]) == True
 
 
-def test_warn_spc_false():
+def test_warn_species_false():
     """spc_warning should return false if the querysets/lists we pass in
     have only one species assocaited with them.
     """
 
     species = "334"
 
-    spc1 = []
+    species1 = []
     for x in range(4):
         tmp = MagicMock()
-        tmp.spc.species_code = species
-        spc1.append(tmp)
+        tmp.species.spc = species
+        species1.append(tmp)
 
-    spc2 = []
+    species2 = []
     for x in range(4):
         tmp = MagicMock()
-        tmp.spc.species_code = species
-        spc2.append(tmp)
+        tmp.species.spc = species
+        species2.append(tmp)
 
-    assert spc_warning([spc1, spc2]) == False
+    assert spc_warning([species1, species2]) == False
 
 
 def test_warn_tagdoc_true():
@@ -120,14 +120,14 @@ def test_warn_tagdoc_false():
 def tag_querysets():
 
     # OMNR observations
-    spc = SpeciesFactory()
+    species = SpeciesFactory()
 
     EncounterFactory(
         tagid="123",
         observation_date=datetime(2001, 6, 15),
         dd_lat=45.000,
         dd_lon=-81.000,
-        spc=spc,
+        species=species,
     )
 
     EncounterFactory(
@@ -135,7 +135,7 @@ def tag_querysets():
         observation_date=datetime(2002, 6, 15),
         dd_lat=46.000,
         dd_lon=-81.000,
-        spc=spc,
+        species=species,
     )
 
     EncounterFactory(
@@ -143,7 +143,7 @@ def tag_querysets():
         observation_date=datetime(2003, 6, 15),
         dd_lat=47.000,
         dd_lon=-81.000,
-        spc=spc,
+        species=species,
     )
 
     EncounterFactory(
@@ -151,7 +151,7 @@ def tag_querysets():
         observation_date=datetime(2000, 6, 15),
         dd_lat=44.000,
         dd_lon=-81.000,
-        spc=spc,
+        species=species,
     )
 
     EncounterFactory(
@@ -159,7 +159,7 @@ def tag_querysets():
         observation_date=datetime(1999, 6, 15),
         dd_lat=43.000,
         dd_lon=-81.000,
-        spc=spc,
+        species=species,
     )
 
     # a second tag =
@@ -168,7 +168,7 @@ def tag_querysets():
         observation_date=datetime(2000, 11, 15),
         dd_lat=44.000,
         dd_lon=-81.000,
-        spc=spc,
+        species=species,
     )
 
     EncounterFactory(
@@ -176,7 +176,7 @@ def tag_querysets():
         observation_date=datetime(1999, 11, 15),
         dd_lat=43.000,
         dd_lon=-81.000,
-        spc=spc,
+        species=species,
     )
 
     report = ReportFactory()
@@ -188,7 +188,7 @@ def tag_querysets():
         recovery_date=datetime(2001, 7, 15),
         dd_lat=45.000,
         dd_lon=-81.000,
-        spc=spc,
+        species=species,
         report=report,
     )
 
@@ -197,7 +197,7 @@ def tag_querysets():
         recovery_date=datetime(2002, 7, 15),
         dd_lat=46.000,
         dd_lon=-81.000,
-        spc=spc,
+        species=species,
         report=report,
     )
 
@@ -206,7 +206,7 @@ def tag_querysets():
         recovery_date=datetime(2001, 7, 15),
         dd_lat=45.000,
         dd_lon=-81.000,
-        spc=spc,
+        species=species,
         report=report,
     )
 
@@ -221,13 +221,13 @@ def test_qs_to_tagdict_missing_latlong():
 
     """
 
-    spc = SpeciesFactory()
+    species = SpeciesFactory()
     RecoveryFactory(
         tagid="good",
         recovery_date=datetime(1999, 11, 15),
         dd_lat=43.000,
         dd_lon=-81.000,
-        spc=spc,
+        species=species,
     )
 
     RecoveryFactory(
@@ -235,7 +235,7 @@ def test_qs_to_tagdict_missing_latlong():
         recovery_date=datetime(1999, 11, 15),
         dd_lat=None,
         dd_lon=-81.000,
-        spc=spc,
+        species=species,
     )
 
     RecoveryFactory(
@@ -243,7 +243,7 @@ def test_qs_to_tagdict_missing_latlong():
         recovery_date=datetime(1999, 11, 15),
         dd_lat=46.00,
         dd_lon=None,
-        spc=spc,
+        species=species,
     )
 
     RecoveryFactory(
@@ -251,7 +251,7 @@ def test_qs_to_tagdict_missing_latlong():
         recovery_date=datetime(1999, 11, 15),
         dd_lat=None,
         dd_lon=None,
-        spc=spc,
+        species=species,
     )
 
     qs = Recovery.objects.all()

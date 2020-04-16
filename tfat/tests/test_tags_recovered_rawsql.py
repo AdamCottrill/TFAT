@@ -36,7 +36,7 @@ def db_setup():
 
     some of the tags recovered by the onmr and general public will
     match those applied in the tagging project.  Only those tags with
-    the same spc and with lat-long will be returned by the helper
+    the same species and with lat-long will be returned by the helper
     functions.
 
     The follow table attempt to illustrate database setup:
@@ -65,8 +65,8 @@ def db_setup():
 
     """
 
-    spc = SpeciesFactory(species_code="334", common_name="Walleye")
-    spc2 = SpeciesFactory(species_code="091", common_name="Whitefish")
+    species = SpeciesFactory(spc="334", spc_nmco="Walleye")
+    species2 = SpeciesFactory(spc="091", spc_nmco="Whitefish")
 
     report = ReportFactory()
 
@@ -85,50 +85,54 @@ def db_setup():
     tagids = ["0", "1", "2", "3", "4", "5", "6", "7"]
     # make the tags and associate them with the tagging project
     for tagid in tagids:
-        EncounterFactory(project=tagging_prj, spc=spc, tagid=tagid, tagstat="A")
+        EncounterFactory(project=tagging_prj, species=species, tagid=tagid, tagstat="A")
 
     # the first four tags were recaptured by the omnr in the Recovery1
     for tagid in tagids[:4]:
-        EncounterFactory(project=recovery_prj1, spc=spc, tagid=tagid, tagstat="C")
+        EncounterFactory(
+            project=recovery_prj1, species=species, tagid=tagid, tagstat="C"
+        )
 
     # the tags 3-6 were recaptured by the omnr in the Recovery2
     for tagid in tagids[2:6]:
-        EncounterFactory(project=recovery_prj2, spc=spc, tagid=tagid, tagstat="C")
+        EncounterFactory(
+            project=recovery_prj2, species=species, tagid=tagid, tagstat="C"
+        )
 
     # the tags 4: were reported by the general public
     for tagid in tagids[4:]:
-        RecoveryFactory(report=report, spc=spc, tagid=tagid)
+        RecoveryFactory(report=report, species=species, tagid=tagid)
 
     # two encounters by mnr (one applied, one recovered) but a different species
-    EncounterFactory(project=tagging_prj, spc=spc, tagid="8", tagstat="A")
-    EncounterFactory(project=recovery_prj1, spc=spc2, tagid="8", tagstat="C")
+    EncounterFactory(project=tagging_prj, species=species, tagid="8", tagstat="A")
+    EncounterFactory(project=recovery_prj1, species=species2, tagid="8", tagstat="C")
 
     # two encounters by mnr (two recoveries) but a different species
-    EncounterFactory(project=recovery_prj1, spc=spc2, tagid="9", tagstat="C")
-    EncounterFactory(project=recovery_prj2, spc=spc, tagid="9", tagstat="C")
+    EncounterFactory(project=recovery_prj1, species=species2, tagid="9", tagstat="C")
+    EncounterFactory(project=recovery_prj2, species=species, tagid="9", tagstat="C")
 
     # one omnr recap, one anlger recap, different species
-    EncounterFactory(project=recovery_prj1, spc=spc2, tagid="10", tagstat="C")
-    RecoveryFactory(report=report, spc=spc, tagid="10")
+    EncounterFactory(project=recovery_prj1, species=species2, tagid="10", tagstat="C")
+    RecoveryFactory(report=report, species=species, tagid="10")
 
     # two encounters by mnr (one applied, one recovered) but a different species
     EncounterFactory(
-        project=tagging_prj, spc=spc, tagdoc="15012", tagid="11", tagstat="A"
+        project=tagging_prj, species=species, tagdoc="15012", tagid="11", tagstat="A"
     )
-    EncounterFactory(project=recovery_prj1, spc=spc, tagid="11", tagstat="C")
+    EncounterFactory(project=recovery_prj1, species=species, tagid="11", tagstat="C")
 
     # two encounters by mnr (two recoveries) but a different species
     EncounterFactory(
-        project=recovery_prj1, spc=spc, tagdoc="15012", tagid="12", tagstat="C"
+        project=recovery_prj1, species=species, tagdoc="15012", tagid="12", tagstat="C"
     )
-    EncounterFactory(project=recovery_prj2, spc=spc, tagid="12", tagstat="C")
+    EncounterFactory(project=recovery_prj2, species=species, tagid="12", tagstat="C")
 
     # one omnr recap, one anlger recap, different species
     # NOTE use of prj2 - shares early tag recaptures
     EncounterFactory(
-        project=recovery_prj2, spc=spc, tagdoc="15012", tagid="13", tagstat="C"
+        project=recovery_prj2, species=species, tagdoc="15012", tagid="13", tagstat="C"
     )
-    RecoveryFactory(report=report, spc=spc, tagid="13")
+    RecoveryFactory(report=report, species=species, tagid="13")
 
 
 @pytest.mark.django_db

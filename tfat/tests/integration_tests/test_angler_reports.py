@@ -44,7 +44,7 @@ def db_setup(user):
 
     report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.timezone("Canada/Eastern"))
 
-    spc = SpeciesFactory()
+    species = SpeciesFactory()
 
     angler1 = JoePublicFactory.create(
         first_name="Homer",
@@ -64,7 +64,7 @@ def db_setup(user):
     report = ReportFactory(reported_by=angler1, report_date=report_date)
     tagids = ["111111", "222222", "333333"]
     for tag in tagids:
-        recovery = RecoveryFactory(report=report, spc=spc, tagid=tag)
+        recovery = RecoveryFactory(report=report, species=species, tagid=tag)
 
     # a report filed by Monty Burns
     report = ReportFactory(
@@ -78,7 +78,7 @@ def db_setup(user):
 
     tagids = ["4444", "5555", "6666"]
     for tag in tagids:
-        recovery = RecoveryFactory(report=report, spc=spc, tagid=tag)
+        recovery = RecoveryFactory(report=report, species=species, tagid=tag)
 
 
 @pytest.mark.django_db

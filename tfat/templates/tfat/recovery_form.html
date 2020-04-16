@@ -61,11 +61,11 @@
                                 </div>
                             </div>
                             <div class="col-md-3" >
-                                <div class="form-group {% if form.spc.errors %}has-error{% endif %}">
-                                    {{ form.spc.label_tag }}
-                                    {{ form.spc }}
-                                    {% if form.spc.errors %}
-                                    {% for error in form.spc.errors %}
+                                <div class="form-group {% if form.species.errors %}has-error{% endif %}">
+                                    {{ form.species.label_tag }}
+                                    {{ form.species }}
+                                    {% if form.species.errors %}
+                                    {% for error in form.species.errors %}
                                     <div class="has-error help-block text-danger">{{ error }}</div>
                                     {% endfor %}
                                     {% endif %}

@@ -60,8 +60,8 @@ def user():
 
 @pytest.fixture()
 def species():
-    spc = SpeciesFactory()
-    return spc
+    species = SpeciesFactory()
+    return species
 
 
 @pytest.fixture()
@@ -84,7 +84,7 @@ def db_setup(angler, species, lake):
     report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.UTC)
     # associated tags to test conditional elements
     report = ReportFactory(reported_by=angler, follow_up=False, report_date=report_date)
-    RecoveryFactory(report=report, spc=species, lake=lake)
+    RecoveryFactory(report=report, species=species, lake=lake)
 
 
 @pytest.fixture()
@@ -96,7 +96,7 @@ def tag_data(species, lake):
     tag_data = {
         "tagdoc": "25012",
         "tagid": "1234",
-        "spc": species.id,
+        "species": species.id,
         "lake": lake.id,
         "date_flag": 0,
     }
@@ -136,7 +136,7 @@ def test_can_edit_recovery_url(client, user, db_setup):
     assert "Tag Recovery Event" in content
     assert "Tag Recovery Details" in content
     assert "Tagid:" in content
-    assert "Spc:" in content
+    assert "Species:" in content
     assert "TAGDOC" in content
 
     assert "Recovery Location" in content
@@ -188,7 +188,7 @@ def test_basic_data_no_add_another(client, user, db_setup):
 
     tagid = "33333"
     tagdoc = "25012"
-    tag_data = {"tagdoc": tagdoc, "tagid": tagid, "spc": 1, "date_flag": 0}
+    tag_data = {"tagdoc": tagdoc, "tagid": tagid, "species": 1, "date_flag": 0}
 
     client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
@@ -253,7 +253,7 @@ def test_invalid_species(client, user, db_setup):
 
     tagid = "12345"
     tagdoc = "25012"
-    tag_data = {"tagdoc": tagdoc, "tagid": tagid, "spc": 999, "date_flag": 0}
+    tag_data = {"tagdoc": tagdoc, "tagid": tagid, "species": 999, "date_flag": 0}
 
     client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)

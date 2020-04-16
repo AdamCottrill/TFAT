@@ -130,7 +130,7 @@
                                     {% url 'tfat:encounter_detail' object.id as the_url %}
                                     <td> <a href="{{ the_url }}" class="btn btn-info btn-xs" role="button">
                                         <span class="glyphicon glyphicon-info-sign"></span></a> </td>
-                                    <td> {{ object.spc.common_name }} </td>
+                                    <td> {{ object.species.spc_nmco }} </td>
                                     <td> {{ object.observation_date|date:"M d, Y" }} </td>
                                     <td> {{ object.grid }} </td>
                                     <td> {{ object.tag_type }} </td>
@@ -197,7 +197,7 @@
                                     {% url 'tfat:recovery_detail' object.id as the_url %}
                                     <td> <a href="{{ the_url }}" class="btn btn-info btn-xs" role="button">
                                         <span class="glyphicon glyphicon-info-sign"></span></a> </td>
-                                    <td> {{ object.spc.common_name }} </td>
+                                    <td> {{ object.species.spc_nmco }} </td>
                                     <td> {{ object.observation_date|date:"M d, Y" }} </td>
                                     <td> {{ object.grid }} </td>
                                     <td> {{ object.tag_type }} </td>
@@ -258,7 +258,7 @@
                                     {% url 'tfat:encounter_detail' object.id as the_url %}
                                     <td> <a href="{{ the_url }}" class="btn btn-info btn-xs" role="button">
                                         <span class="glyphicon glyphicon-info-sign"></span></a> </td>
-                                    <td> {{ object.spc.common_name }} </td>
+                                    <td> {{ object.species.spc_nmco }} </td>
                                     <td> {{ object.observation_date|date:"M d, Y" }} </td>
                                     <td> {{ object.grid }} </td>
                                     <td> {{ object.tag_type }} </td>
@@ -277,7 +277,7 @@
                                     {% url 'tfat:recovery_detail' object.id as the_url %}
                                     <td> <a href="{{ the_url }}" class="btn btn-info btn-xs" role="button">
                                         <span class="glyphicon glyphicon-info-sign"></span></a> </td>
-                                    <td> {{ object.spc.common_name }} </td>
+                                    <td> {{ object.species.spc_nmco }} </td>
                                     <td> {{ object.observation_date|date:"M d, Y" }} </td>
                                     <td> {{ object.grid }} </td>
                                     <td> {{ object.tag_type }} </td>

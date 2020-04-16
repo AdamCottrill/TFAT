@@ -1,17 +1,18 @@
 from django.contrib import admin
 
-from tfat.models import Species, JoePublic, Report, ReportFollowUp
+from tfat.models import JoePublic, Report, ReportFollowUp
 
 
-class AdminSpecies(admin.ModelAdmin):
-    """Admin class for species"""
-
-    list_display = ("common_name", "scientific_name", "species_code", "primary")
-    list_filter = ("primary",)
-    ordering = ("-primary", "common_name")
-
-    def queryset(self, request):
-        return Species.allspecies
+# class AdminSpecies(admin.ModelAdmin):
+#    """Admin class for species"""
+#
+#    list_display = ("common_name", "scientific_name", "species_code", "primary")
+#    list_filter = ("primary",)
+#    ordering = ("-primary", "common_name")
+#
+#    def queryset(self, request):
+#        return Species.allspecies
+#
 
 
 class AdminJoePublic(admin.ModelAdmin):
@@ -50,6 +51,6 @@ class AdminReport(admin.ModelAdmin):
     inlines = [ReportFollowUpInline]
 
 
-admin.site.register(Species, AdminSpecies)
+# admin.site.register(Species, AdminSpecies)
 admin.site.register(JoePublic, AdminJoePublic)
 admin.site.register(Report, AdminReport)

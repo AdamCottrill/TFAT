@@ -43,8 +43,8 @@ def user():
 
 @pytest.fixture()
 def species():
-    spc = SpeciesFactory(common_name="Lake Trout")
-    return spc
+    species = SpeciesFactory(spc_nmco="Lake Trout")
+    return species
 
 
 @pytest.fixture()
@@ -69,7 +69,7 @@ def db_setup(species, angler):
     for tag in tagids:
         recovery = RecoveryFactory(
             report=report,
-            spc=species,
+            species=species,
             tagid=tag,
             general_location="Over There",
             specific_location="Right There",
@@ -131,7 +131,7 @@ def test_recovery_spatial_followup(client, db_setup):
     )
     assert msg not in content
 
-    # check fo table headings
+    # check for table headings
     assert "Tag Number" in content
     assert "General Location" in content
     assert "Specific Location" in content

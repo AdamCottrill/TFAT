@@ -87,9 +87,9 @@ def test_get_recoveries():
     """
     report = ReportFactory()
     species = SpeciesFactory()
-    tag1 = RecoveryFactory(report=report, spc=species)
-    tag2 = RecoveryFactory(report=report, spc=species)
-    tag3 = RecoveryFactory(report=report, spc=species)
+    tag1 = RecoveryFactory(report=report, species=species)
+    tag2 = RecoveryFactory(report=report, species=species)
+    tag3 = RecoveryFactory(report=report, species=species)
 
     tags = report.get_recoveries()
 
@@ -106,10 +106,10 @@ def test_get_recoveries_with_latlon():
     """
     report = ReportFactory()
     species = SpeciesFactory()
-    tag1 = RecoveryFactory(report=report, spc=species, dd_lat=45.0, dd_lon=-81.0)
-    tag2 = RecoveryFactory(report=report, spc=species, dd_lat=45.0, dd_lon=None)
-    tag3 = RecoveryFactory(report=report, spc=species, dd_lat=None, dd_lon=-81.0)
-    tag4 = RecoveryFactory(report=report, spc=species, dd_lat=None, dd_lon=None)
+    tag1 = RecoveryFactory(report=report, species=species, dd_lat=45.0, dd_lon=-81.0)
+    tag2 = RecoveryFactory(report=report, species=species, dd_lat=45.0, dd_lon=None)
+    tag3 = RecoveryFactory(report=report, species=species, dd_lat=None, dd_lon=-81.0)
+    tag4 = RecoveryFactory(report=report, species=species, dd_lat=None, dd_lon=None)
 
     tags = report.get_recoveries_with_latlon()
 
