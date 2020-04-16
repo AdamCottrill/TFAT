@@ -16,7 +16,7 @@ from django import forms
 from django.forms import ModelForm
 from django.forms.widgets import HiddenInput
 from django.db.models.fields import BLANK_CHOICE_DASH
-from tfat.models import JoePublic, Report, Recovery, ReportFollowUp
+from tfat.models import JoePublic, Report, Recovery, ReportFollowUp, TaggedSpecies
 
 from datetime import datetime
 import pytz
@@ -283,6 +283,12 @@ class RecoveryForm(ModelForm):
         choices=LATLON_FLAG_CHOICES,
         widget=forms.RadioSelect(attrs={"class": "radio-inline"}),
         initial=0,
+    )
+
+    species = forms.ModelChoiceField(
+        queryset=TaggedSpecies.objects.all(),
+        required=True,
+        widget=forms.Select(attrs={"class": "form-control"}),
     )
 
     fate = forms.TypedChoiceField(

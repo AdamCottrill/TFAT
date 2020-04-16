@@ -12,7 +12,7 @@ from textwrap import wrap
 
 import html
 
-from common.models import Lake, Species as NewSpecies
+from common.models import Lake, Species
 
 from .constants import (
     REPORTING_CHOICES,
@@ -29,6 +29,43 @@ from .constants import (
     PROVINCES_STATE_CHOICES,
     RECOVERY_LETTER_CHOICES,
 )
+
+
+class SpeciesManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(tagged=True)
+
+
+class TaggedSpecies(Species):
+    """This model uses inherites from the common Species Model and
+    reflects the subset of species that will be included in the
+    tagging application - we don't need to see lamprey and minnows in
+    the drop down lists. If a species is not available in the drop
+    down lists of forms, update the appropriate species in the admin
+    and they will be included the next time the page renders.
+    """
+
+    tagged = models.BooleanField(default=False)
+
+    # return all species for admin page, tagged species by default
+    all_species = models.Manager()
+    objects = SpeciesManager()
+
+    class Meta:
+        ordering = ["spc_nmco"]
+        verbose_name_plural = "Tagged Species"
+
+    def __str__(self):
+
+        if self.spc_nmco:
+            common_name = self.spc_nmco.title() + " "
+        else:
+            common_name = ""
+
+        if self.spc_nmsc:
+            return "{}({})".format(common_name, self.spc_nmsc)
+        else:
+            return "{}".format(common_name.strip())
 
 
 class JoePublic(models.Model):
@@ -63,6 +100,7 @@ class JoePublic(models.Model):
 
     class Meta:
         ordering = ["last_name", "first_name"]
+        verbose_name_plural = "Tag Reporters"
         # unique_together = ('last_name', 'first_name')
 
     def __str__(self):
@@ -236,7 +274,7 @@ class Recovery(models.Model):
     # )
 
     species = models.ForeignKey(
-        NewSpecies, related_name="recoveries", on_delete=models.CASCADE
+        TaggedSpecies, related_name="recoveries", on_delete=models.CASCADE
     )
 
     lake = models.ForeignKey(
@@ -691,7 +729,7 @@ class Encounter(models.Model):
         Project, related_name="Encounters", on_delete=models.CASCADE
     )
     # spc = models.ForeignKey(Species, on_delete=models.CASCADE, blank=True, null=True)
-    species = models.ForeignKey(NewSpecies, on_delete=models.CASCADE)
+    species = models.ForeignKey(TaggedSpecies, on_delete=models.CASCADE)
     sam = models.CharField(max_length=5)
     eff = models.CharField(max_length=3)
     grp = models.CharField(max_length=3)

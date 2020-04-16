@@ -3,10 +3,10 @@ import pytz
 from datetime import datetime
 
 from myusers.models import CustomUser as User
-from common.models import Lake, Species
+from common.models import Lake
 
 from tfat.models import (
-    # Species,
+    TaggedSpecies,
     JoePublic,
     Report,
     ReportFollowUp,
@@ -40,13 +40,14 @@ class LakeFactory(factory.DjangoModelFactory):
 
 class SpeciesFactory(factory.DjangoModelFactory):
     class Meta:
-        model = Species
+        model = TaggedSpecies
         django_get_or_create = ("spc",)
 
     # species_code = '81'
     spc = factory.Sequence(lambda n: n)
     spc_nmco = "Lake Trout"
     spc_nmsc = "Salvelinus nameychush"
+    tagged = True
 
 
 # class SpeciesFactory(factory.DjangoModelFactory):
