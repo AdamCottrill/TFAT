@@ -33,12 +33,7 @@ from .constants import (
 
 class SpeciesManager(models.Manager):
     def get_queryset(self):
-        return (
-            super()
-            .get_queryset()
-            .filter(tagged=True)
-            .only("spc", "spc_nmco", "spc_nmsc")
-        )
+        return super().get_queryset().filter(tagged=True)
 
 
 class TaggedSpecies(CommonSpecies):
@@ -53,7 +48,7 @@ class TaggedSpecies(CommonSpecies):
     tagged = models.BooleanField(default=False)
 
     # return all species for admin page, tagged species by default
-    all_species = models.Manager()
+    all_objects = models.Manager()
     objects = SpeciesManager()
 
     class Meta:

@@ -2,7 +2,7 @@ from django.conf import settings
 
 # from django.core.servers.basehttp import FileWrapper
 from wsgiref.util import FileWrapper
-from django.db.models import Q, Count, Subquery
+from django.db.models import Q, Count, Subquery, prefetch_related_objects
 from django.db import transaction
 from django.http import Http404, HttpResponse
 from django.contrib.auth.decorators import login_required
@@ -716,7 +716,7 @@ def tags_applied_project(request, slug):
     one tagdoc deployed and subsequently recovered in a project)
 
     """
-    project = Project.objects.prefetch_related("lake").get(slug=slug)
+    project = Project.objects.select_related("lake").get(slug=slug)
     applied = Encounter.objects.filter(
         Q(tagstat="A") | Q(tagstat="A2"), Q(project=project)
     )
@@ -768,7 +768,7 @@ def tags_recovered_project(request, slug):
 
     """
 
-    project = Project.objects.prefetch_related("lake").get(slug=slug)
+    project = Project.objects.select_related("lake").get(slug=slug)
 
     mapbounds = get_map_bounds(project.lake)
 
@@ -777,6 +777,7 @@ def tags_recovered_project(request, slug):
     )
 
     applied = get_omnr_tag_application(slug)
+
     other_recoveries = get_other_omnr_recoveries(slug)
 
     angler_recaps = get_angler_tag_recoveries(slug, tagstat="C")

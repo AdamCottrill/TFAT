@@ -125,7 +125,7 @@ def test_species_model_manager_all_species(db_setup):
 
     """
 
-    species = Species.all_species.all()
+    species = Species.all_objects.all()
     spc_codes = [x.spc for x in species]
     should_be = ["081", "102", "334"]
 

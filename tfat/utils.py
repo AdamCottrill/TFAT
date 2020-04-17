@@ -13,7 +13,7 @@ A. Cottrill
 
 from collections import OrderedDict
 from datetime import datetime
-from django.db.models import Count
+from django.db.models import Count, prefetch_related_objects
 from geojson import MultiLineString
 from tfat.models import *
 
@@ -314,6 +314,7 @@ def get_omnr_tag_recoveries(project_slug):
     #    ) ORDER BY observation_date'''
 
     queryset = Encounter.objects.raw(sql, [project_slug])
+    prefetch_related_objects(queryset, "species", "project")
 
     nobs = len([x.id for x in queryset])
 
@@ -371,6 +372,7 @@ def get_angler_tag_recoveries(project_slug, tagstat="A"):
     sql = sql.format(**{"tagstat": tagstat})
 
     queryset = Recovery.objects.raw(sql, [project_slug])
+    prefetch_related_objects(queryset, "species", "report", "report__reported_by")
 
     nobs = len([x.id for x in queryset])
 
@@ -434,6 +436,7 @@ def get_other_omnr_recoveries(project_slug):
     """
 
     queryset = Encounter.objects.raw(sql, [project_slug])
+    prefetch_related_objects(queryset, "species", "project")
 
     nobs = len([x.id for x in queryset])
 
@@ -476,6 +479,7 @@ def get_omnr_tag_application(project_slug):
      ORDER BY applied.tagid """
 
     queryset = Encounter.objects.raw(sql, [project_slug])
+    prefetch_related_objects(queryset, "species", "project")
 
     nobs = len([x.id for x in queryset])
 

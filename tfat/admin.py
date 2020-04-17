@@ -13,7 +13,7 @@ class AdminSpecies(admin.ModelAdmin):
     ordering = ("-tagged", "spc_nmco")
 
     def queryset(self, request):
-        return TaggedSpecies.all_species
+        return TaggedSpecies.all_objects
 
 
 class AdminJoePublic(admin.ModelAdmin):
@@ -52,6 +52,6 @@ class AdminReport(admin.ModelAdmin):
     inlines = [ReportFollowUpInline]
 
 
-admin.site.register(TaggedSpecies, AdminSpecies)
+# admin.site.register(TaggedSpecies, AdminSpecies)
 admin.site.register(JoePublic, AdminJoePublic)
 admin.site.register(Report, AdminReport)

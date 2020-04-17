@@ -25,6 +25,7 @@ urlpatterns = [
     path("users/", include("myusers.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
     path("tfat/", include(tfat_urls, namespace="tfat")),
+    #    path("common/", include("common.urls")),
     path("", tags_recovered_this_year, name="home"),
 ]
 
