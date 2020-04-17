@@ -22,7 +22,7 @@ from datetime import datetime
 
 from geojson import MultiLineString
 
-from common.models import Species
+from common.models import Species, Lake
 
 from tfat.constants import CLIP_CODE_CHOICES, FOLLOW_UP_STATUS_CHOICES
 from tfat.models import JoePublic, Report, Recovery, Encounter, Project, ReportFollowUp
@@ -251,7 +251,7 @@ def encounter_detail_view(request, encounter_id):
     """
     encounter = get_object_or_404(Encounter, id=encounter_id)
 
-    mapbounds = get_map_bounds(encounter.project.lake.abbrev)
+    mapbounds = get_map_bounds(encounter.project.lake)
 
     return render(
         request,
@@ -404,8 +404,9 @@ def angler_reports_view(request, angler_id, report_a_tag=False):
     # the subset of recovery events with both lat and lon (used for plotting)
     recoveries_with_latlon = [x for x in recoveries if x.dd_lat and x.dd_lon]
 
-    lakes = list(set([x[0] for x in recoveries.values_list("lake__abbrev")]))
-    if len(lakes) == 1:
+    lake_ids = [x[0] for x in recoveries.order_by().values_list("lake").distinct()]
+    lakes = Lake.objects.filter(pk__in=lake_ids)
+    if lakes.count() >= 1:
         mapbounds = get_map_bounds(lakes[0])
     else:
         mapbounds = get_map_bounds("")
@@ -447,10 +448,11 @@ def tagid_detail_view(request, tagid):
 
     detail_data = get_tagid_detail_data(tagid, encounter_list)
 
-    lakes = list(
-        set([x[0] for x in encounter_list.values_list("project__lake__abbrev")])
-    )
-    if len(lakes) == 1:
+    lake_ids = [
+        x[0] for x in encounter_list.order_by().values_list("project__lake").distinct()
+    ]
+    lakes = Lake.objects.filter(pk__in=lake_ids)
+    if lakes.count() >= 1:
         mapbounds = get_map_bounds(lakes[0])
     else:
         mapbounds = get_map_bounds("")
@@ -483,9 +485,11 @@ def report_detail_view(request, report_id, report_a_tag=False):
     report = get_object_or_404(Report, id=report_id)
     # angler = report.reported_by
 
-    lakes = list(set([x.lake.abbrev for x in report.recoveries.all()]))
-
-    if len(lakes) == 1:
+    lake_ids = [
+        x[0] for x in report.recoveries.order_by().values_list("lake").distinct()
+    ]
+    lakes = Lake.objects.filter(pk__in=lake_ids)
+    if lakes.count() >= 1:
         mapbounds = get_map_bounds(lakes[0])
     else:
         mapbounds = get_map_bounds("")
@@ -525,17 +529,18 @@ def tagid_contains_view(request, partial):
 
     """
 
-    lake = None
     lake_abbrev = request.GET.get("lake")
     if lake_abbrev:
         lake = Lake.objects.filter(abbrev=lake_abbrev.upper()).first()
+    else:
+        lake = ""
 
-    encounter_list = Encounter.objects.filter(tagid__icontains=partial)
+    encounter_list = Encounter.objects.filter(
+        tagid__icontains=partial
+    ).prefetch_related("species", "project")
 
     if lake:
-        encounter_list = encounter_list.filter(
-            project__lake__abbrev=lake_abbrev.upper()
-        )
+        encounter_list = encounter_list.filter(project__lake=lake)
 
     if encounter_list:
         encounter_list = encounter_list.order_by("tagid", "tagstat")[:MAX_RECORD_CNT]
@@ -555,7 +560,7 @@ def tagid_contains_view(request, partial):
             "max_record_count": MAX_RECORD_CNT,
             "nobs": detail_data.get("nobs", 0),
             "lake": lake,
-            "mapBounds": get_map_bounds(lake_abbrev),
+            "mapBounds": get_map_bounds(lake),
         },
     )
 
@@ -581,26 +586,21 @@ def tags_recovered_year(request, year, this_year=False):
 
     """
 
-    lake = None
     lake_abbrev = request.GET.get("lake")
     if lake_abbrev:
         lake = Lake.objects.filter(abbrev=lake_abbrev.upper()).first()
+    else:
+        lake = ""
 
     encounter_list = Encounter.objects.filter(
         tagstat="C", project__year=year
-    ).select_related(
-        "project",
-        "species"
-        # "project__prj_cd", "project__prj_nm", "project__slug", "spc__common_name"
-    )
+    ).select_related("project", "species")
 
     # applied = get_omnr_tag_application(slug)
     # other_recoveries = get_other_omnr_recoveries(slug)
 
     angler_recaps = Recovery.objects.filter(recovery_date__year=year).select_related(
-        # "report__reported_by", "spc__common_name"
-        "report",
-        "species",
+        "report", "species", "report__reported_by"
     )
 
     if lake_abbrev:
@@ -625,7 +625,7 @@ def tags_recovered_year(request, year, this_year=False):
             #'mls':mls
             "this_year": this_year,
             "lake": lake,
-            "mapBounds": get_map_bounds(lake_abbrev),
+            "mapBounds": get_map_bounds(lake),
         },
     )
 
@@ -660,10 +660,11 @@ def tags_applied_year(request, year):
 
     """
 
-    lake = None
     lake_abbrev = request.GET.get("lake")
     if lake_abbrev:
         lake = Lake.objects.filter(abbrev=lake_abbrev.upper()).first()
+    else:
+        lake = ""
 
     applied = Encounter.objects.filter(
         Q(tagstat="A") | Q(tagstat="A2"), project__year=year
@@ -692,7 +693,7 @@ def tags_applied_year(request, year):
             #'angler_recaps':angler_recaps,
             #'mls':mls,
             "lake": lake,
-            "mapBounds": get_map_bounds(lake_abbrev),
+            "mapBounds": get_map_bounds(lake),
         },
     )
 
@@ -715,12 +716,12 @@ def tags_applied_project(request, slug):
     one tagdoc deployed and subsequently recovered in a project)
 
     """
-    project = Project.objects.get(slug=slug)
+    project = Project.objects.prefetch_related("lake").get(slug=slug)
     applied = Encounter.objects.filter(
         Q(tagstat="A") | Q(tagstat="A2"), Q(project=project)
     )
 
-    applied = applied.select_related(
+    applied = applied.prefetch_related(
         "project",
         "species"
         # "project__prj_cd", "project__prj_nm", "spc__common_name"
@@ -742,7 +743,7 @@ def tags_applied_project(request, slug):
             "recovered": recovered,
             "angler_recaps": angler_recaps,
             "mls": mls,
-            "mapBounds": get_map_bounds(project.lake.abbrev),
+            "mapBounds": get_map_bounds(project.lake),
         },
     )
 
@@ -767,11 +768,11 @@ def tags_recovered_project(request, slug):
 
     """
 
-    project = Project.objects.get(slug=slug)
+    project = Project.objects.prefetch_related("lake").get(slug=slug)
 
-    mapbounds = get_map_bounds(project.lake.abbrev)
+    mapbounds = get_map_bounds(project.lake)
 
-    recovered = Encounter.objects.filter(tagstat="C", project=project).select_related(
+    recovered = Encounter.objects.filter(tagstat="C", project=project).prefetch_related(
         "project", "species"
     )
 
@@ -1069,7 +1070,7 @@ def recovery_detail_view(request, recovery_id, add_another=False):
     """
     recovery = get_object_or_404(Recovery, id=recovery_id)
 
-    mapbounds = get_map_bounds(recovery.lake.abbrev)
+    mapbounds = get_map_bounds(recovery.lake)
 
     return render(
         request,

@@ -12,7 +12,7 @@ from textwrap import wrap
 
 import html
 
-from common.models import Lake, Species
+from common.models import Lake, Species as CommonSpecies
 
 from .constants import (
     REPORTING_CHOICES,
@@ -33,10 +33,15 @@ from .constants import (
 
 class SpeciesManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(tagged=True)
+        return (
+            super()
+            .get_queryset()
+            .filter(tagged=True)
+            .only("spc", "spc_nmco", "spc_nmsc")
+        )
 
 
-class TaggedSpecies(Species):
+class TaggedSpecies(CommonSpecies):
     """This model uses inherites from the common Species Model and
     reflects the subset of species that will be included in the
     tagging application - we don't need to see lamprey and minnows in

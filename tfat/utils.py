@@ -21,23 +21,34 @@ from tfat.models import *
 def get_map_bounds(lake):
     """Return the corners of a bounding box containing the spefied lake in
     the correct format to pass to Leaflet's map.fitbound
-    function. Someday, this will be a function of lake objectss, but
-    for now this will work.  If no lake is provided, a box that
-    contain all lakes is returned.
+    function.
 
     Arguments:
-    - `lake`:
+
+    - `lake`: a lake object with a geom_ontario attribute containing
+    the polygon representing the Ontario waters of that lake.
 
     """
 
+    # extent of both lakes combined:
+    default = [[43.000, -89.562], [49.016, -79.654]]
+
+    # fall back if geom_ontario isn't populated for our lake
     bounds = {
         "HU": [[46.332, -83.986], [43.000, -79.654]],
         "SU": [[46.453, -89.562], [49.016, -84.352]],
     }
 
-    default = [[43.000, -89.562], [49.016, -79.654]]
+    if lake == "" or lake.geom_ontario is None:
+        return default
 
-    return bounds.get(lake, default)
+    extent = lake.geom_ontario.extent
+
+    if extent:
+        # re-format extent to match leaflet's api
+        return [[extent[1], extent[0]], [extent[3], extent[2]]]
+    else:
+        return bounds.get(lake.abbrev, default)
 
 
 def connect_the_dots(pts):

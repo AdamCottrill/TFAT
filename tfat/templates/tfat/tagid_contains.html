@@ -19,6 +19,8 @@
             <h2>Tags {% if lake %} from {{lake.lake_name}} {% endif %}that contain '{{ partial }}' (N = {{ nobs }} ) </h2>
         </div>
 
+        {% include  "tfat\_lake_button_bar.html" %}
+        
         {% if encounter_list|length > max_record_count %}
             <div class="alert alert-danger" role="alert">
                 More than {{ max_record_count }} records where found that match that criteria. You may want to refine your criteria here <a href="#">Find a tag</a>
