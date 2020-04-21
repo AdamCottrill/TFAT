@@ -1,4 +1,5 @@
 Django==2.2.10
+django-restframework==3.11.0
 django-filter==2.2.0
 django-geojson==2.12.0
 django-leaflet==0.26.0

@@ -47,6 +47,7 @@ DJANGO_APPS = (
 THIRDPARTY_APPS = (
     #    'djgeojson',
     "leaflet",
+    "rest_framework",
     "django_filters",
     "myusers",
     "common",
@@ -140,6 +141,9 @@ LEAFLET_CONFIG = {
     "RESET_VIEW": True,
 }
 
+REST_FRAMEWORK = {
+    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",)
+}
 
 GEOS_LIBRARY_PATH = "c:/OSGeo4W/bin/geos_c.dll"
 GDAL_LIBRARY_PATH = "C:/OSGeo4W/bin/gdal204.dll"

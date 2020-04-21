@@ -470,19 +470,11 @@
 
                                             <p><strong>5-Minute Grid Number:</strong></p>
                                             <div class="row" >
-                                                <div class="col-md-3" >
+                                                <div class="col-md-6" >
                                                     <div class="form-group">
                                                         <label class="sr-only" for="grid_no">5-Minute Grid Number:</label>
                                                         <input type="text"  name="grid_no" class="form-control" id="grid_no" placeholder="1942">
                                                     </div>
-                                                </div>
-                                                <div class="col-md-5" >
-                                                    <select class="form-control" id="lake_name">
-                                                        <option>Lake Huron</option>
-                                                        <option>Lake Superior</option>
-                                                        <option>Lake Erie</option>
-                                                        <option>Lake Ontario</option>
-                                                    </select>
                                                 </div>
                                             </div>
 
@@ -809,13 +801,123 @@
 <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
 <script src="/static/Leaflet.MakiMarkers.js"></script>
-<script src="/static/grids.js"></script>
 
 
 <script type="text/javascript">
 
  $(document).ready(function(){
 
+     let grid5 = "";
+     let grids = {};
+     
+     var dd_lat = parseFloat($('input[id="id_dd_lat"]').val());
+     var dd_lon = parseFloat($('input[id="id_dd_lon"]').val());
+
+     // get the 5-minute grid from the map click
+     const grid5URL = "{% url 'common_api:api-lookup-grid5-from-pt' %}";
+     const grid5ListURL = "{% url 'common_api:grid5-list' %}";     
+     const csrf_token = "{{ csrf_token }}";
+
+
+     //=======================================
+     //     5-minute grid from pt:
+
+     const success = (data) => {       
+         grid5 = data.grid;
+         lake_name = data.lake.lake_name;                 
+     }
+     const error = () =>{
+         grid5 = ""
+         lake_name = ""         
+     }
+
+     
+     async function getGrid5(coords, url, token, success, error) {
+         // given a lat, lon, a url, csrf_token, a success function, and an
+         // error function, call our spatial lookup api to get that
+         // attributes that match lat-lon of the point to check against the
+         // html widgets.
+
+         const { dd_lat, dd_lon } = coords;
+
+         await $.ajax({
+             type: "POST",
+             url: url,
+             dataType: "json",
+             data: {
+                 point: `POINT(${dd_lon} ${dd_lat})`,
+                 csrfmiddlewaretoken: token
+             },
+             success: success,
+             error: error
+         });
+     }
+
+     
+     
+     async function get_grid_number(dd_lat, dd_lon){
+         // for now clear the grid number if the point comes from any-other control
+         // someday we will call get_grid api and pass in the coordinates to get it.
+         await getGrid5({dd_lat, dd_lon}, grid5URL, csrf_token, success, error).catch(
+             () => grid5=""
+         )
+         $('input[id="grid_no"]').val(grid5)
+     };
+
+
+     
+
+     //=======================================
+     //     5-minute grid list by lake
+
+
+     const successGridList = (data) => {       
+         //console.log('Success getting grid list!');
+         //convert the grids into an object keyed by grid number. 
+         //grids = data.filter(x=>x.centroid !== null).reduce((acc, x) => {
+         //    acc[x.grid] = x.centroid.match(/\(([^)]+)\)/)[1].split(" ")
+         //    return acc
+         //}, {})
+
+         grids = data.reduce((acc, x) => {
+             acc[x.grid] = x.centroid
+             return acc
+         }, {});
+         
+     }
+     const errorGridList = (abbrev) =>{
+         grids = {}
+     }
+     
+     async function getLakeGrids(lake_abbrev, url, success, error) {
+         await $.ajax({
+             type: "GET",
+             url: url + `?lake=${lake_abbrev}`,
+             dataType: "json",
+             success: success,
+             error: error(lake_abbrev)
+         });
+     }
+
+
+
+     async function getGrids(lake_abbrev){
+         await getLakeGrids(lake_abbrev, grid5ListURL, successGridList, errorGridList);
+         
+     }
+     
+
+     $("#id_lake").on('change', function(){
+         let text = $(this).find(":selected").text()
+         let lake_abbrev = text.match(/\(([^)]+)\)/)[1];
+         getGrids(lake_abbrev);
+     })
+
+     // on page load - get out list of grids in the background:
+     let lake_abbrev = $("#id_lake").find(":selected").text().match(/\(([^)]+)\)/)[1];
+     getGrids(lake_abbrev);
+     
+     
      //make sure all of the error messages are hidden when we load the form:
 
      clear_lat_long_errors();
@@ -913,29 +1015,16 @@
 
 
 
-     function get_grid_number(ddlat, ddlon){
-         // for now clear the grid number if the point comes from any-other control
-         // someday we will call get_grid api and pass in the coordinates to get it.
-         $('input[id="grid_no"]').val('');
-
-     };
-
-
      function refresh_map(){
          // anytime one of the text box controls change (with a valid
          // value) we need to update the marker on our map
 
-         var ddlat = parseFloat($('input[id="id_dd_lat"]').val());
-         var ddlon = parseFloat($('input[id="id_dd_lon"]').val());
 
+         if(isNaN(dd_lat)===false && isNaN(dd_lon)===false){
 
-         if(isNaN(ddlat)===false && isNaN(ddlon)===false){
+             get_grid_number(dd_lat, dd_lon);
 
-             get_grid_number(ddlat, ddlon);
-
-             $('input:radio[name="latlon_flag"]').val(["1"]); // 1 == 'Reported'
-
-             var pt = L.latLng(ddlat, ddlon);
+             var pt = L.latLng(dd_lat, dd_lon);
              clear_lat_long_errors();
 
              //if the length of our marker array is more than , we have a
@@ -957,12 +1046,12 @@
          my_map = new L.map('main_map').setView([45,-82], 7);
 
          L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYWNvdHRyaWxsIiwiYSI6ImNpazVmb3Q2eDAwMWZpZm0yZTQ1cjF3NTkifQ.Pb1wCYs0lKgjnTGz43DjVQ'
-, {
-             maxZoom: 18,
-             attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
-                          '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-                          'Imagery  <a href="http://mapbox.com">Mapbox</a>',
-             id: 'mapbox.streets'
+                   , {
+                       maxZoom: 18,
+                       attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+                                    '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+                                    'Imagery  <a href="http://mapbox.com">Mapbox</a>',
+                       id: 'mapbox.streets'
          }).addTo(my_map);
 
      };
@@ -1010,8 +1099,6 @@
 
          clear_lat_long_errors();
 
-         $('input:radio[name="latlon_flag"]').val(["1"]); // 1 == 'Reported'
-
          //if the length of our marker array is more than 0 or the first element is not
          //undefined, we have a point to remove and delete
          if (my_markers.length && typeof my_markers[0] !== 'undefined'){
@@ -1040,13 +1127,13 @@
          $('input[id="dms_lat_min"]').val(lat_iminutes);
          $('input[id="dms_lat_sec"]').val(lat_seconds);
 
-         ddlon = Math.abs(dd_lon);
-         var lon_idegrees = Math.floor(ddlon);
-         var lon_dminutes = (ddlon - lon_idegrees) * 60;
+         dd_lon = Math.abs(dd_lon);
+         var lon_idegrees = Math.floor(dd_lon);
+         var lon_dminutes = (dd_lon - lon_idegrees) * 60;
          var lon_iminutes = Math.floor(lon_dminutes);
          var lon_seconds = (lon_dminutes - lon_iminutes) * 60;
 
-         $('input[id="id_dd_lon"]').val(ddlon * -1);
+         $('input[id="id_dd_lon"]').val(dd_lon * -1);
 
          $('input[id="ddm_lon_deg"]').val(lon_idegrees * -1);
          $('input[id="ddm_lon_min"]').val(lon_dminutes);
@@ -1055,6 +1142,8 @@
          $('input[id="dms_lon_min"]').val(lon_iminutes);
          $('input[id="dms_lon_sec"]').val(lon_seconds);
 
+         $('input[id="id_grid_no"]').val(grid5);
+         
 
          // the coordinates under the map:
          $("#latlon_text").html('<em>' +  dd_lat.toFixed(4) + '&deg;N ' + dd_lon.toFixed(4) + '&deg;W</em>');
@@ -1065,6 +1154,7 @@
      }
 
 
+     
      // from http://ipasic.com/article/let-user-add-point-map-geodjango-leaflet/
      function onMapClick(e) {
          // capture the click events on our map an update the other controls accordingly
@@ -1073,12 +1163,13 @@
 
          update_controls(dd_lat, dd_lon);
          get_grid_number(dd_lat, dd_lon)
-
+         
      }
 
      // call the onMapClick function when user click on map
      my_map.on('click', onMapClick);
 
+     
 
      function init_popup_map(){
 
@@ -1163,12 +1254,12 @@
 
      $('input[id="id_dd_lat"]').change (function () {
 
-         var ddlat = parseFloat($('input[id="id_dd_lat"]').val());
+         var dd_lat = parseFloat($('input[id="id_dd_lat"]').val());
 
-         var valid = check_dd_lat(ddlat);
+         var valid = check_dd_lat(dd_lat);
          if (valid){
-             var lat_idegrees = Math.floor(ddlat);
-             var lat_dminutes = (ddlat - lat_idegrees) * 60;
+             var lat_idegrees = Math.floor(dd_lat);
+             var lat_dminutes = (dd_lat - lat_idegrees) * 60;
              var lat_iminutes = Math.floor(lat_dminutes);
              var lat_seconds = (lat_dminutes - lat_iminutes) * 60;
 
@@ -1187,16 +1278,17 @@
 
 
      var grid_change = function(){
-         // see if a point exists in our grid lookup-key
-         var lake = $('#lake_name').find(':selected').text().split(" ")[1];
+         
          var grid_no = parseInt($('input[name="grid_no"]').val());
-         var coord;
-         if (grids[lake]){
-             coord = grids[lake][grid_no];
-         }
 
-         if (coord){
-             update_controls(coord[1], coord[0]);
+         // see if we can find that grid number in our list of grids:
+         let my_grid = grids[grid_no];
+         
+         if (my_grid){
+             
+             let coord = my_grid.match(/\(([^)]+)\)/)[1].split(" ");
+             grid5=grid_no;
+             update_controls(parseFloat(coord[1]), parseFloat(coord[0]));
              $( "#grid_no_error" ).hide();
          } else {
              clear_spatial_controls();
@@ -1204,12 +1296,6 @@
          }
 
      };
-
-     $('#lake_name').on('change', function(){
-         console.log('Lake Changed!')
-         grid_change();
-     });
-
 
      $('input[name="grid_no"]').focusout(function(){
          grid_change();
@@ -1219,18 +1305,18 @@
 
      $('input[id="id_dd_lon"]').change (function () {
 
-         var ddlon = parseFloat($('input[id="id_dd_lon"]').val());
+         var dd_lon = parseFloat($('input[id="id_dd_lon"]').val());
 
-         var valid = check_dd_lon(ddlon);
+         var valid = check_dd_lon(dd_lon);
 
          if (valid){
-             ddlon = Math.abs(ddlon);
-             var lon_idegrees = Math.floor(ddlon);
-             var lon_dminutes = (ddlon - lon_idegrees) * 60;
+             dd_lon = Math.abs(dd_lon);
+             var lon_idegrees = Math.floor(dd_lon);
+             var lon_dminutes = (dd_lon - lon_idegrees) * 60;
              var lon_iminutes = Math.floor(lon_dminutes);
              var lon_seconds = (lon_dminutes - lon_iminutes) * 60;
 
-             $('input[id="id_dd_lon"]').val(ddlon * -1);
+             $('input[id="id_dd_lon"]').val(dd_lon * -1);
 
              $('input[id="ddm_lon_deg"]').val(lon_idegrees * -1);
              $('input[id="ddm_lon_min"]').val(lon_dminutes);
@@ -1258,11 +1344,11 @@
 
          // degrees must be an integer between 90 and 90
          if(isNaN(lat_degrees) || parseInt(lat_degrees)!==lat_degrees ||
-                                                          lat_degrees <-90 ||
-                                                          lat_degrees > 90){
-                                                              $( "#dms_lat_deg_error" ).show();
-                                                              $( "#dms_lat_deg" ).addClass("has-error");
-                                                              return false
+            lat_degrees <-90 ||
+            lat_degrees > 90){
+             $( "#dms_lat_deg_error" ).show();
+             $( "#dms_lat_deg" ).addClass("has-error");
+             return false
          } else {
              $( "#dms_lat_deg_error" ).hide();
              $( "#dms_lat_deg" ).removeClass("has-error");
@@ -1270,10 +1356,10 @@
 
          // minutes must be an integer between 0 and 59.999
          if(isNaN(lat_minutes) || parseInt(lat_minutes)!==lat_minutes ||
-                                                          lat_minutes < 0 || lat_minutes >=60){
-                                                              $( "#dms_lat_min_error" ).show();
-                                                              $( "#dms_lat_min" ).addClass("has-error");
-                                                              return false
+            lat_minutes < 0 || lat_minutes >=60){
+             $( "#dms_lat_min_error" ).show();
+             $( "#dms_lat_min" ).addClass("has-error");
+             return false
          } else {
              $( "#dms_lat_min_error" ).hide();
              $( "#dms_lat_min" ).removeClass("has-error");
@@ -1348,11 +1434,11 @@
 
          // degrees must be an integer between 90 and 90
          if(isNaN(lon_degrees) || parseInt(lon_degrees)!==lon_degrees ||
-                                                          lon_degrees <-90 ||
-                                                          lon_degrees > 90){
-                                                              $( "#dms_lon_deg_error" ).show();
-                                                              $( "#dms_lon_deg" ).addClass("has-error");
-                                                              return false
+            lon_degrees <-90 ||
+            lon_degrees > 90){
+             $( "#dms_lon_deg_error" ).show();
+             $( "#dms_lon_deg" ).addClass("has-error");
+             return false
          } else {
              $( "#dms_lon_deg_error" ).hide();
              $( "#dms_lon_deg" ).removeClass("has-error");
@@ -1360,10 +1446,10 @@
 
          // minutes must be an integer between 0 and 59.999
          if(isNaN(lon_minutes) || parseInt(lon_minutes)!==lon_minutes ||
-                                                          lon_minutes < 0 || lon_minutes >=60){
-                                                              $( "#dms_lon_min_error" ).show();
-                                                              $( "#dms_lon_min" ).addClass("has-error");
-                                                              return false
+            lon_minutes < 0 || lon_minutes >=60){
+             $( "#dms_lon_min_error" ).show();
+             $( "#dms_lon_min" ).addClass("has-error");
+             return false
          } else {
              $( "#dms_lon_min_error" ).hide();
              $( "#dms_lon_min" ).removeClass("has-error");
@@ -1397,11 +1483,11 @@
 
 
          if(isNaN(lat_idegrees) || parseInt(lat_idegrees)!==lat_idegrees ||
-                                                            lat_idegrees< -90 ||
-                                                            lat_idegrees> 90){
-                                                                $( "#ddm_lat_deg_error" ).show();
-                                                                $( "#ddm_lat_deg" ).addClass("has-error");
-                                                                return false
+            lat_idegrees< -90 ||
+            lat_idegrees> 90){
+             $( "#ddm_lat_deg_error" ).show();
+             $( "#ddm_lat_deg" ).addClass("has-error");
+             return false
          } else {
              $( "#ddm_lat_deg_error" ).hide();
              $( "#ddm_lat_deg" ).removeClass("has-error");
@@ -1432,11 +1518,11 @@
          // degrees must be an integer between -180 and 180
 
          if(isNaN(lon_idegrees) || parseInt(lon_idegrees)!==lon_idegrees ||
-                                                            lon_idegrees < -180 ||
-                                                            lon_idegrees >=180){
-                                                                $( "#ddm_lon_deg_error" ).show();
-                                                                $( "#ddm_lon_deg" ).addClass("has-error");
-                                                                return false
+            lon_idegrees < -180 ||
+            lon_idegrees >=180){
+             $( "#ddm_lon_deg_error" ).show();
+             $( "#ddm_lon_deg" ).addClass("has-error");
+             return false
          } else {
              $( "#ddm_lon_deg_error" ).hide();
              $( "#ddm_lon_deg" ).removeClass("has-error");
@@ -1469,8 +1555,8 @@
          if(valid){
 
              // update the controls on the dd tab
-             ddlat = lat_idegrees + lat_dminutes / 60;
-             $('input[id="id_dd_lat"]').val(ddlat);
+             dd_lat = lat_idegrees + lat_dminutes / 60;
+             $('input[id="id_dd_lat"]').val(dd_lat);
 
              var lat_iminutes = Math.floor(lat_dminutes);
              var lat_seconds = (lat_dminutes - lat_iminutes) * 60;
@@ -1497,8 +1583,8 @@
              $('input[id="ddm_lon_deg"]').val(lon_idegrees * -1);
 
              // calculate decimal degrees and update the dd tab
-             var ddlon = (lon_idegrees + lon_dminutes / 60);
-             $('input[id="id_dd_lon"]').val(ddlon * -1);
+             var dd_lon = (lon_idegrees + lon_dminutes / 60);
+             $('input[id="id_dd_lon"]').val(dd_lon * -1);
 
              var lon_iminutes = Math.floor(lon_dminutes);
              var lon_seconds = (lon_dminutes - lon_iminutes) * 60;
@@ -1530,8 +1616,8 @@
              $('input[id="ddm_lat_min"]').val(lat_dminutes);
 
              // decimal degree tab
-             var ddlat = lat_idegrees + lat_dminutes / 60;
-             $('input[id="id_dd_lat"]').val(ddlat);
+             var dd_lat = lat_idegrees + lat_dminutes / 60;
+             $('input[id="id_dd_lat"]').val(dd_lat);
 
              refresh_map();
          }
@@ -1559,8 +1645,8 @@
              $('input[id="ddm_lon_min"]').val(lon_dminutes);
 
              // decimal degree tab
-             var ddlon = lon_idegrees + lon_dminutes / 60;
-             $('input[id="id_dd_lon"]').val(ddlon * -1);
+             var dd_lon = lon_idegrees + lon_dminutes / 60;
+             $('input[id="id_dd_lon"]').val(dd_lon * -1);
 
              refresh_map();
          }
@@ -1589,7 +1675,7 @@
              $( "#tagtype_panel" ).removeClass("has-error");
          } else {
              $( "#tagtype_error_text").text("'" + tagtype + "' is not a valid Tag Type.")
-                 $( "#tagtype_error" ).show();
+             $( "#tagtype_error" ).show();
              $( "#tagtype_panel" ).addClass("has-error");
          }
      }
@@ -1601,7 +1687,7 @@
              $( "#tagposition_panel" ).removeClass("has-error");
          } else {
              $( "#tagposition_error_text").text("'" + tagposition + "' is not a valid Tag Position")
-                 $( "#tagposition_error" ).show();
+             $( "#tagposition_error" ).show();
              $( "#tagposition_panel" ).addClass("has-error");
 
          }
@@ -1613,7 +1699,7 @@
              $( "#tagcolour_panel" ).removeClass("has-error");
          } else {
              $( "#tagcolour_error_text").text("'" + tagcolour + "' is not a valid Tag Colour")
-                 $( "#tagcolour_error" ).show();
+             $( "#tagcolour_error" ).show();
              $( "#tagcolour_panel" ).addClass("has-error");
          }
      }
@@ -1625,7 +1711,7 @@
              $( "#tagorigin_panel" ).removeClass("has-error");
          } else {
              $( "#tagorigin_error_text").text("'" + tagorigin + "' is not a valid Agency Code")
-                 $( "#tagorigin_error" ).show();
+             $( "#tagorigin_error" ).show();
              $( "#tagorigin_panel" ).addClass("has-error");
          }
      }
@@ -1859,7 +1945,7 @@
              //set clip0 input to 0
              $('input[id="id_clipc"]').val("0");
              $('input:checkbox[name="clipc_group[]"][value!="0"]').prop('checked',false)
-                 $('input:checkbox[name="clipc_group[]"][value="0"]').prop('checked', true)
+             $('input:checkbox[name="clipc_group[]"][value="0"]').prop('checked', true)
 
          } else if (clip0===false && just_clicked!=='0') {
              //unclipped is not checked and another box was just clicked
@@ -1885,7 +1971,7 @@
 
      $('#myTabs a').click(function (e) {
          e.preventDefault()
-             $(this).tab('show')
+         $(this).tab('show')
      });
 
 
