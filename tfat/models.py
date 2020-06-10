@@ -158,7 +158,9 @@ class Report(models.Model):
     )
     dcr = models.CharField(max_length=15, blank=True, null=True)
     effort = models.CharField(max_length=15, blank=True, null=True)
-    associated_file = models.FileField(upload_to="reports", blank=True, null=True)
+    associated_file = models.FileField(
+        upload_to="tfat_tag_reports", blank=True, null=True
+    )
     comment = models.CharField(max_length=500, blank=True, null=True)
     # this should be a model like comments in ticket-tracker -what
     # exactly is the follow up and who is it assigned to, who did it.

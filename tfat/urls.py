@@ -1,5 +1,8 @@
 from django.conf.urls import url
 
+from django.conf import settings
+from django.views.static import serve as serve_static
+
 from tfat.views import (
     SpeciesListView,
     ReportListView,
@@ -206,5 +209,11 @@ urlpatterns = [
         name="report_a_tag_report_detail",
     ),
     # this function is used to download reports and files from project pages
-    url(r"^serve_file/(?P<filename>.+)/$", serve_file, name="serve_file"),
+    # url(r"^serve_file/(?P<filename>.+)$", serve_file, name="serve_file"),
+    url(
+        r"^serve_file/(?P<path>.*)$",
+        serve_static,
+        {"document_root": settings.MEDIA_ROOT},
+        name="serve_file",
+    ),
 ]

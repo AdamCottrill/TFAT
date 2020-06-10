@@ -52,6 +52,6 @@ class AdminReport(admin.ModelAdmin):
     inlines = [ReportFollowUpInline]
 
 
-# admin.site.register(TaggedSpecies, AdminSpecies)
+admin.site.register(TaggedSpecies, AdminSpecies)
 admin.site.register(JoePublic, AdminJoePublic)
 admin.site.register(Report, AdminReport)

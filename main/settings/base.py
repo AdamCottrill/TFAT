@@ -122,7 +122,8 @@ AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, "../media"))
+MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, "../media/"))
+# print("MEDIA_ROOT = " + MEDIA_ROOT)
 
 STATIC_URL = "/static/"
 STATIC_ROOT = root("static/")
@@ -146,4 +147,4 @@ REST_FRAMEWORK = {
 }
 
 GEOS_LIBRARY_PATH = "c:/OSGeo4W/bin/geos_c.dll"
-GDAL_LIBRARY_PATH = "C:/OSGeo4W/bin/gdal204.dll"
+GDAL_LIBRARY_PATH = "C:/OSGeo4W/bin/gdal300.dll"
