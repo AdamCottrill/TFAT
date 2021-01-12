@@ -38,6 +38,12 @@ from tfat.views import (
     # angler_list,
     report_a_tag_angler_list,
     spatial_followup,
+    # temporary api endpoint to replicate existing db queries:
+    letter_recovery_detail_view,
+    letter_tagging_event_view,
+    letter_tag_count_view,
+    mnrf_encounters,
+    public_recoveries,
 )
 
 
@@ -209,11 +215,42 @@ urlpatterns = [
         name="report_a_tag_report_detail",
     ),
     # this function is used to download reports and files from project pages
-    # url(r"^serve_file/(?P<filename>.+)$", serve_file, name="serve_file"),
+    url(r"^serve_file/(?P<filename>.+)$", serve_file, name="serve_file"),
+    # url(
+    #     r"^serve_file/(?P<path>.*)$",
+    #     serve_static,
+    #     {"document_root": settings.MEDIA_ROOT},
+    #     name="serve_file",
+    # ),
+    # Readonly API endpoints to for recovery letters:
+    # recovery event details
     url(
-        r"^serve_file/(?P<path>.*)$",
-        serve_static,
-        {"document_root": settings.MEDIA_ROOT},
-        name="serve_file",
+        regex=r"^letter/recovery_detail/(?P<recovery_id>\d+)/$",
+        view=letter_recovery_detail_view,
+        name="recovery_detail_letter",
+    ),
+    # tagging event details
+    url(
+        regex=r"^letter/tagging_event/(?P<lake>[A-Za-z]{2})/(?P<spc>\d{3})/(?P<tagid>.+)/$",
+        view=letter_tagging_event_view,
+        name="letter_tagging_event",
+    ),
+    # recovery letter - number of tagges applied that year, species and lake
+    url(
+        regex=r"^letter/tag_count/(?P<lake>[A-Za-z]{2})/(?P<year>\d{4})/(?P<spc>\d{3})/$",
+        view=letter_tag_count_view,
+        name="letter_tag_count",
+    ),
+    # mnr_encounters - developed for lake huron walleye management plan
+    url(
+        regex=r"^mnrf_encounters/(?P<lake>[A-Za-z]{2})/(?P<spc>\d{3})/$",
+        view=mnrf_encounters,
+        name="mnrf_encounters",
+    ),
+    # mnr_encounters - developed for lake huron walleye management plan
+    url(
+        regex=r"^public_recoveries/(?P<lake>[A-Za-z]{2})/(?P<spc>\d{3})/$",
+        view=public_recoveries,
+        name="public_recoveries",
     ),
 ]

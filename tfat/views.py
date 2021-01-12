@@ -2,9 +2,20 @@ from django.conf import settings
 
 # from django.core.servers.basehttp import FileWrapper
 from wsgiref.util import FileWrapper
-from django.db.models import Q, Count, Subquery, prefetch_related_objects
+from django.db.models import (
+    Q,
+    Count,
+    Subquery,
+    prefetch_related_objects,
+    F,
+    Func,
+    Value,
+    CharField,
+)
+from django.db.models.functions import ExtractYear
+
 from django.db import transaction
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, get_list_or_404
 from django.shortcuts import render, redirect
@@ -14,11 +25,11 @@ from django.views.generic import ListView
 
 from django.contrib import messages
 
+
 import os
 import mimetypes
 import subprocess
 from datetime import datetime
-
 
 from geojson import MultiLineString
 
@@ -99,8 +110,7 @@ class ListFilteredMixin(object):
 
 # added lake Filter
 class RecoveryReportsListView(ListFilteredMixin, ListView):
-    """
-    """
+    """"""
 
     model = Report
     queryset = Report.objects.all().order_by("-report_date")
@@ -633,7 +643,7 @@ def tags_recovered_year(request, year, this_year=False):
 # add lake filter
 def tags_recovered_this_year(request):
     """Pass the current year into the tags recovered view.  THis will
-    be the TFAT home page.  """
+    be the TFAT home page."""
 
     this_year = datetime.now().year
 
@@ -808,9 +818,7 @@ def tags_recovered_project(request, slug):
 
 @login_required
 def update_angler(request, angler_id):
-    """This view is used to update or edit an existing tag reporter / angler.
-
-    """
+    """This view is used to update or edit an existing tag reporter / angler."""
     angler = get_object_or_404(JoePublic, id=angler_id)
     form = JoePublicForm(request.POST or None, instance=angler)
 
@@ -873,8 +881,7 @@ def create_angler(request, report_a_tag=False):
 
 @login_required
 def create_report(request, angler_id, report_a_tag=False):
-    """This view is used to create a new tag report.
-    """
+    """This view is used to create a new tag report."""
 
     angler = get_object_or_404(JoePublic, id=angler_id)
     follow_up = None
@@ -916,8 +923,7 @@ def create_report(request, angler_id, report_a_tag=False):
 
 @login_required
 def edit_report(request, report_id):
-    """This view is used to edit an existing tag report.
-    """
+    """This view is used to edit an existing tag report."""
 
     report = get_object_or_404(Report, id=report_id)
     angler = report.reported_by
@@ -952,9 +958,7 @@ def edit_report(request, report_id):
 
 @login_required
 def create_report_followup(request, report_id):
-    """This view is used to create a report follow up if one is required.
-
-    """
+    """This view is used to create a report follow up if one is required."""
 
     report = get_object_or_404(Report, id=report_id)
     user = request.user
@@ -995,8 +999,7 @@ def create_report_followup(request, report_id):
 
 @login_required
 def create_recovery(request, report_id):
-    """This view is used to create a new tag recovery.
-    """
+    """This view is used to create a new tag recovery."""
 
     clip_codes = sorted(list(CLIP_CODE_CHOICES), key=lambda x: x[0])
     tag_types = sorted(list(TAG_TYPE_CHOICES), key=lambda x: x[0])
@@ -1027,8 +1030,7 @@ def create_recovery(request, report_id):
 
 @login_required
 def edit_recovery(request, recovery_id):
-    """This view is used to edit/update existing tag recoveries.
-    """
+    """This view is used to edit/update existing tag recoveries."""
 
     clip_codes = sorted(list(CLIP_CODE_CHOICES), key=lambda x: x[0])
     tag_types = sorted(list(TAG_TYPE_CHOICES), key=lambda x: x[0])
@@ -1109,3 +1111,211 @@ def serve_file(request, filename):
         return response
     else:
         return render(request, "tfat/missing_file.html", {"filename": filename})
+
+
+# API Readonly endpoints that return data required to create response letters.
+
+
+def letter_recovery_detail_view(request, recovery_id):
+    """Return the basic attributes of the tag recovery event - where,
+    when, who, and what.  Values are return as json string.
+
+    """
+
+    recovery = (
+        Recovery.objects.filter(id=recovery_id)
+        .annotate(
+            first_name=F("report__reported_by__first_name"),
+            last_name=F("report__reported_by__last_name"),
+            spc=F("species__spc"),
+            spc_nmco=F("species__spc_nmco"),
+            recovery_date_iso=Func(
+                F("recovery_date"),
+                Value("YYYY-MM-DD"),
+                function="to_char",
+                output_field=CharField(),
+            ),
+        )
+        .values(
+            # conceenate these
+            "first_name",
+            "last_name",
+            "recovery_date_iso",
+            "general_location",
+            "specific_location",
+            "spc",
+            "spc_nmco",
+            "tagid",
+            "dd_lat",
+            "dd_lon",
+            "tlen",
+            "flen",
+            "rwt",
+        )
+        .first()
+    )
+    return JsonResponse(recovery, safe=False)
+
+
+def letter_tagging_event_view(request, lake, spc, tagid):
+    """A view that gets the tagging event associated with this tagid and
+    species.  Returns an json response containing attributes of the
+    tagging event required by recovery response letter. Returns an empty
+    dictionary if no match is found.  It currently returns all matching
+    tagging events - ideatlly there should be only one. If more than one
+    is returned, they will have to be post-processed on the knitr/R side.
+
+    """
+
+    tagging_event = (
+        Encounter.objects.filter(
+            tagid=tagid,
+            tagstat__in=("A", "A2"),
+            species__spc=spc,
+            project__lake__abbrev=lake,
+        )
+        .select_related("project", "project__lake", "species")
+        .annotate(
+            lake_abbrev=F("project__lake__abbrev"),
+            prj_cd=F("project__prj_cd"),
+            prj_nm=F("project__prj_nm"),
+            year=F("project__year"),
+            spc=F("species__spc"),
+            isodate=Func(
+                F("observation_date"),
+                Value("YYYY-MM-DD"),
+                function="to_char",
+                output_field=CharField(),
+            ),
+        )
+        .values(
+            "lake_abbrev",  # aliase as lake_abbrev
+            "prj_cd",
+            "prj_nm",
+            "year",
+            "spc",
+            "isodate",
+            "dd_lat",
+            "dd_lon",
+            "tlen",
+            "flen",
+            "sex",
+            "rwt",
+            "tagid" "tagdoc",
+        )
+    )
+
+    # return json.dumps(tagging_event)
+    return JsonResponse(list(tagging_event), safe=False)
+
+
+def letter_tag_count_view(request, year, lake, spc):
+    """Return a single json object with the number of tag applied in the
+    lake to the species in the given year."""
+
+    tag_count = Encounter.objects.filter(
+        tagstat__in=("A", "A2"),
+        project__lake__abbrev=lake,
+        project__year=year,
+        species__spc=spc,
+    ).count()
+
+    return JsonResponse({"tag_count": tag_count})
+
+
+def mnrf_encounters(request, lake, spc):
+    """This is a read-only api endpoint that was created specifically for
+    mark-recapture mapping scripts of the Lake Huron Walleye Managment
+    plan. It returns all of the OMNR encounters with tagged fish of
+    the given species and lake. This functionality should be replaced
+    with a real api endpoint that accepts filters for year(s), region
+    of interest, and other attributes.
+
+    """
+
+    mnrf = (
+        Encounter.objects.filter(species__spc=spc, project__lake__abbrev=lake)
+        .select_related("project", "project__lake", "species")
+        .annotate(
+            year=F("project__year"),
+            prj_cd=F("project__prj_cd"),
+            prj_nm=F("project__prj_nm"),
+            spc=F("species__spc"),
+            spc_nmco=F("species__spc_nmco"),
+            observation_date_iso=Func(
+                F("observation_date"),
+                Value("YYYY-MM-DD"),
+                function="to_char",
+                output_field=CharField(),
+            ),
+        )
+        .values(
+            "year",
+            "observation_date_iso",
+            "flen",
+            "tlen",
+            "rwt",
+            "spc",
+            "spc_nmco",
+            "sex",
+            "dd_lat",
+            "dd_lon",
+            "tagid",
+            "tagdoc",
+            "tagstat",
+            "fate",
+            "prj_cd",
+            "prj_nm",
+            "comment",
+        )
+    )
+
+    return JsonResponse(list(mnrf), safe=False)
+
+
+def public_recoveries(request, lake, spc):
+    """This is a read-only api endpoint that was created specifically for
+    mark-recapture mapping scripts of the Lake Huron Walleye Managment
+    plan. It returns all of the public tag recoveries for tags of a
+    given species in the specifed lake. This functionality should be
+    replaced with a real api endpoint that accepts filters for
+    year(s), region of interest, and other attributes and includes
+    pagination.
+
+    """
+
+    public = (
+        Recovery.objects.filter(species__spc=spc, lake__abbrev=lake)
+        .select_related("species", "lake")
+        .annotate(
+            year=ExtractYear("recovery_date"),
+            spc=F("species__spc"),
+            spc_nmco=F("species__spc_nmco"),
+            recovery_date_iso=Func(
+                F("recovery_date"),
+                Value("YYYY-MM-DD"),
+                function="to_char",
+                output_field=CharField(),
+            ),
+        )
+        .values(
+            "year",
+            "recovery_date_iso",
+            "flen",
+            "tlen",
+            "rwt",
+            "spc",
+            "spc_nmco",
+            "sex",
+            "dd_lat",
+            "dd_lon",
+            "tagid",
+            "tagdoc",
+            # "--upper('C') as tagstat",
+            "fate",
+            # "--text('Public Returns') as Code",
+            "comment",
+        )
+    )
+
+    return JsonResponse(list(public), safe=False)
