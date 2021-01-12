@@ -11,7 +11,7 @@ DATABASES = {
         # "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": "tfat",
         "USER": "cottrillad",
-        "PASSWORD": "django",
+        "PASSWORD": os.environ["PGPASSWORD"],
         "HOST": "localhost",
     }
 }

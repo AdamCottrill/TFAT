@@ -92,7 +92,7 @@
                             {% if report.associated_file %}
                                 <tr>
                                     <td><em>Associated File:</em></td>
-                                    {% url 'tfat:serve_file' path=report.associated_file as the_url %}
+                                    {% url 'tfat:serve_file' filename=report.associated_file as the_url %}
                                     <td><a href="{{ the_url }}">
                                         {{ report.associated_file }} </a></td>
                                 </tr>

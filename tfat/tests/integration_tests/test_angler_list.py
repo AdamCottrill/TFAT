@@ -23,8 +23,7 @@ from tfat.tests.factories import JoePublicFactory, UserFactory
 
 @pytest.fixture()
 def user():
-    """Create a user we can login to some views:
-    """
+    """Create a user we can login to some views:"""
 
     user = UserFactory(email="mickey@disney.com")
     user.set_password("Abcd1234")
@@ -35,8 +34,7 @@ def user():
 
 @pytest.fixture()
 def anglers():
-    """Create some users with easy to remember names.
-    """
+    """Create some users with easy to remember names."""
 
     angler1 = JoePublicFactory(first_name="Homer", last_name="Simpson")
     angler2 = JoePublicFactory(first_name="Montgomery", last_name="Burns")
@@ -70,8 +68,7 @@ def test_angler_list(client, anglers):
 
 @pytest.mark.django_db
 def test_angler_list_filter_first_name(client, anglers):
-    """Verify that the filter works if we provide a partial first name
-    """
+    """Verify that the filter works if we provide a partial first name"""
 
     url = reverse("tfat:angler_list")
     response = client.get(url + "?first_name=home")
@@ -169,9 +166,7 @@ def test_report_a_tag_no_match(client, user, anglers):
 
 @pytest.mark.django_db
 def test_angler_list_filter_last_name(client, anglers):
-    """Verify that the filter works if we provide a partial last name
-
-    """
+    """Verify that the filter works if we provide a partial last name"""
 
     url = reverse("tfat:angler_list")
     response = client.get(url + "?last_name=impson")

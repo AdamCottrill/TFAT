@@ -49,8 +49,7 @@ from tfat.tests.factories import (
 
 @pytest.fixture()
 def user():
-    """
-    """
+    """"""
 
     user = UserFactory(email="mickey@disney.com")
     user.set_password("Abcd1234")
@@ -61,8 +60,7 @@ def user():
 
 @pytest.fixture()
 def db_setup():
-    """
-    """
+    """"""
 
     report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.UTC)
 
@@ -157,7 +155,7 @@ def test_basic_data(client, user, db_setup, tag_data):
     assert response.status_code == 200
     content = str(response.content)
 
-    fname = "c:/Users/COTTRILLAD/1work/scrapbook/wtf.html"
+    fname = "c:/1work/scrapbook/wtf.html"
     with open(fname, "wb") as f:
         f.write(response.content)
 
@@ -274,8 +272,7 @@ def test_missing_tagdoc(client, user, db_setup, tag_data):
 
 @pytest.mark.django_db
 def test_tagdoc_short(client, user, db_setup, tag_data):
-    """if the tagdoc is provided, it must be exacly 5 characters long.
-    """
+    """if the tagdoc is provided, it must be exacly 5 characters long."""
 
     report = Report.objects.get(reported_by__first_name="Homer")
     url = reverse("tfat:create_recovery", kwargs={"report_id": report.id})
@@ -292,8 +289,7 @@ def test_tagdoc_short(client, user, db_setup, tag_data):
 
 @pytest.mark.django_db
 def test_tagdoc_long(client, user, db_setup, tag_data):
-    """if the tagdoc is provided, it must be exacly 5 characters long.
-    """
+    """if the tagdoc is provided, it must be exacly 5 characters long."""
     report = Report.objects.get(reported_by__first_name="Homer")
     url = reverse("tfat:create_recovery", kwargs={"report_id": report.id})
 
@@ -627,9 +623,7 @@ def test_bad_clipc_multiple_nonexistant_clips(client, user, db_setup, tag_data):
 
 @pytest.mark.django_db
 def test_missing_recovery_date(client, user, db_setup, tag_data):
-    """It's not clear what should happen if date is not populated.
-
-    """
+    """It's not clear what should happen if date is not populated."""
 
     report = Report.objects.get(reported_by__first_name="Homer")
     url = reverse("tfat:create_recovery", kwargs={"report_id": report.id})
@@ -738,8 +732,7 @@ def test_no_date_and_dateflag_is_reported(client, user, db_setup, tag_data):
 
 @pytest.mark.django_db
 def test_tlen_greater_than_flen(client, user, db_setup, tag_data):
-    """both tlen and flen can be provided as long as flen is less than tlen.
-    """
+    """both tlen and flen can be provided as long as flen is less than tlen."""
 
     report = Report.objects.get(reported_by__first_name="Homer")
     url = reverse("tfat:create_recovery", kwargs={"report_id": report.id})

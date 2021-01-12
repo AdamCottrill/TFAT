@@ -1,10 +1,10 @@
-Django==2.2.10
-django-restframework==3.11.0
+Django==2.2.17
+djangorestframework==3.12.2
 django-filter==2.2.0
 django-geojson==2.12.0
 django-leaflet==0.26.0
 django-pagination==1.0.7
 geojson==2.5.0
-pip-tools==4.1.0
+pip-tools==5.5.0
 psycopg2==2.8.3
 pyodbc==4.0.26

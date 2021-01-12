@@ -17,7 +17,7 @@ from tfat.models import (
 )
 
 
-class UserFactory(factory.DjangoModelFactory):
+class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
         django_get_or_create = ("email",)
@@ -29,7 +29,7 @@ class UserFactory(factory.DjangoModelFactory):
     password = "Abcd1234"
 
 
-class LakeFactory(factory.DjangoModelFactory):
+class LakeFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Lake
         django_get_or_create = ("abbrev",)
@@ -38,7 +38,7 @@ class LakeFactory(factory.DjangoModelFactory):
     lake_name = "Lake Huron"
 
 
-class SpeciesFactory(factory.DjangoModelFactory):
+class SpeciesFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = TaggedSpecies
         django_get_or_create = ("spc",)
@@ -50,7 +50,7 @@ class SpeciesFactory(factory.DjangoModelFactory):
     tagged = True
 
 
-# class SpeciesFactory(factory.DjangoModelFactory):
+# class SpeciesFactory(factory.django.DjangoModelFactory):
 #     # FACTORY_FOR = Species
 #     class Meta:
 #         model = Species
@@ -62,7 +62,7 @@ class SpeciesFactory(factory.DjangoModelFactory):
 #     primary = True
 
 
-class JoePublicFactory(factory.DjangoModelFactory):
+class JoePublicFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = JoePublic
 
@@ -79,7 +79,7 @@ class JoePublicFactory(factory.DjangoModelFactory):
     phone = "555-321-1234"
 
 
-class ReportFactory(factory.DjangoModelFactory):
+class ReportFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Report
 
@@ -89,7 +89,7 @@ class ReportFactory(factory.DjangoModelFactory):
     follow_up_status = None
 
 
-class ReportFollowUpFactory(factory.DjangoModelFactory):
+class ReportFollowUpFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = ReportFollowUp
 
@@ -99,7 +99,7 @@ class ReportFollowUpFactory(factory.DjangoModelFactory):
     comment = "This is a followup comment."
 
 
-class RecoveryFactory(factory.DjangoModelFactory):
+class RecoveryFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Recovery
 
@@ -126,7 +126,7 @@ class RecoveryFactory(factory.DjangoModelFactory):
     tag_removed = False
 
 
-class DatabaseFactory(factory.DjangoModelFactory):
+class DatabaseFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Database
 
@@ -134,7 +134,7 @@ class DatabaseFactory(factory.DjangoModelFactory):
     path = "C:/Path/to/somedb.mdb"
 
 
-class ProjectFactory(factory.DjangoModelFactory):
+class ProjectFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Project
 
@@ -147,7 +147,7 @@ class ProjectFactory(factory.DjangoModelFactory):
     # slug = factory.LazyAttribute(lambda o: o.prj_cd.lower())
 
 
-class EncounterFactory(factory.DjangoModelFactory):
+class EncounterFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Encounter
 
