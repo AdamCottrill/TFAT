@@ -1201,7 +1201,8 @@ def letter_tagging_event_view(request, lake, spc, tagid):
             "flen",
             "sex",
             "rwt",
-            "tagid" "tagdoc",
+            "tagid",
+            "tagdoc",
         )
     )
 

@@ -227,7 +227,7 @@ urlpatterns = [
     url(
         regex=r"^letter/recovery_detail/(?P<recovery_id>\d+)/$",
         view=letter_recovery_detail_view,
-        name="recovery_detail_letter",
+        name="letter_recovery_detail",
     ),
     # tagging event details
     url(
