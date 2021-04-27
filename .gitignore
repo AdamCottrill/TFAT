@@ -11,4 +11,7 @@ htmlcov/*
 static/*
 media/*
 docs/*
+tfat/migrations_old/*
+tfat/utils/*
 tfat/tests/integration_tests/htmlcov
+utils/*
