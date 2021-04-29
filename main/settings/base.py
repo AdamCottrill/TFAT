@@ -49,6 +49,7 @@ THIRDPARTY_APPS = (
     "leaflet",
     "rest_framework",
     "django_filters",
+    "corsheaders",
     "myusers",
     "common",
 )
@@ -60,6 +61,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRDPARTY_APPS + MY_APPS
 
 MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -113,6 +115,8 @@ LOGOUT_REDIRECT_URL = "home"
 
 AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
 
+# domain where project tracker is running
+PJTK2_DOMAIN = "http://10.167.37.157"
 
 # EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 # EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_mails')
@@ -142,9 +146,22 @@ LEAFLET_CONFIG = {
     "RESET_VIEW": True,
 }
 
+
+CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
+
 REST_FRAMEWORK = {
-    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",)
+    # "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticatedOrReadOnly"
+    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.TokenAuthentication",
+    ],
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
+    # "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
 }
+
 
 # install gdal in virtualenv:
 VIRTUAL_ENV = os.environ["VIRTUAL_ENV"]

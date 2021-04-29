@@ -132,15 +132,15 @@ class JoePublic(models.Model):
 class Report(models.Model):
     """
 
-  + report of a one or more recoveries - contact event with the general
-    public
-  + reported by an individual
-  + support for different formats
-    + phone (verbal),
-    + letter,
-    + e-mail
+    + report of a one or more recoveries - contact event with the general
+      public
+    + reported by an individual
+    + support for different formats
+      + phone (verbal),
+      + letter,
+      + e-mail
 
-    TODO - Add functionality to follow-up with reports
+      TODO - Add functionality to follow-up with reports
 
     """
 
@@ -257,14 +257,14 @@ class ReportFollowUp(models.Model):
 class Recovery(models.Model):
     """
 
-  + recovery event of an actual tag number
-  + child of report (one-many relationship)
-    + where, when
-    + tag number and attributes
-    + species, size, gender,
-    + clipc
-    + fate
-    + comment
+    + recovery event of an actual tag number
+    + child of report (one-many relationship)
+      + where, when
+      + tag number and attributes
+      + species, size, gender,
+      + clipc
+      + fate
+      + comment
 
     """
 
@@ -693,8 +693,9 @@ class Project(models.Model):
     def get_absolute_url(self):
         """return the url for the project"""
         # url = reverse('pjtk2.views.project_detail', kwargs={'slug':self.slug})
-        url = "http://142.143.160.56:8000/projects/projectdetail/{}/"
-        url = url.format(slug)
+        PJTK2_DOMAIN = settings.PJTK2_DOMAIN
+        url = "{}/projects/projectdetail/{}/"
+        url = url.format(PJTK2_DOMAIN, self.slug)
         return url
 
     def save(self, *args, **kwargs):
