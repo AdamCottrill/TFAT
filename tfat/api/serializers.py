@@ -10,6 +10,7 @@ from tfat.models import TaggedSpecies as Species
 class LakeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lake
+        ref_name = "tfat_lake"
         lookup_field = "abbrev"
         fields = ("lake_name", "abbrev")
 
@@ -21,6 +22,7 @@ class SpeciesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Species
+        ref_name = "tfat_species"
         lookup_field = "spc"
         fields = ("spc", "spc_nmco", "spc_nmsc")
 

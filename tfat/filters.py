@@ -98,6 +98,10 @@ class RecoveryFilter(django_filters.FilterSet):
     tag_type = ValueInFilter(field_name="_tag_type", lookup_expr="in")
     tag_colour = ValueInFilter(field_name="_tag_colour", lookup_expr="in")
 
+    sex = ValueInFilter(field_name="sex")
+    clipc = ValueInFilter(field_name="clipc")
+    fate = ValueInFilter(field_name="fate")
+
     class Meta:
         model = Recovery
         fields = [

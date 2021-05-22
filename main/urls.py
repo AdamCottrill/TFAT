@@ -15,10 +15,31 @@ Including another URLconf
 """
 from django.conf import settings
 from django.urls import include, path
+from django.conf.urls import url
 from django.contrib import admin
+
 
 from tfat import urls as tfat_urls
 from tfat.views import tags_recovered_this_year
+
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title="TFAT API",
+        default_version="v1",
+        description="Test description",
+        terms_of_service="https://www.google.com/policies/terms/",
+        contact=openapi.Contact(email="adam.cottrill@ontario.ca"),
+        license=openapi.License(name="BSD License"),
+    ),
+    public=True,
+    permission_classes=[permissions.AllowAny],
+)
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -27,6 +48,21 @@ urlpatterns = [
     path("tfat/", include(tfat_urls, namespace="tfat")),
     path("tfat/api/v1/", include("tfat.api.urls", namespace="tfat_api")),
     path("common_api/", include("common.api.urls", namespace="common_api")),
+    url(
+        r"^tfat/api/swagger(?P<format>\.json|\.yaml)$",
+        schema_view.without_ui(cache_timeout=0),
+        name="schema-json",
+    ),
+    path(
+        "tfat/api/swagger/",
+        schema_view.with_ui("swagger", cache_timeout=0),
+        name="schema-swagger-ui",
+    ),
+    path(
+        "tfat/api/redoc/",
+        schema_view.with_ui("redoc", cache_timeout=0),
+        name="schema-redoc",
+    ),
     path("", tags_recovered_this_year, name="home"),
 ]
 

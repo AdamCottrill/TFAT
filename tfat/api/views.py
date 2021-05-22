@@ -78,7 +78,18 @@ class RecoveryViewSet(viewsets.ModelViewSet):
     agencies.
     """
 
-    queryset = Recovery.objects.select_related("species", "lake").all()
+    queryset = (
+        Recovery.objects.select_related("species", "lake")
+        .defer(
+            "lake__geom",
+            "lake__geom_ontario",
+            "lake__envelope",
+            "lake__envelope_ontario",
+            "lake__centroid",
+            "lake__centroid_ontario",
+        )
+        .all()
+    )
     filterset_class = RecoveryFilter
     pagination_class = StandardResultsSetPagination
     permission_classes = [IsAuthenticatedOrReadOnly]
