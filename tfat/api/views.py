@@ -13,6 +13,7 @@ from ..constants import (
     TAGSTAT_CHOICES,
 )
 from ..filters import EncounterFilter, ProjectFilter, RecoveryFilter, ReportFilter
+from common.models import Lake
 from ..models import Encounter, Project, Recovery, Report
 from ..models import TaggedSpecies as Species
 from .serializers import (
@@ -62,7 +63,7 @@ class SpeciesList(generics.ListAPIView):
 
 
 class ReportViewSet(viewsets.ModelViewSet):
-    """An api endpoint to create, udate, delete, and list tag reports from
+    """An api endpoint to create, update, delete, and list tag reports from
     the general public, anglers, or outside agencies."""
 
     queryset = Report.objects.all()
@@ -73,7 +74,7 @@ class ReportViewSet(viewsets.ModelViewSet):
 
 
 class RecoveryViewSet(viewsets.ModelViewSet):
-    """An api endpoint to create, udate, delete, and list tag and fish
+    """An api endpoint to create, update, delete, and list tag and fish
     inforamtion from the general public, anglers, or outside
     agencies.
     """
@@ -116,10 +117,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
         .distinct()
     )
     filterset_class = ProjectFilter
+    serializer_class = ProjectSerializer
     lookup_field = "prj_cd"
     pagination_class = StandardResultsSetPagination
     permission_classes = [IsAuthenticatedOrReadOnly]
-    serializer_class = ProjectSerializer
 
 
 class EncounterViewSet(viewsets.ModelViewSet):

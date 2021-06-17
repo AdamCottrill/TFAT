@@ -12,7 +12,7 @@ class LakeSerializer(serializers.ModelSerializer):
         model = Lake
         ref_name = "tfat_lake"
         lookup_field = "abbrev"
-        fields = ("lake_name", "abbrev")
+        fields = ("id", "lake_name", "abbrev")
 
 
 # Serializers define the API representation.
@@ -24,7 +24,7 @@ class SpeciesSerializer(serializers.ModelSerializer):
         model = Species
         ref_name = "tfat_species"
         lookup_field = "spc"
-        fields = ("spc", "spc_nmco", "spc_nmsc")
+        fields = ("id", "spc", "spc_nmco", "spc_nmsc")
 
 
 class ReportSerializer(serializers.ModelSerializer):
@@ -95,13 +95,17 @@ class RecoverySerializer(serializers.ModelSerializer):
 
 class ProjectSerializer(serializers.ModelSerializer):
 
-    lake = LakeSerializer(many=False)
+    # lake = LakeSerializer(many=False, read_only=False)
 
     class Meta:
         model = Project
-        # todo Add in lake:
         lookup_field = "prj_cd"
-        fields = ("year", "prj_cd", "prj_nm", "slug", "lake")
+        fields = ("id", "year", "prj_cd", "prj_nm", "slug", "lake")
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response["lake"] = LakeSerializer(instance.lake).data
+        return response
 
 
 class EncounterSerializer(serializers.ModelSerializer):

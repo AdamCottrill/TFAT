@@ -521,11 +521,11 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name="recovery",
-            name="spc",
+            name="species",
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="recoveries",
-                to="tfat.Species",
+                to="tfat.TaggedSpecies",
             ),
         ),
         migrations.CreateModel(
@@ -566,7 +566,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterIndexTogether(
             name="recovery",
-            index_together={("tagid", "tagdoc", "spc")},
+            index_together={("tagid", "tagdoc", "species")},
         ),
         migrations.AlterField(
             model_name="recovery",
@@ -921,7 +921,7 @@ class Migration(migrations.Migration):
                 (
                     "species",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="tfat.Species"
+                        on_delete=django.db.models.deletion.CASCADE, to="tfat.TaggedSpecies"
                     ),
                 ),
             ],
@@ -2007,13 +2007,13 @@ class Migration(migrations.Migration):
                 verbose_name="Sex",
             ),
         ),
-        migrations.AddField(
-            model_name="encounter",
-            name="species",
-            field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, to="common.Species"
-            ),
-        ),
+##        migrations.AddField(
+##            model_name="encounter",
+##            name="species",
+##            field=models.ForeignKey(
+##                on_delete=django.db.models.deletion.CASCADE, to="common.Species"
+##            ),
+##        ),
         migrations.AlterField(
             model_name="recovery",
             name="_tag_colour",
@@ -2192,14 +2192,14 @@ class Migration(migrations.Migration):
             name="recovery",
             index_together={("tagid", "tagdoc", "species")},
         ),
-        migrations.RemoveField(
-            model_name="encounter",
-            name="species",
-        ),
-        migrations.RemoveField(
-            model_name="recovery",
-            name="species",
-        ),
+##        migrations.RemoveField(
+##            model_name="encounter",
+##            name="species",
+##        ),
+##        migrations.RemoveField(
+##            model_name="recovery",
+##            name="species",
+##        ),
         migrations.AlterField(
             model_name="encounter",
             name="sex",
@@ -2816,13 +2816,13 @@ class Migration(migrations.Migration):
                 verbose_name="Sex",
             ),
         ),
-        migrations.AlterField(
-            model_name="encounter",
-            name="species",
-            field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, to="tfat.TaggedSpecies"
-            ),
-        ),
+##        migrations.AlterField(
+##            model_name="encounter",
+##            name="species",
+##            field=models.ForeignKey(
+##                on_delete=django.db.models.deletion.CASCADE, to="tfat.TaggedSpecies"
+##            ),
+##        ),
         migrations.AlterField(
             model_name="recovery",
             name="_tag_colour",

@@ -244,7 +244,7 @@ class ReportFollowUp(models.Model):
         ]
 
     def save(self, *args, **kwargs):
-        """ On save, update timestamps """
+        """On save, update timestamps"""
         self.timestamp = timezone.now()
         return super(ReportFollowUp, self).save(*args, **kwargs)
 
@@ -677,7 +677,7 @@ class Project(models.Model):
     lake = models.ForeignKey(
         Lake, related_name="Projects", on_delete=models.CASCADE, default=1
     )
-    dbase = models.ForeignKey(Database, on_delete=models.CASCADE)
+    dbase = models.ForeignKey(Database, on_delete=models.CASCADE, blank=True, null=True)
     year = models.IntegerField(db_index=True)
     prj_cd = models.CharField(db_index=True, max_length=12)
     prj_nm = models.CharField(max_length=100)
