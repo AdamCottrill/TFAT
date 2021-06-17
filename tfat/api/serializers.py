@@ -114,14 +114,14 @@ class EncounterSerializer(serializers.ModelSerializer):
     the formatted FishLabel (FNKey).
     """
 
-    species = SpeciesSerializer(many=False)
-    project = ProjectSerializer(many=False)
+    # species = SpeciesSerializer(many=False, read_only=True)
+    # project = ProjectSerializer(many=False, read_only=True)
+
     fish_label = serializers.SerializerMethodField()
 
     class Meta:
         model = Encounter
 
-        # lookup_field = "prj_cd"
         fields = (
             "id",
             "fish_label",
@@ -148,9 +148,15 @@ class EncounterSerializer(serializers.ModelSerializer):
             "comment",
         )
 
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response["species"] = SpeciesSerializer(instance.species).data
+        response["project"] = ProjectSerializer(instance.project).data
+        return response
+
     def get_fish_label(self, obj):
         """A custom field to return the fish Label (FN125 Key Fields) in a
-        standardized format that is consistent with record in other databases.
+        standardized format that is consistent with records in other databases.
         (If we ever add FishLabel to the Tfat model, this method can be removed)"""
 
         base_string = "{}-{}-{}-{}-{}-{}"
