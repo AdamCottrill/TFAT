@@ -6,15 +6,16 @@ from .views import (
     ProjectViewSet,
     RecoveryViewSet,
     ReportViewSet,
+    AnglerViewSet,
     SpeciesList,
     lookups,
 )
 
 app_name = "tfat_api"
 
-
 # # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
+router.register("angler", AnglerViewSet)
 router.register("report", ReportViewSet)
 router.register("recovery", RecoveryViewSet)
 router.register("project", ProjectViewSet)

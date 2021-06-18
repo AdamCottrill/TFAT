@@ -2,7 +2,7 @@
 
 from common.models import Lake
 from rest_framework import serializers
-from tfat.models import Encounter, Project, Recovery, Report
+from tfat.models import Encounter, JoePublic, Project, Recovery, Report
 from tfat.models import TaggedSpecies as Species
 
 
@@ -25,6 +25,28 @@ class SpeciesSerializer(serializers.ModelSerializer):
         ref_name = "tfat_species"
         lookup_field = "spc"
         fields = ("id", "spc", "spc_nmco", "spc_nmsc")
+
+
+class AnglerSerializer(serializers.ModelSerializer):
+    """A model serializer for Anglers."""
+
+    class Meta:
+        model = JoePublic
+
+        fields = (
+            "id",
+            "first_name",
+            "last_name",
+            "initial",
+            "address1",
+            "address2",
+            "town",
+            "province",
+            "postal_code",
+            "email",
+            "phone",
+            "affiliation",
+        )
 
 
 class ReportSerializer(serializers.ModelSerializer):
@@ -113,9 +135,6 @@ class EncounterSerializer(serializers.ModelSerializer):
     serializers fro species and a read-only model method that return
     the formatted FishLabel (FNKey).
     """
-
-    # species = SpeciesSerializer(many=False, read_only=True)
-    # project = ProjectSerializer(many=False, read_only=True)
 
     fish_label = serializers.SerializerMethodField()
 

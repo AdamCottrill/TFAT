@@ -14,12 +14,13 @@ from ..constants import (
 )
 from ..filters import EncounterFilter, ProjectFilter, RecoveryFilter, ReportFilter
 from common.models import Lake
-from ..models import Encounter, Project, Recovery, Report
+from ..models import Encounter, JoePublic, Project, Recovery, Report
 from ..models import TaggedSpecies as Species
 from .serializers import (
     EncounterSerializer,
     ProjectSerializer,
     RecoverySerializer,
+    AnglerSerializer,
     ReportSerializer,
     SpeciesSerializer,
 )
@@ -60,6 +61,17 @@ class SpeciesList(generics.ListAPIView):
     lookup_field = "spc"
     queryset = Species.objects.all()
     serializer_class = SpeciesSerializer
+
+
+class AnglerViewSet(viewsets.ModelViewSet):
+    """An api endpoint to create, update, delete, and Anglers/people from the
+    general public."""
+
+    queryset = JoePublic.objects.all()
+    # filterset_class = ReportFilter
+    pagination_class = StandardResultsSetPagination
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    serializer_class = AnglerSerializer
 
 
 class ReportViewSet(viewsets.ModelViewSet):
