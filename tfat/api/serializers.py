@@ -79,15 +79,15 @@ class RecoverySerializer(serializers.ModelSerializer):
     lake and species.
     """
 
-    lake = LakeSerializer(many=False)
-    species = SpeciesSerializer(many=False)
+    # lake = LakeSerializer(many=False)
+    # species = SpeciesSerializer(many=False)
 
     class Meta:
         model = Recovery
-        # todo Add in lake:
+
         fields = (
             "id",
-            "report_id",
+            "report",
             "species",
             "lake",
             "recovery_date",
@@ -113,6 +113,13 @@ class RecoverySerializer(serializers.ModelSerializer):
             "fate",
             "comment",
         )
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response["lake"] = LakeSerializer(instance.lake).data
+        response["species"] = SpeciesSerializer(instance.species).data
+
+        return response
 
 
 class ProjectSerializer(serializers.ModelSerializer):
