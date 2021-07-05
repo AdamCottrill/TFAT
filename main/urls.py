@@ -27,7 +27,7 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
 
-schema_view = get_schema_view(
+tfat_schema_view = get_schema_view(
     openapi.Info(
         title="TFAT API",
         default_version="v1",
@@ -50,18 +50,18 @@ urlpatterns = [
     path("common_api/", include("common.api.urls", namespace="common_api")),
     url(
         r"^tfat/api/swagger(?P<format>\.json|\.yaml)$",
-        schema_view.without_ui(cache_timeout=0),
-        name="schema-json",
+        tfat_schema_view.without_ui(cache_timeout=0),
+        name="tfat-schema-json",
     ),
     path(
         "tfat/api/swagger/",
-        schema_view.with_ui("swagger", cache_timeout=0),
-        name="schema-swagger-ui",
+        tfat_schema_view.with_ui("swagger", cache_timeout=0),
+        name="tfat-swagger-ui",
     ),
     path(
         "tfat/api/redoc/",
-        schema_view.with_ui("redoc", cache_timeout=0),
-        name="schema-redoc",
+        tfat_schema_view.with_ui("redoc", cache_timeout=0),
+        name="tfat-redoc",
     ),
     path("", tags_recovered_this_year, name="home"),
 ]

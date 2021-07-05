@@ -1,57 +1,48 @@
-from django.conf import settings
-
-# from django.core.servers.basehttp import FileWrapper
-from wsgiref.util import FileWrapper
-from django.db.models import (
-    Q,
-    Count,
-    Subquery,
-    prefetch_related_objects,
-    F,
-    Func,
-    Value,
-    CharField,
-)
-from django.db.models.functions import ExtractYear
-
-from django.db import transaction
-from django.http import Http404, HttpResponse, JsonResponse
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, get_list_or_404
-from django.shortcuts import render, redirect
-from django.template import RequestContext
-from django.views.generic import ListView
-
-
-from django.contrib import messages
-
-
-import os
 import mimetypes
+import os
 import subprocess
 from datetime import datetime
 
+# from django.core.servers.basehttp import FileWrapper
+from wsgiref.util import FileWrapper
+
+from common.models import Lake, Species
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.db import transaction
+from django.db.models import (
+    CharField,
+    Count,
+    F,
+    Func,
+    Q,
+    Subquery,
+    Value,
+    prefetch_related_objects,
+)
+from django.db.models.functions import ExtractYear
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.generic import ListView
 from geojson import MultiLineString
 
-from common.models import Species, Lake
-
 from tfat.constants import CLIP_CODE_CHOICES, FOLLOW_UP_STATUS_CHOICES
-from tfat.models import JoePublic, Report, Recovery, Encounter, Project, ReportFollowUp
 from tfat.filters import (
-    JoePublicFilter,
-    ReportFilter,
-    RecoveryFilter,
-    ProjectFilter,
     EncounterFilter,
+    JoePublicFilter,
+    ProjectFilter,
+    RecoveryFilter,
+    ReportFilter,
 )
 from tfat.forms import (
-    JoePublicForm,
     CreateJoePublicForm,
-    ReportForm,
+    JoePublicForm,
     RecoveryForm,
     ReportFollowUpForm,
+    ReportForm,
 )
-
+from tfat.models import Encounter, JoePublic, Project, Recovery, Report, ReportFollowUp
 from tfat.utils import *
 
 MAX_RECORD_CNT = 50

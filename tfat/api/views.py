@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from rest_framework import generics, viewsets
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
 from ..constants import (
     FATE_CHOICES,
@@ -12,15 +12,20 @@ from ..constants import (
     TAG_TYPE_CHOICES,
     TAGSTAT_CHOICES,
 )
-from ..filters import EncounterFilter, ProjectFilter, RecoveryFilter, ReportFilter
-from common.models import Lake
+from ..filters import (
+    EncounterFilter,
+    JoePublicFilter,
+    ProjectFilter,
+    RecoveryFilter,
+    ReportFilter,
+)
 from ..models import Encounter, JoePublic, Project, Recovery, Report
 from ..models import TaggedSpecies as Species
 from .serializers import (
+    AnglerSerializer,
     EncounterSerializer,
     ProjectSerializer,
     RecoverySerializer,
-    AnglerSerializer,
     ReportSerializer,
     SpeciesSerializer,
 )
@@ -68,9 +73,9 @@ class AnglerViewSet(viewsets.ModelViewSet):
     general public."""
 
     queryset = JoePublic.objects.all()
-    # filterset_class = ReportFilter
+    filterset_class = JoePublicFilter
     pagination_class = StandardResultsSetPagination
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
     serializer_class = AnglerSerializer
 
 

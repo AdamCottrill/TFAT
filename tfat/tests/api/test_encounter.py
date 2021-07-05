@@ -1,5 +1,5 @@
 """=============================================================
- /tfat/tfat/tests/api/test_encounter.py 
+ /tfat/tfat/tests/api/test_encounter.py
  Created: 2021-06-17 15:33:27
 
  DESCRIPTION:
@@ -24,21 +24,21 @@
 """
 
 
-import pytest
-import pytz
 from datetime import datetime
 
+import pytest
+import pytz
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-
 from tfat.models import Encounter
+
 from ..factories import (
+    EncounterFactory,
     LakeFactory,
     ProjectFactory,
     SpeciesFactory,
     UserFactory,
-    EncounterFactory,
 )
 
 
@@ -331,7 +331,6 @@ class TestencounterAPI(APITestCase):
 
         url = reverse("tfat_api:encounter-detail", kwargs={"pk": encounter1.id})
         response = self.client.delete(url)
-        assert response.status_code == status.HTTP_204_NO_CONTENT
 
         # verify that our encounter is gone:
         encounter = Encounter.objects.filter(pk=encounter1.id).all()
@@ -353,7 +352,7 @@ class TestencounterAPI(APITestCase):
         assert encounter.tlen == 535
         assert encounter.flen == 525
         assert encounter.tagid == "1234"
-        assert encounter.fate == "C"
+        assert encounter.fate == "K"
 
         login = self.client.login(username=self.user.email, password="Abcd1234")
         assert login is True

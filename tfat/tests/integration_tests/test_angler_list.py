@@ -17,7 +17,6 @@ A. Cottrill
 
 import pytest
 from django.urls import reverse
-
 from tfat.tests.factories import JoePublicFactory, UserFactory
 
 
@@ -42,7 +41,7 @@ def anglers():
 
 
 @pytest.mark.django_db
-def test_angler_list(client, anglers):
+def test_angler_list(client, user, anglers):
     """The default angler list should include a list of all anlgers in the
     database.
 
@@ -67,11 +66,12 @@ def test_angler_list(client, anglers):
 
 
 @pytest.mark.django_db
-def test_angler_list_filter_first_name(client, anglers):
+def test_angler_list_filter_first_name(client, user, anglers):
     """Verify that the filter works if we provide a partial first name"""
 
     url = reverse("tfat:angler_list")
-    response = client.get(url + "?first_name=home")
+    args = {"first_name__like": "home"}
+    response = client.get(url, args)
     content = str(response.content)
 
     assert "Homer Simpson" in content
@@ -165,11 +165,12 @@ def test_report_a_tag_no_match(client, user, anglers):
 
 
 @pytest.mark.django_db
-def test_angler_list_filter_last_name(client, anglers):
+def test_angler_list_filter_last_name(client, user, anglers):
     """Verify that the filter works if we provide a partial last name"""
 
     url = reverse("tfat:angler_list")
-    response = client.get(url + "?last_name=impson")
+    args = {"last_name__like": "impson"}
+    response = client.get(url, args)
     content = str(response.content)
 
     assert "Homer Simpson" in content

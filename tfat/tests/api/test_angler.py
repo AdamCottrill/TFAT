@@ -1,5 +1,5 @@
 """=============================================================
- /tfat/tfat/tests/api/test_angler.py 
+ /tfat/tfat/tests/api/test_angler.py
  Created: 2021-06-17 18:03:33
 
  DESCRIPTION:
@@ -21,15 +21,15 @@
 
 """
 
-import pytest
-import pytz
 from datetime import datetime
 
+import pytest
+import pytz
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-
 from tfat.models import JoePublic
+
 from ..factories import JoePublicFactory, UserFactory
 
 
@@ -72,13 +72,16 @@ class TestAnglerAPI(APITestCase):
             phone="555-321-4321",
         )
 
-    def test_angler_api_get_list(self):
+    def test_angler_api_get_list_authenticated(self):
+        """authenticated users should be able to access the api-endpoint for
+        angler-lists and recieve a list of anglers in the response.  This
+        endpoint is accessible only to authenticated users.
+        """
 
-        # create a list of dicts that will be used create our objects
-        # and tested against the json in the response.
+        login = self.client.login(username=self.user.email, password="Abcd1234")
+        assert login is True
 
         url = reverse("tfat_api:joepublic-list")
-
         response = self.client.get(url)
         assert response.status_code == status.HTTP_200_OK
 
@@ -88,9 +91,12 @@ class TestAnglerAPI(APITestCase):
 
         assert observed == {"Barney", "Bart", "Monty"}
 
-    def test_angler_api_get_detail(self):
+    def test_angler_api_get_detail_authenticated(self):
         """We should be able to get the details of a single angler
-        object by passing it's id to the url."""
+        object by passing it's id to the url for authentiated users only."""
+
+        login = self.client.login(username=self.user.email, password="Abcd1234")
+        assert login is True
 
         angler = self.bart
         url = reverse("tfat_api:joepublic-detail", kwargs={"pk": angler.id})
@@ -125,11 +131,12 @@ class TestAnglerAPI(APITestCase):
         assert observed["email"] == angler.email
         assert observed["phone"] == angler.phone
 
-    def test_angler_api_get_detail_404(self):
-        """If we pass in a angler code that does not exsits, the response
-        should be a 404."""
+    def test_angler_api_get_detail_404_authenticated(self):
+        """If an authenticated user passed in a angler id that does not exsits,
+        the response should be a 404."""
 
-        # make sure there is a least one angler in our database:
+        login = self.client.login(username=self.user.email, password="Abcd1234")
+        assert login is True
 
         url = reverse("tfat_api:joepublic-detail", kwargs={"pk": 9999})
 
@@ -140,8 +147,21 @@ class TestAnglerAPI(APITestCase):
         """the angler route, should not allow post, put, or delete for
         annonymous users."""
 
+        # get request to angler list:
+        url = reverse("tfat_api:joepublic-list")
+        response = self.client.get(url)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+        # get request to an angler
         angler = self.bart
         url = reverse("tfat_api:joepublic-detail", kwargs={"pk": angler.id})
+        response = self.client.get(url)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+        # get request to non-existant angler
+        url = reverse("tfat_api:joepublic-detail", kwargs={"pk": 9999})
+        response = self.client.get(url)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
 
         # put
         response = self.client.put(url, data={"prj_nm": "Updated angler Name"})

@@ -1,19 +1,18 @@
-import factory
-import pytz
 from datetime import datetime
 
-from myusers.models import CustomUser as User
+import factory
+import pytz
 from common.models import Lake
-
+from myusers.models import CustomUser as User
 from tfat.models import (
-    TaggedSpecies,
+    Database,
+    Encounter,
     JoePublic,
+    Project,
+    Recovery,
     Report,
     ReportFollowUp,
-    Recovery,
-    Encounter,
-    Database,
-    Project,
+    TaggedSpecies,
 )
 
 
@@ -170,3 +169,4 @@ class EncounterFactory(factory.django.DjangoModelFactory):
     clipc = 0
     tagid = "1234"
     tagdoc = "25012"
+    fate = "K"
