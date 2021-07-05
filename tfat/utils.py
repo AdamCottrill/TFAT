@@ -13,9 +13,16 @@ A. Cottrill
 
 from collections import OrderedDict
 from datetime import datetime
+
+import django_filters
 from django.db.models import Count, prefetch_related_objects
 from geojson import MultiLineString
+
 from tfat.models import *
+
+
+class ValueInFilter(django_filters.BaseInFilter, django_filters.CharFilter):
+    pass
 
 
 def get_map_bounds(lake):

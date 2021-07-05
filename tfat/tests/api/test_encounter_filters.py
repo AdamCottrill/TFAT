@@ -284,6 +284,7 @@ filter_args = [
     ({"tagdoc": "25012"}, [0]),
     ({"tagdoc__not": "25012"}, [1, 2, 3, 4, 5]),
     ({"tagdoc__like": "250"}, [0, 5]),
+    # TODO: refactor encounter model to include separate fields for tag attributes:
     # ({"tag_origin": "01"}, [0, 2]),
     # ({"tag_origin__not": "01"}, [1, 3, 4, 5]),
     # ({"tag_origin": "01,99"}, [0, 2, 4]),
