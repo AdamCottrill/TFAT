@@ -14,24 +14,20 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
 from django.conf import settings
-from django.urls import include, path
 from django.conf.urls import url
 from django.contrib import admin
-
-
+from django.urls import include, path
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+from rest_framework import permissions
 from tfat import urls as tfat_urls
 from tfat.views import tags_recovered_this_year
-
-from rest_framework import permissions
-from drf_yasg.views import get_schema_view
-from drf_yasg import openapi
-
 
 tfat_schema_view = get_schema_view(
     openapi.Info(
         title="TFAT API",
         default_version="v1",
-        description="Test description",
+        description="API end points for TFAT - Tagged Fish Assessment Tool.",
         terms_of_service="https://www.google.com/policies/terms/",
         contact=openapi.Contact(email="adam.cottrill@ontario.ca"),
         license=openapi.License(name="BSD License"),
@@ -39,7 +35,6 @@ tfat_schema_view = get_schema_view(
     public=True,
     permission_classes=[permissions.AllowAny],
 )
-
 
 urlpatterns = [
     path("admin/", admin.site.urls),

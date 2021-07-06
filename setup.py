@@ -1,4 +1,5 @@
 import os
+
 from setuptools import find_packages, setup
 
 with open(os.path.join(os.path.dirname(__file__), "README.rst")) as readme:
@@ -9,11 +10,11 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name="tfat",
-    version="0.0.5",
+    version="0.0.6",
     packages=find_packages(),
     include_package_data=True,
     license="MIT License",  # example license
-    description="A django application for tagging and tag recovery information.",
+    description="A django application for fish tagging and tag recovery information.",
     long_description=README,
     url="https://github.com/AdamCottrill",
     author="Adam Cottrill",
