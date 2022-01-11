@@ -1,0 +1,91 @@
+{% extends "tfat/tfat_base.html" %}
+{% load tfat_tags %}
+
+
+
+
+{% block content %}
+<div class="container fluid">
+
+    <div class="row">
+        <h3>Tags Recovered by Public or Outside Agencies</h3>
+        {% include "tfat/_lake_button_bar.html" %}
+    </div>
+
+
+  <br />
+
+  {% if object_list %}
+
+
+
+        {% if page_obj %}
+            {% if page_obj.paginator.num_pages > 1 %}
+                <ul class="pager">
+                    {% if page_obj.has_previous %}
+                        <li class="previous"><a href="?{% query_transform page=page_obj.previous_page_number include_page=True %}">Newer Recoveries</a></li>
+                    {% else %}
+                        <li class="previous disabled"><a href="#">Newer Recoveries</a></li>
+                    {% endif %}
+
+                    <span class="page-current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <li class="next"><a href="?{% query_transform page=page_obj.next_page_number include_page=True %}">Older Recoveries</a></li>
+                    {% else %}
+                        <li class="next disabled"><a href="#">Older Recoveries</a></li>
+                    {% endif %}
+                </ul>
+            {% else %}
+                <br />
+            {% endif %}
+        {% endif %}
+
+
+  <div class="row">
+
+      <table class="table table-condensed">
+          <thead>
+              <tr>
+                  <th>TAGID</th>
+                  <th>TAGDOC</th>
+                  <th>Species</th>
+                  <th>Recapture Date</th>
+                  <th>Recapture Location</th>
+                  <th>TLEN</th>
+                  <th>FLEN</th>
+                  <th>RWT</th>
+                  <th>CLIPC</th>
+              </tr>
+          </thead>
+          <tbody>
+        {% for object in object_list %}
+            <tr>
+                <td> <a href="{% url 'tfat:tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
+                <td> {{ object.tagdoc |default_if_none:"--" }} </td>
+                <td>{{object.species.spc_nmco|title|default_if_none:"--" }}</td>
+                <td>{{object.recovery_date|default_if_none:"--" }}</td>
+                <td>{{object.general_location|default_if_none:"--" }}
+                    {{object.specific_location|default_if_none:"" }}</td>
+                <td>{{object.tlen|default_if_none:"--" }}</td>
+                <td>{{object.flen|default_if_none:"--" }}</td>
+                <td>{{object.rwt|default_if_none:"--" }}</td>
+                <td>{{object.clipc|default_if_none:"--" }}</td>
+            </tr>
+        {% endfor%}
+          </tbody>
+      </table>
+      {% else %}
+      <p>Sorry no tags match that criteria.</p>
+      {% endif %}
+    </div>
+
+
+</div>
+
+
+
+
+{% endblock %}

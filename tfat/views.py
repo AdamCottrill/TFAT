@@ -49,6 +49,9 @@ MAX_RECORD_CNT = 50
 REPORT_PAGE_CNT = 20
 ANGLER_PAGE_CNT = 50
 
+# for tables
+LARGE_RECORD_CNT = 200
+
 
 class ListFilteredMixin(object):
     """
@@ -157,12 +160,35 @@ class SpeciesListView(ListView):
 class ReportListView(ListView):
     model = Report
     paginate_by = REPORT_PAGE_CNT
+    template_name = "tfat/report_list.html"
+
+    def get_queryset(self):
+
+        lake = self.request.GET.get("lake")
+
+        queryset = (
+            Report.objects.select_related("reported_by")
+            .prefetch_related("recoveries", "recoveries__species", "recoveries__lake")
+            .all()
+        )
+        if lake:
+            queryset = queryset.filter(recoveries__lake__abbrev=lake)
+
+        return queryset
 
 
 # add lake-filter
 class RecoveryListView(ListView):
     model = Recovery
-    paginate_by = REPORT_PAGE_CNT
+    paginate_by = LARGE_RECORD_CNT
+    template_name = "tfat/recovery_list.html"
+
+    def get_queryset(self):
+        lake = self.request.GET.get("lake")
+        queryset = Recovery.objects.select_related("species").all()
+        if lake:
+            queryset = queryset.filter(lake__abbrev=lake)
+        return queryset.order_by("-report__report_date")
 
 
 class SpatialFollowupListView(ListView):
