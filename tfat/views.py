@@ -22,7 +22,7 @@ from django.db.models import (
     prefetch_related_objects,
 )
 from django.db.models.functions import ExtractYear
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import ListView
 from geojson import MultiLineString
@@ -44,6 +44,9 @@ from tfat.forms import (
 )
 from tfat.models import Encounter, JoePublic, Project, Recovery, Report, ReportFollowUp
 from tfat.utils import *
+
+from .forms import EncounterUploadForm
+from .data_upload.encounter_upload import process_accdb_upload
 
 MAX_RECORD_CNT = 50
 REPORT_PAGE_CNT = 20
@@ -1337,3 +1340,117 @@ def public_recoveries(request, lake, spc):
     )
 
     return JsonResponse(list(public), safe=False)
+
+
+# # move this to someplace more appropriate:
+def handle_uploaded_file(f):
+
+    upload_dir = settings.UPLOAD_DIR
+    fname = os.path.join(upload_dir, f.name)
+    if os.path.isfile(fname):
+        os.remove(fname)
+    with open(fname, "wb+") as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+        # now connect to the uploaded file and insert the contents in the appropriate tables...
+
+    data = process_accdb_upload(upload_dir, f.name)
+    # delete the file when we are done. if we can.  Not a problem if
+    # not, we will periodically nuke the upload directory anyway.
+    try:
+        os.remove(fname)
+    except (PermissionError, OSError):
+        pass
+    return data
+
+
+def get_errors(errors):
+    """A helper function to extract relavant information from each error
+    message so it can be displayed in the template"""
+    error_list = []
+    for err in errors:
+        slug, validation_error = err
+        table = validation_error.model.schema().get("title", "")
+        for error in validation_error.errors():
+            # msg = f"\t{title} => {slug} - {'-'.join(error['loc'])}: {error['msg']}"
+            error_dict = {
+                "table": table,
+                "slug": slug,
+                "fields": "-".join(error["loc"]),
+                "message": error["msg"],
+            }
+            error_list.append(error_dict)
+    return error_list
+
+
+@login_required
+def encounter_data_upload(request):
+    """A view to process data uploads.  It will be only available to logged in users.
+
+    The uploaded file will be check for validity with pydantic.
+
+    """
+
+    if request.method == "POST":
+
+        form = EncounterUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            try:
+                data_file = form.cleaned_data["file_upload"]
+                if not (
+                    data_file.name.endswith(".accdb") or data_file.name.endswith(".db")
+                ):
+                    msg = "Choosen file is not an Access (*.accdb) file!"
+                    messages.error(request, msg)
+                    return HttpResponseRedirect(reverse("tfat:upload_encounter_data"))
+                # if file is too large, return
+                if data_file.multiple_chunks():
+                    filesize = data_file.size / (1000 * 1000)
+                    msg = (
+                        f"The uploaded file is too big ({filesize:.2f} MB). "
+                        + "Compact the database before uploading it or "
+                        + "considering splitting it into smaller packets."
+                    )
+                    messages.error(request, msg)
+                    return HttpResponseRedirect(reverse("tfat:upload_encounter_data"))
+
+                upload = handle_uploaded_file(data_file)
+
+                if upload["status"] == "insert-error":
+
+                    messages.error(
+                        request,
+                        "There was a problem inserting the data from: "
+                        + data_file.name
+                        + ". "
+                        + str(upload["errors"]),
+                    )
+                    return render(request, "tfat/encounter_upload.html")
+
+                if upload["status"] == "error":
+                    msg = (
+                        "There was a problem validating the data from: "
+                        + data_file.name
+                        + " Please address the issues identified below and try again."
+                    )
+                    messages.error(request, msg)
+                    # pass errors to redirect so that they are available in the response.
+                    # return HttpResponseRedirect(reverse("tfat:upload_encounter_data"))
+                    error_list = get_errors(upload.get("errors"))
+                    return render(
+                        request,
+                        "tfat/encounter_upload.html",
+                        {"errors": error_list},
+                    )
+                else:
+                    prj_cds = upload.get("prj_cds")
+                    msg = f"MNRF Tag Encounter Data for for {', '.join(prj_cds)} successfully uploaded!"
+                    messages.success(request, message=msg)
+                    return HttpResponseRedirect(reverse("tfat:home"))
+
+            except Exception as e:
+                messages.error(request, "Unable to upload file. " + repr(e))
+                return HttpResponseRedirect(reverse("tfat:upload_encounter_data"))
+    else:
+        form = EncounterUploadForm()
+    return render(request, "tfat/encounter_upload.html", {"form": form})

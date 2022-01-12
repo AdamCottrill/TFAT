@@ -1,0 +1,149 @@
+
+{% extends "tfat/tfat_base.html" %}
+
+
+<title>  {% block title  %} Encounter Upload  {% endblock %}  </title>
+
+{% block content  %}
+
+    <div class="container mt-5">
+
+        <h2>Encounter Data Upload</h2>
+
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert
+                            {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %} alert-success {% else %} alert-danger {% endif %}" role="alert">
+                    <h4 class="alert-heading">
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %} Success {% else %} Aw Snap! {% endif %}
+                    </h4>
+                    <p> {{ message }} </p>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5>Upload a validated template database to TFAT:</h5>
+            </div>
+
+            <div class="card-body">
+
+                <div class="alert alert-warning" role="alert">
+                    Make sure your template is a TFAT Template databse and has passed Process-Validate Schema Checks.
+                </div>
+
+
+                Some helpful hint here... Only accdb files will be accepted, make sure that you have run process
+                validate against your database and fixed all of the identified errors and critical errors....
+
+                <ul>
+                    <li>Choose project/template type here</li>
+                    <li>Add other views to upload age updates</li>
+                    <li>Options to overwrite, append, update (upsert)</li>
+                </ul>
+
+                <hr />
+
+
+                <form action="{% url "tfat:upload_encounter_data" %}" method="POST"
+                      enctype="multipart/form-data" id="upload-form">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+
+                        {{ form.file_upload.label_tag }}
+                        {% if form.file_upload.errors %}
+                            {% for error in form.file_upload.errors %}
+                                <div class="has-error help-block text-danger">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                        <div class="form-group{% if form.file_upload.errors %} has-error {% endif %}">
+
+                            {{ form.file_upload }}
+                            <div id="upload-file-help" class="form-text mb-2">
+                                Select your validated template database.
+                            </div>
+                        </div>
+
+                        <button  type="submit" class="btn btn-primary" id="form-submit-button">Upload</button>
+
+                        <button id="processing-button" class="btn btn-primary" disabled style="display: none">
+                            <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                            Processing...
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    {% if errors %}
+
+        <div class="container">
+
+            <hr/>
+
+            {% with error_count=errors|length %}
+                <h5>The following {% if  error_count > 1%} {{ error_count }} errors where {% else %} error was {% endif %} found by the validation process and must be fixed before proceeding:</h5>
+            {% endwith %}
+
+            {% for error in errors %}
+
+                <div class="card my-3">
+                    <div class="card-header">
+                        Table: {{error.table}}
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Slug</th>
+                                    <th>Field(s)</th>
+                                    <th>Error Message</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{{error.slug}}</td>
+                                    <td>{{error.fields}}</td>
+                                    <td>{{error.message}}</td>
+                                </tr>
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+
+            {% endfor %}
+
+        </div>
+    {% endif  %}
+
+
+{% endblock content %}
+
+
+
+{% block extra_scripts %}
+
+
+    <script>
+
+     $(document).ready(function() {
+         $("#form-submit-button").click(function() {
+             $("#form-submit-button").hide();
+             $("#processing-button").show();
+             $("#upload-form").submit();
+         });
+     });
+
+    </script>
+
+
+
+
+{% endblock %}

@@ -170,3 +170,27 @@ OSGEO_VENV = os.path.join(VIRTUAL_ENV, "Lib/site-packages/osgeo")
 GEOS_LIBRARY_PATH = os.path.join(OSGEO_VENV, "geos_c.dll")
 GDAL_LIBRARY_PATH = os.path.join(OSGEO_VENV, "gdal301.dll")
 os.environ["PATH"] += os.pathsep + str(OSGEO_VENV)
+
+
+# file upload settigns:
+UPLOAD_DIR = os.path.abspath(os.path.join(BASE_DIR, "../media/data_upload"))
+# 5 MB
+MAX_UPLOAD_SIZE = 5242880
+DATA_UPLOAD_MAX_MEMORY_SIZE = MAX_UPLOAD_SIZE
+FILE_UPLOAD_MAX_MEMORY_SIZE = MAX_UPLOAD_SIZE
+PROJECT_TRACKER_API_URL = "http://10.167.37.157/project_tracker/api/projects/"
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "DEBUG",
+    },
+}

@@ -19,6 +19,7 @@ from tfat.views import (
     tags_applied_project,
     tagid_quicksearch_view,
     encounter_detail_view,
+    encounter_data_upload,
     create_report,
     create_report_followup,
     report_follow_ups,
@@ -65,6 +66,11 @@ urlpatterns = [
     url(regex=r"^recovery/$", view=RecoveryListView.as_view(), name="recovery_list"),
     url(
         regex=r"^encounters/$", view=EncounterListView.as_view(), name="encounter_list"
+    ),
+    url(
+        "^encounter_data_upload/$",
+        view=encounter_data_upload,
+        name="upload_encounter_data",
     ),
     url(
         regex=r"^tagid_contains/(?P<partial>.+)/$",

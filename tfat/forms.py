@@ -553,3 +553,19 @@ class RecoveryForm(ModelForm):
                 raise forms.ValidationError(err_msg)
 
         return cleaned_data
+
+
+class EncounterUploadForm(forms.Form):
+    """A simple little form for uploading our tempalte databases one at a time."""
+
+    file_upload = forms.FileField(label="Encounter Data", required=True)
+
+    def __init__(self, *args, **kwargs):
+
+        super(EncounterUploadForm, self).__init__(*args, **kwargs)
+        self.fields["file_upload"].widget.attrs["size"] = "40"
+        self.fields["file_upload"].widget.attrs["class"] = "form-control"
+        self.fields["file_upload"].widget.attrs["accept"] = ".accdb"
+        self.fields["file_upload"].widget.attrs["id"] = "data_file"
+
+        self.fields["file_upload"].widget.attrs["name"] = "data_file"
