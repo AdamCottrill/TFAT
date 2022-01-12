@@ -20,10 +20,10 @@
             <h2>Tags recovered {% if lake %} in {{lake.lake_name}} {% endif %}{% if this_year %}so far {% endif %}in {{ year }} </h2>
 
             {% include "tfat/_lake_button_bar.html" %}
-            
+
         </div>
 
-        
+
         <p>A summary of tags applied {% if lake %}in {{lake.lake_name}} {% endif %}in {{ year }} can be found
             <a href= "{% url 'tfat:tags_applied_in_year' year %}{% if lake %}?lake={{lake.abbrev}}{% endif %}" >here.</a></p>
         <br />
@@ -32,8 +32,8 @@
         <script type="text/javascript">
          function map_init_basic (map, options) {
 
-             map.fitBounds({{mapBounds|safe}})             
-             
+             map.fitBounds({{mapBounds|safe}})
+
              var applied = L.MakiMarkers.icon({icon: "circle", color: "#b0b", size: "s"});
              var recap = L.MakiMarkers.icon({icon: "square", color: "#0a0", size: "s"});
              var angler = L.MakiMarkers.icon({icon: "star", color: "#00f", size: "s"});
@@ -89,7 +89,7 @@
                             <div class="col-md-12">
 
                                 {% include "tfat/_encounter_table.html" with object_list=encounter_list %}
-                                
+
                                 <div class="checkbox pull-right">
                                     <label>
                                         <input type='checkbox' onclick='handleClick(this);'>metric/imperial
@@ -129,7 +129,7 @@
                 </div> <!-- row -->
                     {% else %}
 
-                
+
                 {% if this_year %}
                 <p>There haven't been any reports of tags from the general public or other agencies in {{ year }} yet.</p>
                 {% else %}
@@ -166,7 +166,7 @@
 
     $(".tablesorter").tablesorter({
     theme: 'bootstrap',
-    widthFixed: true,
+
     showProcessing: true,
     headerTemplate: '{content} {icon}',
     widgets: ['zebra', 'uitheme', 'scroller'],
@@ -180,9 +180,12 @@
 
 
     $(document).ready(function(){
-    $("#myTable").tablesorter();
-    $('.metric').show();
-    $('.imperial').hide();
+        $("#encounter-table").tablesorter();
+        $("#recovery-table").tablesorter();
+        $("#combined-table").tablesorter();
+
+        $('.metric').show();
+        $('.imperial').hide();
     }
     );
 

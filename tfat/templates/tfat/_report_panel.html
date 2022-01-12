@@ -14,21 +14,21 @@
                     {% with object.follow_up_status as status %}
                         {% if status %}
                             {% if status == 'requested' or status == 'initialized' %}
-                                
+
                                 <a class="btn {{ status|status_button_class  }}  btn-xs pull-right"
                                    href="{% url 'tfat:create_report_followup' report_id=object.id %}?next={{request.path}}"
                                    role="button">Follow-up Required</a>
 
                             {% else %}
                                 <button class="btn  {{ status|status_button_class }}   btn-xs pull-right" role="button">
-                                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 
+                                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
                                     Follow-up Complete
                                 </button>
                             {% endif %}
                         {% endif %}
                     {% endwith %}
 
-                    
+
                 </div>
                 <div class="col-md-2" >
 
@@ -54,7 +54,7 @@
                     <th>Tlen</th>
                     <th>Flen</th>
                     <th>Date </th>
-                    <th>Lake </th>                        
+                    <th>Lake </th>
                     <th>Location</th>
                 </tr>
             </thead>
@@ -64,16 +64,14 @@
                     <td> <a href="{% url 'tfat:tagid_detail_view' tagid=item.tagid %}">{{item.tagid}}</a> </td>
                     <td>{{ item.tagdoc }} </td>
                     <td>{{ item.tag_colour }} </td>
-                    <td>{{ item.species.spc_nmco }} </td>
+                    <td>{{ item.species.spc_nmco|title }} </td>
                     <td>{{ item.tlen }} </td>
                     <td>{{ item.flen }} </td>
                     <td>{{ item.recovery_date }} </td>
-                    <td>{{ item.lake }} </td>                    
+                    <td>{{ item.lake }} </td>
                     <td>{{ item.general_location }} </td>
                 </tr>
             {% endfor %}
         </table>
     </div>
 </div>
-
-

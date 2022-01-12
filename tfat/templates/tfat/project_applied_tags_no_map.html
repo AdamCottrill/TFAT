@@ -58,7 +58,7 @@
                                 {% for object in applied %}
                                 <tr>
                                     <td> <a href="{% url 'tfat:tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
-                                    <td> {{ object.species.spc_nmco }} </td>
+                                    <td> {{ object.species.spc_nmco|titletd>
                                     <td> {{ object.observation_date }} </td>
                                     <td> {{ object.grid }} </td>
                                     <td> {{ object.tag_type }} </td>
@@ -118,7 +118,7 @@
                         {% for object in recovered.queryset %}
                         <tr>
                             <td> <a href="{% url 'tfat:tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
-                            <td> {{ object.spc_nmco }} </td>
+                            <td> {{ object.spc_nmco|title }}</td>
                             <td> {{ object.observation_date }} </td>
                             <td> {{ object.grid }} </td>
                             <td> {{ object.tag_type }} </td>
@@ -186,7 +186,7 @@
                     {% for object in angler_recaps.queryset %}
                     <tr>
                         <td> <a href="{% url 'tfat:tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
-                        <td> {{ object.spc_nmco }} </td>
+                        <td> {{ object.spc_nmco |title }} </td>
                         <td> {{ object.observation_date }} </td>
                         <td> {{ object.grid }} </td>
                         <td> {{ object.tag_type }} </td>
@@ -236,7 +236,6 @@
 
      $(".tablesorter").tablesorter({
          theme: 'bootstrap',
-         widthFixed: true,
          showProcessing: true,
          headerTemplate: '{content} {icon}',
          widgets: ['zebra', 'uitheme', 'scroller'],

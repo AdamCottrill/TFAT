@@ -25,7 +25,9 @@
           <h3>N = {{ applied|length }}  </h3>
       </div>
 
-      <p>A summary of tags recovered in this project can be found <a href= "{% url 'tfat:tags_recovered_in_project' project.slug %}" >here.</a></p>
+      <p>A summary of tags recovered in this project can be found
+          <a href= "{% url 'tfat:tags_recovered_in_project' project.slug %}" >here.</a>
+      </p>
 
 
       {% if applied %}
@@ -33,11 +35,10 @@
            function map_init_basic (map, options) {
 
                map.fitBounds({{mapBounds|safe}})
-               
+
                {% if mls %}
                L.geoJson({{ mls|safe }}).addTo(map)
                {% endif %}
-
 
                var tagging_marker = L.MakiMarkers.icon({icon: "circle", color: "#b0b", size: "s"});
                var recap_marker = L.MakiMarkers.icon({icon: "square", color: "#0a0", size: "s"});
@@ -85,9 +86,21 @@
     <div role="tabpanel">
         <!-- Nav tabs -->
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active"><a href="#applied" aria-controls="applied" role="tab" data-toggle="tab">Tagging Events (N = {{ applied|length }}) </a></li>
-            <li role="presentation"><a href="#recovered" aria-controls="recovered" role="tab" data-toggle="tab">UGLMU Recovery Events (N = {{ recovered.nobs }})</a></li>
-            <li role="presentation"><a href="#angler_recaps" aria-controls="angler_recaps" role="tab" data-toggle="tab">Non-MNR Recoveries (N = {{ angler_recaps.nobs }})</a></li>
+            <li role="presentation" class="active">
+                <a href="#applied" aria-controls="applied" role="tab" data-toggle="tab">
+                    Tagging Events (N = {{ applied|length }})
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#recovered" aria-controls="recovered" role="tab" data-toggle="tab">
+                    UGLMU Recovery Events (N = {{ recovered.nobs }})
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#angler_recaps" aria-controls="angler_recaps" role="tab" data-toggle="tab">
+                    Non-MNR Recoveries (N = {{ angler_recaps.nobs }})
+                </a>
+            </li>
         </ul>
 
         <!-- Tab panes -->
@@ -101,7 +114,7 @@
                     <div class="col-md-12">
 
                         {% include "tfat/_tags_applied_table.html" %}
-                        
+
                         <div class="checkbox pull-right">
                             <label>
                                 <input type='checkbox' onclick='handleClick(this);'>metric/imperial
@@ -158,7 +171,7 @@
             {% with angler_recaps.queryset as object_list %}
                 {% include "tfat/_recovery_table.html" with object_list=object_list %}
             {% endwith %}
-          
+
             <div class="checkbox pull-right">
                 <label>
                     <input type='checkbox' onclick='handleClick(this);'>metric/imperial
@@ -190,7 +203,6 @@
 
      $(".tablesorter").tablesorter({
          theme: 'bootstrap',
-         widthFixed: true,
          showProcessing: true,
          headerTemplate: '{content} {icon}',
          widgets: ['zebra', 'uitheme', 'scroller'],
@@ -202,9 +214,10 @@
          }
      });
 
-
      $(document).ready(function(){
-         $("#myTable").tablesorter();
+         $("#encounter-table").tablesorter();
+         $("#recovery-table").tablesorter();
+         $("#combined-table").tablesorter();
          $('.metric').show();
          $('.imperial').hide();
      }

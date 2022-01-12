@@ -1,5 +1,5 @@
 {% load humanize %}
-<table class="tablesorter table table-condensed" id="myTable">
+<table class="tablesorter table table-condensed" id="combined-table">
     <thead>
         <tr>
             <th>TAGID</th>
@@ -20,7 +20,7 @@
         {% for object in encounter_list %}
             <tr>
                 <td> <a href="{% url 'tfat:tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
-                <td> {{ object.species.spc_nmco }} </td>
+                <td> {{ object.species.spc_nmco|title }} </td>
                 <td> {{ object.observation_date|date:"M d, Y" }} </td>
                 <td> {{ object.grid }} </td>
                 <td> {{ object.tag_type }} </td>
@@ -37,7 +37,7 @@
         {% for object in angler_recaps %}
             <tr>
                 <td> <a href="{% url 'tfat:tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
-                <td> {{ object.species.spc_nmco }} </td>
+                <td> {{ object.species.spc_nmco |title }} </td>
                 <td> {{ object.observation_date|date:"M d, Y" }} </td>
                 <td> {{ object.grid }} </td>
                 <td> {{ object.tag_type }} </td>

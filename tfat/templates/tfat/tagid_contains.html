@@ -20,34 +20,40 @@
         </div>
 
         {% include  "tfat\_lake_button_bar.html" %}
-        
+
         {% if encounter_list|length > max_record_count %}
             <div class="alert alert-danger" role="alert">
-                More than {{ max_record_count }} records where found that match that criteria. You may want to refine your criteria here <a href="#">Find a tag</a>
+                More than {{ max_record_count }} records where found
+                that match that criteria. You may want to refine your
+                criteria here <a href="#">Find a tag</a>
             </div>
         {% endif %}
 
         {% if spc_warn %}
             <div class="alert alert-warning" role="alert">
-                <p>There appears to be more than one species associated with the records on this page. Interpret with caution.</p>
+                <p>There appears to be more than one species
+                associated with the records on this page. Interpret
+                with caution.</p>
             </div>
         {% endif %}
 
         {% if tagdoc_warn %}
             <div class="alert alert-warning" role="alert">
-                <p>There appears to be more than one tagdoc code associated with the records on this page. Interpret with caution.</p>
+                <p>There appears to be more than one tagdoc code
+                associated with the records on this page. Interpret
+                with caution.</p>
             </div>
         {% endif %}
 
 
         <br />
 
-        
+
         <script type="text/javascript">
          function map_init_basic (map, options) {
 
              map.fitBounds({{mapBounds|safe}})
-             
+
              var applied = L.MakiMarkers.icon({icon: "circle", color: "#b0b", size: "s"});
              var recap = L.MakiMarkers.icon({icon: "square", color: "#0a0", size: "s"});
              var angler = L.MakiMarkers.icon({icon: "star", color: "#00f", size: "s"});
@@ -99,9 +105,21 @@
         <div role="tabpanel">
             <!-- Nav tabs -->
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" class="active"><a href="#uglmu" aria-controls="applied" role="tab" data-toggle="tab">UGLMU Encounters (N = {{ encounter_list|length }}) </a></li>
-                <li role="presentation"><a href="#angler_recaps" appliedaria-controls="angler_recaps" role="tab" data-toggle="tab">Non-MNR Recoveries (N = {{ angler_recaps|length }})</a></li>
-                <li role="presentation"><a href="#combined" appliedaria-controls="combined" role="tab" data-toggle="tab">Combined</a></li>
+                <li role="presentation" class="active">
+                    <a href="#uglmu" aria-controls="applied" role="tab" data-toggle="tab">
+                        UGLMU Encounters (N = {{ encounter_list|length }})
+                    </a>
+                </li>
+                <li role="presentation">
+                    <a href="#angler_recaps" appliedaria-controls="angler_recaps" role="tab" data-toggle="tab">
+                        Non-MNR Recoveries (N = {{ angler_recaps|length }})
+                    </a>
+                </li>
+                <li role="presentation">
+                    <a href="#combined" appliedaria-controls="combined" role="tab" data-toggle="tab">
+                        Combined
+                    </a>
+                </li>
             </ul>
 
             <!-- Tab panes -->
@@ -175,7 +193,6 @@
 
     $(".tablesorter").tablesorter({
     theme: 'bootstrap',
-    widthFixed: true,
     showProcessing: true,
     headerTemplate: '{content} {icon}',
     widgets: ['zebra', 'uitheme', 'scroller'],
@@ -189,9 +206,11 @@
 
 
     $(document).ready(function(){
-    $("#myTable").tablesorter();
-    $('.metric').show();
-    $('.imperial').hide();
+        $("#encounter-table").tablesorter();
+        $("#recovery-table").tablesorter();
+        $("#combined-table").tablesorter();
+        $('.metric').show();
+        $('.imperial').hide();
     }
     );
 

@@ -21,7 +21,7 @@
       <table class="table">
         {% for object in object_list %}
         <tr><td> <a href="#">
-              {{ object.spc }} -  {{ object.spc_nmco }} ({{ object.spc_nmsc }})</a></td></tr>
+              {{ object.spc }} -  {{ object.spc_nmco|title }} ({{ object.spc_nmsc }})</a></td></tr>
         {% endfor%}
       </table>
       {% else %}

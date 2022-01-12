@@ -1,6 +1,7 @@
 {% load humanize %}
 
-<table class="tablesorter table table-condensed" id="myTable">
+
+    <table class="tablesorter table table-condensed" id="encounter-table">
     <thead>
         <tr>
             <th>TagID</th>
@@ -22,8 +23,10 @@
     <tbody>
         {% for object in object_list %}
             <tr>
-                <td> <a href="{% url 'tfat:tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a> </td>
-                <td> {{ object.species.spc_nmco }} </td>
+                <td>
+                    <a href="{% url 'tfat:tagid_detail_view' tagid=object.tagid %}">{{object.tagid}}</a>
+                </td>
+                <td> {{ object.species.spc_nmco|title }} </td>
                 <td> {{ object.observation_date }} </td>
                 <td> {{ object.grid }} </td>
                 <td> {{ object.tag_type }} </td>
@@ -34,11 +37,11 @@
                 <td class="imperial"> {{ object.tlen_inches }} </td>
                 <td class="metric"> {{ object.rwt|intcomma }} </td>
                 <td class="imperial"> {{ object.pounds }} </td>
-                <td><a href="{% url 'tfat:tags_applied_in_project' object.project.slug %}">{{ object.project.prj_cd }}</a> </td>
+                <td>
+                    <a href="{% url 'tfat:tags_applied_in_project' object.project.slug %}">{{ object.project.prj_cd }}</a>
+                </td>
 
-                <td> {{ object.project.prj_nm }} </td
-
-
+                <td> {{ object.project.prj_nm }} </td>
             </tr>
         {% endfor%}
     </tbody>

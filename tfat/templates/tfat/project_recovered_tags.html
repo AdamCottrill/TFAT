@@ -31,7 +31,7 @@
            function map_init_basic (map, options) {
 
                map.fitBounds({{mapBounds|safe}})
-               
+
                {% if mls %}
                L.geoJson({{ mls|safe }}).addTo(map)
                {% endif %}
@@ -90,13 +90,29 @@
 
         <!-- Nav tabs -->
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active"><a href="#recapture" aria-controls="recapture" role="tab" data-toggle="tab">Recapture Events (N = {{ recovered|length }}) </a></li>
+            <li role="presentation" class="active">
+                <a href="#recapture" aria-controls="recapture" role="tab" data-toggle="tab">
+                    Recapture Events (N = {{ recovered|length }})
+                </a>
+            </li>
 
-            <li role="presentation"><a href="#applied" aria-controls="applied" role="tab" data-toggle="tab">Application Events (N = {{ applied.nobs }})</a></li>
+            <li role="presentation">
+                <a href="#applied" aria-controls="applied" role="tab" data-toggle="tab">
+                    Application Events (N = {{ applied.nobs }})
+                </a>
+            </li>
 
-            <li role="presentation"><a href="#other_recoveries" aria-controls="other_recoveries" role="tab" data-toggle="tab">Other Recoveries (N = {{ other_recoveries.nobs }})</a></li>
+            <li role="presentation">
+                <a href="#other_recoveries" aria-controls="other_recoveries" role="tab" data-toggle="tab">
+                    Other Recoveries (N = {{ other_recoveries.nobs }})
+                </a>
+            </li>
 
-            <li role="presentation"><a href="#angler_recaps" aria-controls="angler_recaps" role="tab" data-toggle="tab">Angler Recaps (N = {{ angler_recaps.nobs }})</a></li>
+            <li role="presentation">
+                <a href="#angler_recaps" aria-controls="angler_recaps" role="tab" data-toggle="tab">
+                    Angler Recaps (N = {{ angler_recaps.nobs }})
+                </a>
+            </li>
 
         </ul>
 
@@ -156,7 +172,7 @@
             {% with other_recoveries.queryset as object_list %}
                 {% include  "tfat/_encounter_table.html" %}
             {% endwith %}
-         
+
             <div class="checkbox pull-right">
                 <label>
                     <input type='checkbox' onclick='handleClick(this);'>metric/imperial
@@ -179,7 +195,7 @@
         <div class="col-md-12">
             {% with angler_recaps.queryset as object_list %}
                 {% include "tfat/_recovery_table.html" %}
-            {% endwith %}    
+            {% endwith %}
             <div class="checkbox pull-right">
                 <label>
                     <input type='checkbox' onclick='handleClick(this);'>metric/imperial
@@ -195,7 +211,6 @@
     {% endif %}
             </div> <!-- tabpanel -->
 
-
         </div><!-- tabcontent -->
     </div><!-- tab panel -->
 
@@ -203,7 +218,6 @@
 
    $(".tablesorter").tablesorter({
        theme: 'bootstrap',
-       widthFixed: true,
        showProcessing: true,
        headerTemplate: '{content} {icon}',
        widgets: ['zebra', 'uitheme', 'scroller'],
@@ -217,7 +231,8 @@
 
 
    $(document).ready(function(){
-       $("#myTable").tablesorter();
+       $("#encounter-table").tablesorter();
+       $("#recovery-table").tablesorter();
        $('.metric').show();
        $('.imperial').hide();
    }

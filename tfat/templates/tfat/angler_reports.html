@@ -51,7 +51,7 @@
             </div>
         {% endif %}
 
-        
+
     </div>
 
     <hr />
@@ -115,7 +115,7 @@
                  function map_init_basic (map, options) {
                      //map.setZoom(7)
                      map.fitBounds({{mapBounds|safe}})
-                     debugger;
+
                      //var marker = L.MakiMarkers.icon({icon: "square", color: "#a0a", size: "s"});
 
                      {% for object in recoveries_with_latlon %}
@@ -146,11 +146,11 @@
                     </div>
                     {% with report.list|first as recovery1 %}
 
-                        
+
                         {% if recovery1.report.follow_up_status %}
                             <div class="col-md-2" >
                                 {% if recovery1.report.follow_up_status == 'requested' or recovery1.report.follow_up_status == 'initiated' %}
-                            
+
                             <a class="btn btn-danger  btn-xs"
                                href="{% url 'tfat:create_report_followup' report_id=recovery1.report.id %}?next={{request.path}}"
                                role="button">Follow-up Required</a>
@@ -159,8 +159,8 @@
                             <button class="btn btn-success  btn-xs pull-right" role="button">Follow-up Complete</button>
                                 {% endif %}
                             </div>
-                    {% endif %}                            
-                    
+                    {% endif %}
+
                     <div class="col-md-2" >
                         <a class="btn btn-default btn-xs pull-right"
                            href="{% url 'tfat:report_detail' report_id=recovery1.report.id %}"
@@ -191,7 +191,7 @@
                     <td> <a href="{% url 'tfat:tagid_detail_view' tagid=item.tagid %}">{{item.tagid}}</a> </td>
                     <td>{{ item.tagdoc }} </td>
                     <td>{{ item.tag_colour }} </td>
-                    <td>{{ item.species.spc_nmco }} </td>
+                    <td>{{ item.species.spc_nmco|title }} </td>
                     <td>{{ item.tlen }} </td>
                     <td>{{ item.flen }} </td>
                     <td>{{ item.recovery_date }} </td>

@@ -22,7 +22,7 @@
      .comment-panel {
          display: none
      }
-     
+
     </style>
 
 
@@ -43,7 +43,7 @@
         </div>
 
         <hr />
-        
+
         <div class="row">
             <div class="col-md-4" >
                 <div class="panel panel-default">
@@ -115,21 +115,21 @@
                         {% with report.follow_up_status as status %}
                             {% if status %}
                                 {% if status == 'requested' or status == 'initialized' %}
-                                    
+
                                     <a class="btn {{ status|status_button_class  }}  btn-xs pull-right"
                                        href="{% url 'tfat:create_report_followup' report_id=report.id %}?next={{request.path}}"
                                        role="button">Follow-up Required</a>
 
                                 {% else %}
                                     <button class="btn  {{ status|status_button_class }}   btn-xs pull-right" role="button">
-                                        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 
+                                        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
                                         Follow-up Complete
                                     </button>
                                 {% endif %}
                             {% endif %}
                         {% endwith %}
 
-                        
+
                     </div>
                 </div>
 
@@ -149,18 +149,18 @@
                                             {{item.comment}}
                                         </div>
                                     </div>
-                                    
+
 
                                 {% endif %}
-                                
-                            </li>
-                        {% endfor %}                    
-                    </ul>
-                    
-                {% endif %}
-                
 
-                
+                            </li>
+                        {% endfor %}
+                    </ul>
+
+                {% endif %}
+
+
+
             </div>
 
             <div class="col-md-8" >
@@ -229,7 +229,7 @@
                         <td> <a href="{% url 'tfat:tagid_detail_view' tagid=item.tagid %}">{{item.tagid}}</a> </td>
                         <td>{{ item.tagdoc }} </td>
                         <td>{{ item.tag_colour }} </td>
-                        <td>{{ item.species.spc_nmco }} </td>
+                        <td>{{ item.species.spc_nmco|title }} </td>
                         <td>{{ item.tlen }} </td>
                         <td>{{ item.flen }} </td>
                         <td>{{ item.recovery_date }} </td>

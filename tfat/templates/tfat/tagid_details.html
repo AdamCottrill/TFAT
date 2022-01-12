@@ -45,7 +45,7 @@
      function map_init_basic (map, options) {
 
          map.fitBounds({{mapBounds|safe}})
-         
+
          var applied = L.MakiMarkers.icon({icon: "circle", color: "#b0b", size: "s"});
          var recap = L.MakiMarkers.icon({icon: "square", color: "#0a0", size: "s"});
          var angler = L.MakiMarkers.icon({icon: "star", color: "#00f", size: "s"});
@@ -105,7 +105,7 @@
                 <p>UGLMU encounters with tag {{ tagid }} .</p>
                 <div class="row">
                     <div class="col-md-12">
-                        <table class=" tablesorter table table-condensed" id="myTable">
+                        <table class=" tablesorter table table-condensed" id="tag-encounters">
                             <thead>
                                 <tr>
                                     <th>Details</th>
@@ -130,7 +130,7 @@
                                     {% url 'tfat:encounter_detail' object.id as the_url %}
                                     <td> <a href="{{ the_url }}" class="btn btn-info btn-xs" role="button">
                                         <span class="glyphicon glyphicon-info-sign"></span></a> </td>
-                                    <td> {{ object.species.spc_nmco }} </td>
+                                    <td> {{ object.species.spc_nmco|title }} </td>
                                     <td> {{ object.observation_date|date:"M d, Y" }} </td>
                                     <td> {{ object.grid }} </td>
                                     <td> {{ object.tag_type }} </td>
@@ -173,7 +173,7 @@
                     general public or other agencies for tag {{ tagid }}.</p>
                 <div class="row">
                     <div class="col-md-12">
-                        <table class="tablesorter table table-condensed" id="myTable">
+                        <table class="tablesorter table table-condensed" id="tag-recoveries">
                             <thead>
                                 <tr>
                                     <th>Details</th>
@@ -197,7 +197,7 @@
                                     {% url 'tfat:recovery_detail' object.id as the_url %}
                                     <td> <a href="{{ the_url }}" class="btn btn-info btn-xs" role="button">
                                         <span class="glyphicon glyphicon-info-sign"></span></a> </td>
-                                    <td> {{ object.species.spc_nmco }} </td>
+                                    <td> {{ object.species.spc_nmco|title }} </td>
                                     <td> {{ object.observation_date|date:"M d, Y" }} </td>
                                     <td> {{ object.grid }} </td>
                                     <td> {{ object.tag_type }} </td>
@@ -235,7 +235,7 @@
                 <p>ALL encounters with tag {{ tagid }} .</p>
                 <div class="row">
                     <div class="col-md-12">
-                        <table class="tablesorter table table-condensed" id="myTable">
+                        <table class="tablesorter table table-condensed" id="combined-table">
                             <thead>
                                 <tr>
                                     <th>Details</th>
@@ -258,7 +258,7 @@
                                     {% url 'tfat:encounter_detail' object.id as the_url %}
                                     <td> <a href="{{ the_url }}" class="btn btn-info btn-xs" role="button">
                                         <span class="glyphicon glyphicon-info-sign"></span></a> </td>
-                                    <td> {{ object.species.spc_nmco }} </td>
+                                    <td> {{ object.species.spc_nmco|title }} </td>
                                     <td> {{ object.observation_date|date:"M d, Y" }} </td>
                                     <td> {{ object.grid }} </td>
                                     <td> {{ object.tag_type }} </td>
@@ -277,7 +277,7 @@
                                     {% url 'tfat:recovery_detail' object.id as the_url %}
                                     <td> <a href="{{ the_url }}" class="btn btn-info btn-xs" role="button">
                                         <span class="glyphicon glyphicon-info-sign"></span></a> </td>
-                                    <td> {{ object.species.spc_nmco }} </td>
+                                    <td> {{ object.species.spc_nmco|title }} </td>
                                     <td> {{ object.observation_date|date:"M d, Y" }} </td>
                                     <td> {{ object.grid }} </td>
                                     <td> {{ object.tag_type }} </td>
@@ -311,7 +311,6 @@
 
      $(".tablesorter").tablesorter({
          theme: 'bootstrap',
-         widthFixed: true,
          showProcessing: true,
          headerTemplate: '{content} {icon}',
          widgets: ['zebra', 'uitheme', 'scroller'],
@@ -325,7 +324,9 @@
 
 
      $(document).ready(function(){
-         $("#myTable").tablesorter();
+         $("#tag-encounters").tablesorter();
+         $("#tag-recoveries").tablesorter();
+         $("#combined-table").tablesorter();
          $('.metric').show();
          $('.imperial').hide();
      }

@@ -5,10 +5,18 @@
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>  {% block title  %} TFAT  {% endblock %}  </title>
 
-    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+          crossorigin="anonymous">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
 
-    <script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+
     <!-- bootstrap widget theme -->
     <!-- tablesorter plugin -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.15.14/jquery.tablesorter.js"></script>
@@ -65,7 +73,7 @@
         <ul class="nav navbar-nav">
 
             {% if user.is_authenticated %}
-            
+
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Report A Tag<b class="caret"></b></a>
             <ul class="dropdown-menu">
@@ -74,7 +82,7 @@
             </ul>
           </li>
             {% endif %}
-          
+
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Find A Tag<b class="caret"></b></a>
             <ul class="dropdown-menu">
@@ -158,15 +166,20 @@
 
     <div class="container">
 
-    <div id="messages">
-      {% if messages %}
-        {% for message in messages %}
-          <div class="alert alert-{{message.tags}}">
-            <a class="close" data-dismiss="alert">×</a>
-            {{ message }}
-          </div>
-        {% endfor %}
-      {% endif %}
+        <div id="messages">
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert
+                            {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %} alert-success {% else %} alert-danger {% endif %}" role="alert">
+                    <h4 class="alert-heading">
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %} Success {% else %} Aw Snap! {% endif %}
+                    </h4>
+                    <p> {{ message }} </p>
+                </div>
+            {% endfor %}
+        {% endif %}
+
     </div>
 
 
