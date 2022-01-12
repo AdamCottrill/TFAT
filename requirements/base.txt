@@ -4,6 +4,10 @@
 #
 #    pip-compile --output-file=base.txt base.in
 #
+certifi==2021.10.8
+    # via requests
+chardet==4.0.0
+    # via requests
 click==7.0
     # via pip-tools
 django-filter==2.2.0
@@ -14,7 +18,7 @@ django-leaflet==0.26.0
     # via -r base.in
 django-pagination==1.0.7
     # via -r base.in
-django==2.2.10
+django==2.2.17
     # via
     #   -r base.in
     #   django-filter
@@ -25,18 +29,28 @@ djangorestframework==3.12.2
     # via -r base.in
 geojson==2.5.0
     # via -r base.in
+idna==2.10
+    # via requests
 pip-tools==5.5.0
     # via -r base.in
 psycopg2==2.8.3
+    # via -r base.in
+pydantic==1.9.0
     # via -r base.in
 pyodbc==4.0.26
     # via -r base.in
 pytz==2019.2
     # via django
+requests==2.25.1
+    # via -r base.in
 six==1.12.0
     # via django-geojson
 sqlparse==0.3.0
     # via django
+typing-extensions==4.0.1
+    # via pydantic
+urllib3==1.26.8
+    # via requests
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
