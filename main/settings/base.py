@@ -131,8 +131,13 @@ MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, "../media/"))
 # print("MEDIA_ROOT = " + MEDIA_ROOT)
 
 STATIC_URL = "/static/"
-STATIC_ROOT = root("static/")
-STATICFILES_DIRS = (os.path.abspath(os.path.join(BASE_DIR, "../static")),)
+STATIC_ROOT = root("..", "static_root/")
+
+# Additional locations of static files
+STATICFILES_DIRS = [
+    root("static/"),
+]
+
 
 # print("STATIC_ROOT = " + STATIC_ROOT)
 # print("STATICFILE_DIRS = " + STATICFILES_DIRS)
@@ -145,6 +150,7 @@ LEAFLET_CONFIG = {
     #'MIN_ZOOM': 3,
     #'MAX_ZOOM': 18,
     "RESET_VIEW": True,
+    "TILES": "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
 }
 
 
@@ -165,11 +171,28 @@ REST_FRAMEWORK = {
 
 
 # install gdal in virtualenv:
+# VIRTUAL_ENV = os.environ["VIRTUAL_ENV"]
+# OSGEO_VENV = os.path.join(VIRTUAL_ENV, "Lib/site-packages/osgeo")
+# GEOS_LIBRARY_PATH = os.path.join(OSGEO_VENV, "geos_c.dll")
+# GDAL_LIBRARY_PATH = os.path.join(OSGEO_VENV, "gdal301.dll")
+# os.environ["PATH"] += os.pathsep + str(OSGEO_VENV)
+
+
+# install gdal in virtualenv:
 VIRTUAL_ENV = os.environ["VIRTUAL_ENV"]
 OSGEO_VENV = os.path.join(VIRTUAL_ENV, "Lib/site-packages/osgeo")
 GEOS_LIBRARY_PATH = os.path.join(OSGEO_VENV, "geos_c.dll")
-GDAL_LIBRARY_PATH = os.path.join(OSGEO_VENV, "gdal301.dll")
+GDAL_LIBRARY_PATH = os.path.join(OSGEO_VENV, "gdal304.dll")
+PROJ_LIB = os.path.join(OSGEO_VENV, "data/proj")
+os.environ["PROJ_LIB"] = PROJ_LIB
 os.environ["PATH"] += os.pathsep + str(OSGEO_VENV)
+
+if not os.path.exists(GDAL_LIBRARY_PATH):
+    print("Unable to find GDAL_DLL {}: ".format(GDAL_LIBRARY_PATH))
+if not os.path.exists(GEOS_LIBRARY_PATH):
+    print("Unable to find GEOS_DLL {}: ".format(GEOS_LIBRARY_PATH))
+if not os.path.exists(PROJ_LIB):
+    print("Unable to find PROJ_LIB {}: ".format(PROJ_LIB))
 
 
 # file upload settigns:

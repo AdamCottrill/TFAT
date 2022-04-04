@@ -9,6 +9,7 @@ db/*
 .dir-locals.el
 htmlcov/*
 static/*
+static_root/*
 media/*
 docs/*
 tfat/migrations_old/*

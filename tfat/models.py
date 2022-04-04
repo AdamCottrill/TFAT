@@ -79,6 +79,8 @@ class JoePublic(models.Model):
 
     """
 
+    id = models.AutoField(primary_key=True)
+
     first_name = models.CharField(max_length=15)
     last_name = models.CharField(max_length=50)
     initial = models.CharField(max_length=5, blank=True, null=True)
@@ -143,6 +145,8 @@ class Report(models.Model):
       TODO - Add functionality to follow-up with reports
 
     """
+
+    id = models.AutoField(primary_key=True)
 
     reported_by = models.ForeignKey(
         JoePublic,
@@ -219,6 +223,8 @@ class ReportFollowUp(models.Model):
     """A table to hold the response letter(s) associted with a tag
     recovery event."""
 
+    id = models.AutoField(primary_key=True)
+
     report = models.ForeignKey(
         Report, related_name="followups", on_delete=models.CASCADE
     )
@@ -267,6 +273,8 @@ class Recovery(models.Model):
       + comment
 
     """
+
+    id = models.AutoField(primary_key=True)
 
     report = models.ForeignKey(
         Report, related_name="recoveries", on_delete=models.CASCADE
@@ -633,6 +641,8 @@ class RecoveryLetter(models.Model):
     """A table to hold the response letter(s) associted with a tag
     recovery event."""
 
+    id = models.AutoField(primary_key=True)
+
     recovery = models.ForeignKey(
         Recovery, related_name="recovery_letters", on_delete=models.CASCADE
     )
@@ -658,6 +668,7 @@ class RecoveryLetter(models.Model):
 class Database(models.Model):
     """A lookup table to hold list of master databases."""
 
+    id = models.AutoField(primary_key=True)
     master_database = models.CharField(max_length=250)
     path = models.CharField(max_length=250)
 
@@ -673,6 +684,8 @@ class Database(models.Model):
 class Project(models.Model):
     """A model to hold basic information about the project in which tags
     were deployed or recovered"""
+
+    id = models.AutoField(primary_key=True)
 
     lake = models.ForeignKey(
         Lake, related_name="Projects", on_delete=models.CASCADE, default=1
@@ -727,6 +740,8 @@ class Encounter(models.Model):
     #they could be handled using an abstract database model.
 
     """
+
+    id = models.AutoField(primary_key=True)
 
     project = models.ForeignKey(
         Project, related_name="Encounters", on_delete=models.CASCADE

@@ -110,7 +110,9 @@ class RecoveryReportsListView(ListFilteredMixin, ListView):
     """"""
 
     model = Report
-    queryset = Report.objects.all().order_by("-report_date")
+    queryset = (
+        Report.objects.all().order_by("-report_date").select_related("reported_by")
+    )
     paginate_by = REPORT_PAGE_CNT
     filter_set = ReportFilter
 
@@ -1113,7 +1115,7 @@ def serve_file(request, filename):
     file doesn t actully exist.
     """
 
-    fname = os.path.join(settings.MEDIA_ROOT, "tag_return_letters", filename)
+    fname = os.path.join(settings.MEDIA_ROOT, filename)
 
     if os.path.isfile(fname):
 

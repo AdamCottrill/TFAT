@@ -58,8 +58,7 @@ def user():
 
 @pytest.fixture()
 def angler():
-    """Create an angler
-    """
+    """Create an angler"""
     angler = JoePublicFactory.create(first_name="Barney", last_name="Gumble")
     return angler
 
@@ -72,8 +71,7 @@ def test_report_create_requires_login(client, angler):
     Arguments:
     - `client`:
     - `dbsetup`:
-
-"""
+    """
 
     url = reverse("tfat:create_report", kwargs={"angler_id": angler.id})
     response = client.get(url)
@@ -149,7 +147,7 @@ def test_create_report_minimal_data(client, user, angler):
     report = Report.objects.get(reported_by__first_name="Barney")
     assert report.report_date.date() == today.date()
     assert report.date_flag == 0
-    assert report.associated_file.name is ""
+    assert report.associated_file.name == ""
     assert report.dcr is None
     assert report.effort is None
     assert report.comment is None

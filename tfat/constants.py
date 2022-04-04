@@ -14,22 +14,22 @@ A. Cottrill
 
 """
 
-LAKE_CHOICES = {("HU", "Lake Huron"), ("SU", "Lake Superior")}
+LAKE_CHOICES = [("HU", "Lake Huron"), ("SU", "Lake Superior")]
 
 
-REPORTING_CHOICES = {
+REPORTING_CHOICES = [
     ("verbal", "verbal"),
     ("e-mail", "e-mail"),
     ("letter", "letter"),
     ("dcr", "DCR"),
     ("other", "other"),
-}
+]
 
 
-RECOVERY_LETTER_CHOICES = {
+RECOVERY_LETTER_CHOICES = [
     ("tfat_template", "TFAT Template"),
     ("custom_letter", "Custom Letter"),
-}
+]
 
 
 FOLLOW_UP_STATUS_CHOICES = [
@@ -40,10 +40,10 @@ FOLLOW_UP_STATUS_CHOICES = [
 ]
 
 
-SEX_CHOICES = {("1", "Male"), ("2", "Female"), ("3", "Hermaphrodite"), ("9", "Unknown")}
+SEX_CHOICES = [("1", "Male"), ("2", "Female"), ("3", "Hermaphrodite"), ("9", "Unknown")]
 
 
-CLIP_CODE_CHOICES = {
+CLIP_CODE_CHOICES = [
     ("0", "No clip"),
     ("1", "Right Pectoral"),
     ("2", "Left Pectoral"),
@@ -61,10 +61,10 @@ CLIP_CODE_CHOICES = {
     ("E", "Right Maxillary"),
     ("F", "Left Maxillary"),
     ("G", "Dorsal"),
-}
+]
 
 
-TAG_TYPE_CHOICES = {
+TAG_TYPE_CHOICES = [
     #    ('0', 'No tag'),
     ("1", "Streamer"),
     ("2", "Tubular Vinyl"),
@@ -80,9 +80,9 @@ TAG_TYPE_CHOICES = {
     ("C", "Cinch"),
     ("P", "PIT tag"),
     #    ('X', 'Tag Scar/obvious loss'),
-}
+]
 
-TAG_POSITION_CHOICES = {
+TAG_POSITION_CHOICES = [
     ("1", "Anterior Dorsal"),
     ("2", "Between Dorsal"),
     ("3", "Posterior Dorsal"),
@@ -92,10 +92,10 @@ TAG_POSITION_CHOICES = {
     ("7", "Snout"),
     ("8", "Anal"),
     ("9", "Unknown"),
-}
+]
 
 
-TAG_ORIGIN_CHOICES = {
+TAG_ORIGIN_CHOICES = [
     ("01", "MNRF"),
     ("02", "NY"),
     ("03", "Mich."),
@@ -116,9 +116,9 @@ TAG_ORIGIN_CHOICES = {
     ("26", "GLLFAS"),
     ("98", "Other"),
     ("99", "Unkn"),
-}
+]
 
-TAG_COLOUR_CHOICES = {
+TAG_COLOUR_CHOICES = [
     ("1", "Colourless"),
     ("2", "Yellow"),
     ("3", "Red"),
@@ -127,21 +127,21 @@ TAG_COLOUR_CHOICES = {
     ("6", "Silver"),
     ("7", "White"),
     ("9", "Unknown"),
-}
+]
 
 
-TAGSTAT_CHOICES = {("C", "Existed on Capture"), ("A", "Applied")}
+TAGSTAT_CHOICES = [("C", "Existed on Capture"), ("A", "Applied")]
 
 
 FATE_CHOICES = [("R", "Released"), ("K", "Killed")]
 
-DATE_FLAG_CHOICES = {(0, "Unknown"), (1, "Reported"), (2, "Derived")}
+DATE_FLAG_CHOICES = [(0, "Unknown"), (1, "Reported"), (2, "Derived")]
 
-LATLON_FLAG_CHOICES = {
+LATLON_FLAG_CHOICES = [
     (0, "Unknown"),
     (1, "Reported"),
     (2, "Derived"),  # from auxillary information
-}
+]
 
 PROVINCES_STATE_CHOICES = [
     ("ON", "Ontario"),

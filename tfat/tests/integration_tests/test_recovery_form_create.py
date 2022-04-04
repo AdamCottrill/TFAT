@@ -637,7 +637,7 @@ def test_missing_recovery_date(client, user, db_setup, tag_data):
     assert len(recoveries) == 1
 
     assert recoveries[0].recovery_date is None
-    assert recoveries[0].date_flag is 0
+    assert recoveries[0].date_flag == 0
 
 
 @pytest.mark.django_db
@@ -793,6 +793,7 @@ def test_ddlat_ddlon(client, user, db_setup, tag_data):
 
     tag_data["dd_lat"] = dd_lat
     tag_data["dd_lon"] = dd_lon
+    tag_data["latlon_flag"] = 1
 
     client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)

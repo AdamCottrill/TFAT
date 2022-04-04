@@ -2,8 +2,15 @@
 
 {% block extrahead %}
 
-<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+
 <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
+
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css"
+      integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer" />
+
 
 <style type="text/css" media="screen">
 
@@ -245,7 +252,7 @@
                                         {% endfor %}
                                     {% endif %}
                                 </div>
-                                
+
 
                                 <div class="form-group {% if form.general_location.errors %}has-error{% endif %}">
                                     {{ form.general_location.label_tag }}
@@ -809,29 +816,29 @@
 
      let grid5 = "";
      let grids = {};
-     
+
      var dd_lat = parseFloat($('input[id="id_dd_lat"]').val());
      var dd_lon = parseFloat($('input[id="id_dd_lon"]').val());
 
      // get the 5-minute grid from the map click
      const grid5URL = "{% url 'common_api:api-lookup-grid5-from-pt' %}";
-     const grid5ListURL = "{% url 'common_api:grid5-list' %}";     
+     const grid5ListURL = "{% url 'common_api:grid5-list' %}";
      const csrf_token = "{{ csrf_token }}";
 
 
      //=======================================
      //     5-minute grid from pt:
 
-     const success = (data) => {       
+     const success = (data) => {
          grid5 = data.grid;
-         lake_name = data.lake.lake_name;                 
+         lake_name = data.lake.lake_name;
      }
      const error = () =>{
          grid5 = ""
-         lake_name = ""         
+         lake_name = ""
      }
 
-     
+
      async function getGrid5(coords, url, token, success, error) {
          // given a lat, lon, a url, csrf_token, a success function, and an
          // error function, call our spatial lookup api to get that
@@ -853,8 +860,8 @@
          });
      }
 
-     
-     
+
+
      async function get_grid_number(dd_lat, dd_lon){
          // for now clear the grid number if the point comes from any-other control
          // someday we will call get_grid api and pass in the coordinates to get it.
@@ -865,15 +872,15 @@
      };
 
 
-     
+
 
      //=======================================
      //     5-minute grid list by lake
 
 
-     const successGridList = (data) => {       
+     const successGridList = (data) => {
          //console.log('Success getting grid list!');
-         //convert the grids into an object keyed by grid number. 
+         //convert the grids into an object keyed by grid number.
          //grids = data.filter(x=>x.centroid !== null).reduce((acc, x) => {
          //    acc[x.grid] = x.centroid.match(/\(([^)]+)\)/)[1].split(" ")
          //    return acc
@@ -883,12 +890,12 @@
              acc[x.grid] = x.centroid
              return acc
          }, {});
-         
+
      }
      const errorGridList = (abbrev) =>{
          grids = {}
      }
-     
+
      async function getLakeGrids(lake_abbrev, url, success, error) {
          await $.ajax({
              type: "GET",
@@ -903,9 +910,9 @@
 
      async function getGrids(lake_abbrev){
          await getLakeGrids(lake_abbrev, grid5ListURL, successGridList, errorGridList);
-         
+
      }
-     
+
 
      $("#id_lake").on('change', function(){
          let text = $(this).find(":selected").text()
@@ -916,8 +923,8 @@
      // on page load - get out list of grids in the background:
      let lake_abbrev = $("#id_lake").find(":selected").text().match(/\(([^)]+)\)/)[1];
      getGrids(lake_abbrev);
-     
-     
+
+
      //make sure all of the error messages are hidden when we load the form:
 
      clear_lat_long_errors();
@@ -1139,7 +1146,7 @@
          $('input[id="dms_lon_sec"]').val(lon_seconds);
 
          $('input[id="id_grid_no"]').val(grid5);
-         
+
 
          // the coordinates under the map:
          $("#latlon_text").html('<em>' +  dd_lat.toFixed(4) + '&deg;N ' + dd_lon.toFixed(4) + '&deg;W</em>');
@@ -1150,7 +1157,7 @@
      }
 
 
-     
+
      // from http://ipasic.com/article/let-user-add-point-map-geodjango-leaflet/
      function onMapClick(e) {
          // capture the click events on our map an update the other controls accordingly
@@ -1159,13 +1166,13 @@
 
          update_controls(dd_lat, dd_lon);
          get_grid_number(dd_lat, dd_lon)
-         
+
      }
 
      // call the onMapClick function when user click on map
      my_map.on('click', onMapClick);
 
-     
+
 
      function init_popup_map(){
 
@@ -1272,14 +1279,14 @@
 
 
      var grid_change = function(){
-         
+
          var grid_no = parseInt($('input[name="grid_no"]').val());
 
          // see if we can find that grid number in our list of grids:
          let my_grid = grids[grid_no];
-         
+
          if (my_grid){
-             
+
              let coord = my_grid.match(/\(([^)]+)\)/)[1].split(" ");
              grid5=grid_no;
              update_controls(parseFloat(coord[1]), parseFloat(coord[0]));

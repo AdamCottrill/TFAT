@@ -49,8 +49,7 @@ from tfat.tests.factories import (
 
 @pytest.fixture()
 def user():
-    """
-    """
+    """ """
     user = UserFactory(email="mickey@disney.com")
     user.set_password("Abcd1234")
     user.save()
@@ -78,8 +77,7 @@ def angler():
 
 @pytest.fixture()
 def db_setup(angler, species, lake):
-    """
-    """
+    """ """
 
     report_date = datetime(2010, 10, 10).replace(tzinfo=pytz.UTC)
     # associated tags to test conditional elements
@@ -288,8 +286,7 @@ def test_missing_tagdoc(client, user, db_setup):
 
 @pytest.mark.django_db
 def test_tagdoc_short(client, user, db_setup):
-    """if the tagdoc is provided, it must be exacly 5 characters long.
-    """
+    """if the tagdoc is provided, it must be exacly 5 characters long."""
 
     recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
     url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
@@ -309,8 +306,7 @@ def test_tagdoc_short(client, user, db_setup):
 
 @pytest.mark.django_db
 def test_tagdoc_long(client, user, db_setup):
-    """if the tagdoc is provided, it must be exacly 5 characters long.
-    """
+    """if the tagdoc is provided, it must be exacly 5 characters long."""
     recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
     url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
 
@@ -660,9 +656,7 @@ def test_bad_clipc_multiple_nonexistant_clips(client, user, db_setup, tag_data):
 
 @pytest.mark.django_db
 def test_missing_recovery_date(client, user, db_setup, tag_data):
-    """It's not clear what should happen if data is not populated.
-
-    """
+    """It's not clear what should happen if data is not populated."""
 
     recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
     url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
@@ -676,7 +670,7 @@ def test_missing_recovery_date(client, user, db_setup, tag_data):
     assert len(recoveries) == 1
 
     assert recoveries[0].recovery_date is None
-    assert recoveries[0].date_flag is 0
+    assert recoveries[0].date_flag == 0
 
 
 @pytest.mark.django_db
@@ -745,8 +739,7 @@ def test_recapture_date_ahead_of_report_date(client, user, db_setup, tag_data):
 
 @pytest.mark.django_db
 def test_tlen_greater_than_flen(client, user, db_setup, tag_data):
-    """both tlen and flen can be provided as long as flen is less than tlen.
-    """
+    """both tlen and flen can be provided as long as flen is less than tlen."""
 
     recovery = Recovery.objects.get(report__reported_by__first_name="Homer")
     url = reverse("tfat:edit_recovery", kwargs={"recovery_id": recovery.id})
@@ -807,6 +800,7 @@ def test_ddlat_ddlon(client, user, db_setup, tag_data):
 
     tag_data["dd_lat"] = dd_lat
     tag_data["dd_lon"] = dd_lon
+    tag_data["latlon_flag"] = 1
 
     client.login(username=user.email, password="Abcd1234")
     response = client.post(url, tag_data, follow=True)
